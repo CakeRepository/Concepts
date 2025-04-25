@@ -3,169 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tiered Storage Bucket & Billing Analogy</title>
+    <title>Project Concepts Showcase</title>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background-color: #eef2f7; /* Lighter, cloud-like background */
-            flex-direction: column;
-            padding: 20px;
-            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa; /* Light grey background */
+            color: #343a40; /* Dark text color */
         }
 
         .container {
-            background-color: #fff;
-            padding: 30px 40px;
-            border-radius: 12px;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            max-width: 900px; /* Limit content width */
+            margin: 40px auto; /* Center the container with top/bottom margin */
+            padding: 20px;
+        }
+
+        header {
             text-align: center;
-            max-width: 500px;
-            width: 90%;
+            margin-bottom: 40px;
+            border-bottom: 1px solid #dee2e6; /* Light border */
+            padding-bottom: 20px;
         }
 
-        h1 {
-            color: #2c3e50; /* Dark blue-grey */
-            margin-bottom: 25px;
-            font-weight: 600;
+        header h1 {
+            color: #0056b3; /* GitHub-like blue */
+            margin-bottom: 0.5em;
         }
 
-        .bucket-area {
-            margin-bottom: 25px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .bucket {
-            width: 160px; /* Slightly wider */
-            height: 220px; /* Slightly taller */
-            border: 6px solid #7f8c8d; /* Mid-grey border */
-            border-top: none;
-            background: linear-gradient(to bottom, #fdfefe, #e0e0e0); /* Subtle gradient */
-            position: relative;
-            overflow: hidden;
-            margin: 20px auto;
-            border-bottom-left-radius: 20px;
-            border-bottom-right-radius: 20px;
-            transition: border-color 0.3s ease; /* Animate border color change */
-        }
-
-        .bucket.full {
-             border-color: #c0392b; /* Red border when full and needs upgrade */
-        }
-
-        .water {
-            background: linear-gradient(to bottom, #5dade2, #3498db); /* Water gradient */
-            width: 100%;
-            height: 0%;
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            transition: height 0.6s cubic-bezier(0.25, 0.1, 0.25, 1); /* Smoother, bouncier fill */
-        }
-         /* Water surface effect */
-        .water::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 8px; /* Height of the surface */
-            background-color: rgba(255, 255, 255, 0.3); /* Lighter surface highlight */
-            border-radius: 50% / 4px; /* Elliptical shape for surface */
-            opacity: 0; /* Hide initially */
-            transition: opacity 0.3s ease;
-        }
-        .water.has-content::before {
-             opacity: 1; /* Show surface when there's water */
-        }
-
-
-        .info {
+        header p {
             font-size: 1.1em;
-            margin-top: 10px; /* Reduced top margin */
-            color: #34495e; /* Darker text */
-            line-height: 1.6; /* Better spacing */
-        }
-        .info strong {
-            color: #2c3e50;
+            color: #6c757d; /* Grey text */
         }
 
-        .billing-info {
-            margin-top: 15px;
-            padding: 10px;
-            background-color: #ecf0f1; /* Light grey background */
-            border-radius: 6px;
-            border: 1px solid #bdc3c7;
-        }
-        .billing-info strong {
-            font-size: 1.2em;
-            color: #27ae60; /* Green for cost */
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Responsive grid */
+            gap: 25px; /* Space between grid items */
+            list-style: none;
+            padding: 0;
+            margin: 0;
         }
 
-
-        .controls button {
-            padding: 12px 25px;
-            font-size: 1.05em;
-            margin: 8px;
-            cursor: pointer;
-            border: none;
-            border-radius: 6px;
-            transition: all 0.2s ease;
-            font-weight: 500;
+        .project-card {
+            background-color: #ffffff; /* White card background */
+            border: 1px solid #dee2e6; /* Light border */
+            border-radius: 8px; /* Rounded corners */
+            overflow: hidden; /* Keep content contained */
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            display: flex; /* Use flexbox for card layout */
+            flex-direction: column; /* Stack content vertically */
         }
 
-        #fillButton {
-            background-color: #3498db; /* Blue */
-            color: white;
-        }
-        #fillButton:hover:not(:disabled) {
-            background-color: #2980b9;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        #fillButton:disabled {
-            background-color: #bdc3c7;
-            cursor: not-allowed;
+        .project-card:hover {
+            transform: translateY(-5px); /* Lift effect on hover */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); /* Shadow on hover */
         }
 
-
-        #emptyButton {
-            background-color: #e74c3c; /* Red */
-            color: white;
-        }
-        #emptyButton:hover {
-            background-color: #c0392b;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        .project-card a {
+            text-decoration: none;
+            color: inherit; /* Inherit text color */
+            display: block;
+            padding: 20px;
+            flex-grow: 1; /* Allow link to fill card space */
         }
 
-        #upgradeButton {
-            background-color: #f39c12; /* Orange */
-            color: white;
-            display: none; /* Hidden by default */
-             margin-top: 10px; /* Space above */
-        }
-        #upgradeButton:hover {
-            background-color: #e67e22;
-             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        .project-card h2 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 1.4em;
+            color: #0056b3; /* Blue title */
         }
 
-
-        #statusMessage {
-            margin-top: 15px;
-            font-weight: bold;
-            color: #e74c3c;
-            min-height: 1.2em; /* Reserve space */
-            transition: color 0.3s ease;
+        .project-card p {
+            margin-bottom: 0;
+            font-size: 0.95em;
+            color: #495057; /* Slightly darker grey text */
         }
-        #statusMessage.success {
-            color: #27ae60; /* Green for success messages */
+
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid #dee2e6;
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+
+        footer a {
+            color: #0056b3;
+            text-decoration: none;
+        }
+        footer a:hover {
+            text-decoration: underline;
         }
 
     </style>
@@ -173,178 +104,54 @@
 <body>
 
     <div class="container">
-        <h1>Cloud Storage Tier Analogy</h1>
+        <header>
+            <h1>Our Project Concepts & Demos</h1>
+            <p>Explore the interactive concepts, tools, and demos we've been working on.</p>
+        </header>
 
-        <div class="bucket-area">
-            <div class="bucket" id="bucketVisual">
-                <div class="water" id="waterLevel"></div>
-            </div>
-            <div class="info">
-                <strong>Current Tier Size:</strong> <span id="currentTierSize">0</span> GB <br>
-                <strong>Data Stored:</strong> <span id="currentUsage">0</span> GB
-            </div>
-            <div class="billing-info">
-                 Est. Monthly Cost: <strong id="monthlyCost">$0.00</strong>
-                 <div style="font-size: 0.8em; color: #7f8c8d;">(Based on allocated tier size)</div>
-            </div>
-             <div id="statusMessage"></div>
-             <button id="upgradeButton">Upgrade to Next Tier</button> <!-- Moved Upgrade Button here -->
-        </div>
+        <ul class="project-grid">
 
+            <!-- TODO: Project 1 - Storage Bucket Analogy -->
+            <li class="project-card">
+                <a href="storage_bucket_tiered.html"> <!-- Make sure this filename is EXACTLY correct -->
+                    <h2>Storage Bucket Analogy</h2>
+                    <p>Visualizes cloud storage tiers (32GB+ doubling), usage limits, and estimated costs like filling a bucket.</p>
+                </a>
+            </li>
 
-        <div class="controls">
-            <button id="fillButton">Add 10 GB Data</button>
-            <button id="emptyButton">Empty Bucket</button>
-        </div>
+            <!-- TODO: Add Project 2 -->
+            <!--
+            <li class="project-card">
+                <a href="YOUR_PROJECT_2_FILENAME.html">
+                    <h2>Project Title 2</h2>
+                    <p>A brief description explaining what this project demonstrates or does.</p>
+                </a>
+            </li>
+            -->
+
+            <!-- TODO: Add Project 3 -->
+            <!--
+            <li class="project-card">
+                <a href="YOUR_PROJECT_3_FILENAME.html">
+                    <h2>Project Title 3</h2>
+                    <p>Another short summary of the concept shown in this HTML file.</p>
+                </a>
+            </li>
+            -->
+
+            <!-- Add more <li class="project-card"> blocks here for each project -->
+
+        </ul>
+
+        <footer>
+            <p>
+                <!-- Optional: Link to your GitHub repository -->
+                Check out the source code on <a href="YOUR_GITHUB_REPO_URL" target="_blank" rel="noopener noreferrer">GitHub</a>.
+                 | © [Your Team Name or Year]
+            </p>
+        </footer>
+
     </div>
-
-    <script>
-        // --- Configuration ---
-        const INITIAL_TIER_SIZE = 32; // Starting size in GB
-        const FILL_AMOUNT = 10;     // GB per click
-        const COST_PER_GB_PER_MONTH = 0.02; // Example cost ($)
-
-        // --- State ---
-        let currentTierCapacity = INITIAL_TIER_SIZE;
-        let currentUsage = 0;
-        let needsUpgrade = false; // Flag to track if upgrade is needed
-
-        // --- DOM Elements ---
-        const bucketVisual = document.getElementById('bucketVisual');
-        const waterLevelElement = document.getElementById('waterLevel');
-        const currentTierSizeSpan = document.getElementById('currentTierSize');
-        const currentUsageSpan = document.getElementById('currentUsage');
-        const monthlyCostSpan = document.getElementById('monthlyCost');
-        const fillButton = document.getElementById('fillButton');
-        const emptyButton = document.getElementById('emptyButton');
-        const upgradeButton = document.getElementById('upgradeButton');
-        const statusMessage = document.getElementById('statusMessage');
-
-        // --- Functions ---
-
-        function calculateCost(capacity) {
-            return (capacity * COST_PER_GB_PER_MONTH).toFixed(2); // Format to 2 decimal places
-        }
-
-        function updateDisplay() {
-            // Update text
-            currentTierSizeSpan.textContent = currentTierCapacity;
-            currentUsageSpan.textContent = currentUsage;
-            monthlyCostSpan.textContent = `$${calculateCost(currentTierCapacity)}`;
-
-            // Calculate water height percentage relative to current tier
-            const fillPercentage = (currentUsage / currentTierCapacity) * 100;
-            waterLevelElement.style.height = `${fillPercentage}%`;
-
-             // Add/Remove class for water surface effect
-            if(currentUsage > 0) {
-                waterLevelElement.classList.add('has-content');
-            } else {
-                 waterLevelElement.classList.remove('has-content');
-            }
-
-
-            // Update button state and status message
-            statusMessage.textContent = ""; // Clear previous messages by default
-            statusMessage.className = ''; // Reset class
-            upgradeButton.style.display = 'none'; // Hide upgrade button by default
-            bucketVisual.classList.remove('full'); // Remove full visual cue
-            fillButton.disabled = false; // Enable fill button by default
-
-            if (currentUsage >= currentTierCapacity) {
-                needsUpgrade = true; // Set flag
-                statusMessage.textContent = `Tier Full! Upgrade to ${currentTierCapacity * 2} GB to add more data.`;
-                statusMessage.className = 'warning'; // Use a class for styling maybe
-                upgradeButton.style.display = 'inline-block'; // Show upgrade button
-                upgradeButton.textContent = `Upgrade to ${currentTierCapacity * 2} GB Tier`;
-                bucketVisual.classList.add('full'); // Add visual cue
-                fillButton.disabled = true; // Disable fill button when full
-            } else {
-                needsUpgrade = false; // Reset flag
-            }
-        }
-
-        function fillBucket() {
-            if (needsUpgrade) {
-                // If an upgrade is needed, don't fill, just ensure message is shown
-                 updateDisplay();
-                 console.log("Cannot add data, tier is full. Upgrade required.");
-                 return; // Stop execution here
-            }
-
-            // Calculate how much can actually be added within the current tier
-            const remainingSpace = currentTierCapacity - currentUsage;
-            const amountToAdd = Math.min(FILL_AMOUNT, remainingSpace);
-
-            if (amountToAdd > 0) {
-                currentUsage += amountToAdd;
-                // Ensure we don't exceed capacity due to potential floating point issues
-                currentUsage = Math.round(Math.min(currentUsage, currentTierCapacity) * 10) / 10; // Round to one decimal
-
-                console.log(`Adding ${amountToAdd} GB. Current usage: ${currentUsage} GB / ${currentTierCapacity} GB`);
-            } else {
-                 console.log("No space left in the current tier to add data.");
-            }
-
-            updateDisplay(); // Update visuals and check if now full
-        }
-
-        function upgradeTier() {
-            const oldTier = currentTierCapacity;
-            const newTierCapacity = currentTierCapacity * 2; // Double the capacity
-            currentTierCapacity = newTierCapacity;
-            needsUpgrade = false; // Reset the upgrade flag
-
-            console.log(`Upgraded tier from ${oldTier} GB to ${currentTierCapacity} GB.`);
-
-            // Provide feedback
-            statusMessage.textContent = `Successfully upgraded to ${currentTierCapacity} GB tier! Cost updated.`;
-            statusMessage.className = 'success'; // Style as success
-
-            updateDisplay(); // Update visuals, cost, and button states
-
-            // Optional: Clear the success message after a few seconds
-            setTimeout(() => {
-                if (statusMessage.textContent === `Successfully upgraded to ${currentTierCapacity} GB tier! Cost updated.`) {
-                     statusMessage.textContent = '';
-                     statusMessage.className = '';
-                }
-            }, 3000); // 3 seconds
-        }
-
-
-        function emptyBucket() {
-            currentUsage = 0;
-            needsUpgrade = false; // Reset flag as bucket is empty
-            console.log("Bucket emptied. Tier size remains the same.");
-             statusMessage.textContent = "Data emptied. Tier size and cost remain.";
-             statusMessage.className = ''; // Clear any warning/success class
-            updateDisplay();
-
-             // Optional: Clear the message after a few seconds
-            setTimeout(() => {
-                if (statusMessage.textContent === "Data emptied. Tier size and cost remain.") {
-                     statusMessage.textContent = '';
-                }
-            }, 3000);
-        }
-
-        // --- Initialization ---
-        function initialize() {
-             console.log("Initializing storage bucket simulation...");
-             updateDisplay(); // Set initial display state
-        }
-
-
-        // --- Event Listeners ---
-        fillButton.addEventListener('click', fillBucket);
-        emptyButton.addEventListener('click', emptyBucket);
-        upgradeButton.addEventListener('click', upgradeTier);
-
-        // --- Start ---
-        initialize(); // Run initialization function
-
-    </script>
 
 </body>
 </html>
