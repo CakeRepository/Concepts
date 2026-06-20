@@ -1878,62 +1878,13 @@
         // --- 8. Exporting & Resolution Configs ---
 
         function exportPNG() {
-            // Create a temporary high-res rendering canvas to generate crisp exports
-            const exportCanvas = document.createElement('canvas');
-            const exportCtx = exportCanvas.getContext('2d');
-            
-            exportCanvas.width = 1920;
-            exportCanvas.height = 1080;
-
-            exportCtx.fillStyle = getBgColorHex();
-            exportCtx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
-
-            const origCanvas = window.canvas;
-            const origCtx = window.ctx;
-            const origW = canvas.width;
-            const origH = canvas.height;
-            const origDpr = window.dpr;
-
-            window.canvas = exportCanvas;
-            window.ctx = exportCtx;
-            window.dpr = 2; // scale physics up
-            canvas.width = 1920;
-            canvas.height = 1080;
-
-            if (currentAlgo === 'flowfield') {
-                const originalParticles = [...particles];
-                initFlowField();
-                for (let step = 0; step < 6; step++) {
-                    renderFlowField();
-                }
-                particles = originalParticles;
-            } else if (currentAlgo === 'mandala') {
-                renderMandala();
-            } else if (currentAlgo === 'attractor') {
-                const densitySlider = ENGINE_CONFIGS.attractor.params.density;
-                const origDensity = densitySlider.val;
-                densitySlider.val = 300000;
-                renderAttractor();
-                densitySlider.val = origDensity;
-            } else if (currentAlgo === 'lsystem') {
-                renderLSystem();
-            }
-
-            const imageURL = exportCanvas.toDataURL("image/png");
+            const imageURL = canvas.toDataURL("image/png");
             const downloadLink = document.createElement('a');
             downloadLink.download = `generative_concept_${currentAlgo}_${Date.now()}.png`;
             downloadLink.href = imageURL;
             document.body.appendChild(downloadLink);
             downloadLink.click();
             document.body.removeChild(downloadLink);
-
-            window.canvas = origCanvas;
-            window.ctx = origCtx;
-            canvas.width = origW;
-            canvas.height = origH;
-            window.dpr = origDpr;
-            
-            if (!isPlaying) requestAnimationFrame(draw);
 
             const toast = document.getElementById('exportToast');
             toast.classList.add('show');
