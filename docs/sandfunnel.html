@@ -1,0 +1,1777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sandfunnel Sandbox - AI Concepts</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesque:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #030712;
+            --bg-sidebar: rgba(10, 15, 30, 0.75);
+            --bg-card: rgba(17, 24, 39, 0.55);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(255, 255, 255, 0.16);
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --color-accent: #06b6d4;
+            --color-accent-glow: rgba(6, 182, 212, 0.15);
+            --color-sand: #e2b767;
+            --color-water: #3b82f6;
+            --color-fire: #ef4444;
+            --color-lava: #f97316;
+            --color-acid: #22c55e;
+            --color-portal-a: #ec4899;
+            --color-portal-b: #06b6d4;
+            --color-conveyor: #a855f7;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            background-image: 
+                radial-gradient(circle at 10% 10%, rgba(6, 182, 212, 0.06) 0%, transparent 40%),
+                radial-gradient(circle at 90% 90%, rgba(236, 72, 153, 0.06) 0%, transparent 40%);
+            background-attachment: fixed;
+            position: relative;
+        }
+
+        .grid-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: 40px 40px;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.01) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.01) 1px, transparent 1px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .app-container {
+            display: flex;
+            width: 100%;
+            height: 100vh;
+            z-index: 10;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 380px;
+            min-width: 380px;
+            height: 100%;
+            background: var(--bg-sidebar);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            position: relative;
+            z-index: 20;
+        }
+
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 16px;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--color-accent);
+        }
+
+        .back-link svg {
+            width: 16px;
+            height: 16px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+        }
+
+        .app-title {
+            font-family: 'Space Grotesque', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #ffffff 40%, var(--color-accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .app-subtitle {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .sidebar-section {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .section-title {
+            font-family: 'Space Grotesque', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        /* Element Grid */
+        .element-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .element-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px 12px;
+            color: var(--text-secondary);
+            font-size: 0.82rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+
+        .element-btn:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: var(--border-hover);
+            color: var(--text-primary);
+        }
+
+        .element-btn.active {
+            background: var(--bg-card);
+            border-color: var(--color-accent);
+            color: #ffffff;
+            box-shadow: 0 0 10px rgba(6, 182, 212, 0.15);
+        }
+
+        .color-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            flex-shrink: 0;
+        }
+
+        /* Control Sliders */
+        .control-group {
+            margin-bottom: 16px;
+        }
+
+        .control-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .control-val {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--color-accent);
+            font-size: 0.82rem;
+        }
+
+        .slider-input {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.05);
+            outline: none;
+            -webkit-appearance: none;
+            transition: background 0.3s;
+        }
+
+        .slider-input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--color-accent);
+            cursor: pointer;
+            box-shadow: 0 0 8px var(--color-accent);
+            transition: transform 0.1s;
+        }
+
+        .slider-input::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        /* Preset select */
+        .select-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px 14px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.88rem;
+            outline: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .select-input:hover {
+            border-color: var(--border-hover);
+        }
+
+        .select-input option {
+            background-color: #0d1117;
+            color: var(--text-primary);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .stat-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.15rem;
+            font-weight: 500;
+            color: #ffffff;
+            margin-bottom: 2px;
+        }
+
+        .stat-label {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Main Sandbox Area */
+        .sandbox-area {
+            flex-grow: 1;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 40px;
+        }
+
+        .canvas-container {
+            position: relative;
+            background: rgba(0, 0, 0, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+            cursor: crosshair;
+        }
+
+        .canvas-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 12px;
+            box-shadow: inset 0 0 20px rgba(6, 182, 212, 0.15);
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        /* Bloom canvas layered behind */
+        #bloomCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.45;
+            filter: blur(14px) saturate(2.2);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        #mainCanvas {
+            position: relative;
+            z-index: 2;
+            display: block;
+            image-rendering: pixelated;
+        }
+
+        /* Top Simulation Bar */
+        .simulation-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 800px;
+            margin-bottom: 16px;
+            z-index: 10;
+        }
+
+        .sim-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px 16px;
+            color: var(--text-secondary);
+            font-size: 0.82rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.07);
+            border-color: var(--border-hover);
+            color: var(--text-primary);
+        }
+
+        .btn.btn-primary {
+            background: rgba(6, 182, 212, 0.1);
+            border-color: rgba(6, 182, 212, 0.3);
+            color: var(--color-accent);
+        }
+
+        .btn.btn-primary:hover {
+            background: rgba(6, 182, 212, 0.18);
+            border-color: var(--color-accent);
+        }
+
+        .btn.btn-danger {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: #f87171;
+        }
+
+        .btn.btn-danger:hover {
+            background: rgba(239, 68, 68, 0.18);
+            border-color: #ef4444;
+        }
+
+        .btn svg {
+            width: 15px;
+            height: 15px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+        }
+
+        /* Tooltip help */
+        .help-panel {
+            margin-top: 16px;
+            background: rgba(255, 255, 255, 0.015);
+            border: 1px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 14px;
+            font-size: 0.8rem;
+            line-height: 1.4;
+            color: var(--text-secondary);
+        }
+
+        .help-panel strong {
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-overlay"></div>
+    <div class="app-container">
+        
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="back-link">
+                    <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                    Back to Concepts
+                </a>
+                <h1 class="app-title">Sandfunnel</h1>
+                <p class="app-subtitle">Active physics cellular automata sandbox</p>
+            </div>
+
+            <!-- Categories -->
+            <div class="sidebar-section">
+                <h2 class="section-title">Solids & Powders</h2>
+                <div class="element-grid">
+                    <button class="element-btn active" data-element="1">
+                        <span class="color-dot" style="background: var(--color-sand)"></span> Sand
+                    </button>
+                    <button class="element-btn" data-element="12">
+                        <span class="color-dot" style="background: #4b5563"></span> Gunpowder
+                    </button>
+                    <button class="element-btn" data-element="27">
+                        <span class="color-dot" style="background: #9ca3af"></span> Rock
+                    </button>
+                    <button class="element-btn" data-element="11">
+                        <span class="color-dot" style="background: #93c5fd"></span> Ice
+                    </button>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h2 class="section-title">Liquids & Energy</h2>
+                <div class="element-grid">
+                    <button class="element-btn" data-element="2">
+                        <span class="color-dot" style="background: var(--color-water)"></span> Water
+                    </button>
+                    <button class="element-btn" data-element="6">
+                        <span class="color-dot" style="background: #581c87"></span> Oil
+                    </button>
+                    <button class="element-btn" data-element="8">
+                        <span class="color-dot" style="background: var(--color-lava)"></span> Lava
+                    </button>
+                    <button class="element-btn" data-element="9">
+                        <span class="color-dot" style="background: var(--color-acid)"></span> Acid
+                    </button>
+                    <button class="element-btn" data-element="5">
+                        <span class="color-dot" style="background: var(--color-fire)"></span> Fire
+                    </button>
+                    <button class="element-btn" data-element="7">
+                        <span class="color-dot" style="background: #6ee7b7"></span> Methane Gas
+                    </button>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h2 class="section-title">Structures</h2>
+                <div class="element-grid">
+                    <button class="element-btn" data-element="3">
+                        <span class="color-dot" style="background: #854d0e"></span> Wood (Burn)
+                    </button>
+                    <button class="element-btn" data-element="4">
+                        <span class="color-dot" style="background: #6b7280"></span> Stone (Wall)
+                    </button>
+                    <button class="element-btn" data-element="14">
+                        <span class="color-dot" style="background: rgba(6, 182, 212, 0.5)"></span> Glass (Slick)
+                    </button>
+                    <button class="element-btn" data-element="10">
+                        <span class="color-dot" style="background: #15803d"></span> Plant (Grow)
+                    </button>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h2 class="section-title">Funnels & Gadgets</h2>
+                <div class="element-grid">
+                    <button class="element-btn" data-element="15">
+                        <span class="color-dot" style="background: var(--color-conveyor)"></span> Conveyor L
+                    </button>
+                    <button class="element-btn" data-element="16">
+                        <span class="color-dot" style="background: var(--color-conveyor)"></span> Conveyor R
+                    </button>
+                    <button class="element-btn" data-element="18">
+                        <span class="color-dot" style="background: var(--color-portal-a)"></span> Portal A IN
+                    </button>
+                    <button class="element-btn" data-element="19">
+                        <span class="color-dot" style="background: #f472b6"></span> Portal A OUT
+                    </button>
+                    <button class="element-btn" data-element="20">
+                        <span class="color-dot" style="background: var(--color-portal-b)"></span> Portal B IN
+                    </button>
+                    <button class="element-btn" data-element="21">
+                        <span class="color-dot" style="background: #22d3ee"></span> Portal B OUT
+                    </button>
+                    <button class="element-btn" data-element="17">
+                        <span class="color-dot" style="background: #111827; border: 1px dashed rgba(255,255,255,0.3)"></span> Drain Hole
+                    </button>
+                    <button class="element-btn" data-element="0">
+                        <span class="color-dot" style="background: transparent; border: 1px dashed rgba(255,255,255,0.4)"></span> Eraser
+                    </button>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h2 class="section-title">Auto Spouts</h2>
+                <div class="element-grid">
+                    <button class="element-btn" data-element="22">
+                        <span class="color-dot" style="background: #ffea79"></span> Spout Sand
+                    </button>
+                    <button class="element-btn" data-element="23">
+                        <span class="color-dot" style="background: #60a5fa"></span> Spout Water
+                    </button>
+                    <button class="element-btn" data-element="24">
+                        <span class="color-dot" style="background: #fb923c"></span> Spout Lava
+                    </button>
+                    <button class="element-btn" data-element="25">
+                        <span class="color-dot" style="background: #4ade80"></span> Spout Acid
+                    </button>
+                </div>
+            </div>
+
+            <!-- Parameters section -->
+            <div class="sidebar-section">
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Brush Size</span>
+                        <span class="control-val" id="brushSizeVal">5px</span>
+                    </div>
+                    <input type="range" min="1" max="25" value="5" class="slider-input" id="brushSize">
+                </div>
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Simulation Speed</span>
+                        <span class="control-val" id="simSpeedVal">1x</span>
+                    </div>
+                    <input type="range" min="0" max="4" value="2" class="slider-input" id="simSpeed">
+                </div>
+            </div>
+
+            <!-- Stats section -->
+            <div class="sidebar-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-val" id="valParticles">0</div>
+                        <div class="stat-label">Particles</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-val" id="valFPS">0</div>
+                        <div class="stat-label">FPS</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Help Tips -->
+            <div class="sidebar-section">
+                <div class="help-panel">
+                    <strong>Interactive Logic:</strong>
+                    <br>• <strong>Lava + Water</strong> creates Steam and Stone.
+                    <br>• <strong>Portals</strong> teleport falling particles from IN to OUT gates.
+                    <br>• <strong>Conveyors</strong> actively slide particles left or right.
+                    <br>• <strong>Acid</strong> melts materials except Glass and Portal components.
+                    <br>• <strong>Gunpowder</strong> chain explodes with Fire or Lava.
+                </div>
+            </div>
+        </aside>
+
+        <!-- Sandbox Main Area -->
+        <main class="sandbox-area">
+            
+            <!-- Top Controls -->
+            <div class="simulation-bar">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <button class="btn btn-primary" id="btnPlayPause">
+                        <svg viewBox="0 0 24 24" id="playIcon"><path d="M8 5v14l11-7z"/></svg>
+                        <span id="playPauseText">Pause</span>
+                    </button>
+                    <button class="btn" id="btnStep">
+                        <svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                        Step Frame
+                    </button>
+                    <button class="btn btn-danger" id="btnClear">
+                        <svg viewBox="0 0 24 24"><path d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14V4zM6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12z"/></svg>
+                        Clear Canvas
+                    </button>
+                </div>
+                
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 0.82rem; color: var(--text-secondary);">Scene Presets:</span>
+                    <select class="select-input" id="presetSelect" style="width: 180px;">
+                        <option value="none">-- Empty Grid --</option>
+                        <option value="factory">Conveyor Factory</option>
+                        <option value="volcano">Volcano Inflow</option>
+                        <option value="portal">Teleport Loops</option>
+                        <option value="acid">Acid Fallout Maze</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Canvas Layering -->
+            <div class="canvas-container" style="width: 800px; height: 600px;">
+                <canvas id="bloomCanvas" width="200" height="150"></canvas>
+                <canvas id="mainCanvas" width="800" height="600"></canvas>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Simulation Script -->
+    <script>
+        // Grid setup
+        const gridWidth = 200;
+        const gridHeight = 150;
+        const gridLength = gridWidth * gridHeight;
+        
+        // Simulation arrays
+        const grid = new Uint8Array(gridLength);
+        const life = new Uint8Array(gridLength);
+        const modified = new Uint8Array(gridLength);
+        
+        // Cached Portal positions
+        let portalAOuts = [];
+        let portalBOuts = [];
+        
+        // Animation & Frame tracking
+        let isPaused = false;
+        let speedMultiplier = 2; // default 1x (0=pause, 1=0.5x, 2=1x, 3=2x, 4=5x)
+        let frameCount = 0;
+        let lastTime = performance.now();
+        let fps = 0;
+        
+        // Brush & Interaction state
+        let currentElement = 1; // Sand default
+        let brushSize = 5;
+        let isDrawing = false;
+        let lastMouseX = -1;
+        let lastMouseY = -1;
+        
+        // Elements configuration
+        const colors = {
+            0:  [0, 0, 0, 0],         // Air (translucent)
+            1:  [226, 183, 103, 255],  // Sand
+            2:  [37, 99, 235, 255],   // Water
+            3:  [133, 77, 14, 255],   // Wood
+            4:  [107, 114, 128, 255], // Stone Wall
+            5:  [239, 68, 68, 255],   // Fire
+            6:  [88, 28, 135, 255],   // Oil
+            7:  [110, 231, 183, 210],  // Gas
+            8:  [249, 115, 22, 255],  // Lava
+            9:  [34, 197, 94, 255],   // Acid
+            10: [21, 128, 61, 255],   // Plant
+            11: [147, 197, 253, 255], // Ice
+            12: [55, 65, 81, 255],    // Gunpowder
+            13: [203, 213, 225, 180], // Steam
+            14: [6, 182, 212, 110],   // Glass
+            15: [168, 85, 247, 255],  // Conveyor Left
+            16: [168, 85, 247, 255],  // Conveyor Right
+            17: [17, 24, 39, 255],    // Drain Hole
+            18: [236, 72, 153, 255],  // Portal A IN
+            19: [244, 114, 182, 255], // Portal A OUT
+            20: [6, 182, 212, 255],   // Portal B IN
+            21: [34, 211, 238, 255],  // Portal B OUT
+            22: [75, 85, 99, 255],    // Spout Sand
+            23: [75, 85, 99, 255],    // Spout Water
+            24: [75, 85, 99, 255],    // Spout Lava
+            25: [75, 85, 99, 255],    // Spout Acid
+            27: [156, 163, 175, 255]  // Rock (Heavy)
+        };
+
+        // Canvas element setup
+        const mainCanvas = document.getElementById('mainCanvas');
+        const mainCtx = mainCanvas.getContext('2d');
+        const bloomCanvas = document.getElementById('bloomCanvas');
+        const bloomCtx = bloomCanvas.getContext('2d');
+        
+        // Offscreen renderer
+        const offscreenCanvas = document.createElement('canvas');
+        offscreenCanvas.width = gridWidth;
+        offscreenCanvas.height = gridHeight;
+        const offscreenCtx = offscreenCanvas.getContext('2d');
+        const imgData = offscreenCtx.createImageData(gridWidth, gridHeight);
+        
+        // Element selectors
+        const elementBtns = document.querySelectorAll('.element-btn');
+        const brushSlider = document.getElementById('brushSize');
+        const brushSizeVal = document.getElementById('brushSizeVal');
+        const simSpeedSlider = document.getElementById('simSpeed');
+        const simSpeedVal = document.getElementById('simSpeedVal');
+        const btnPlayPause = document.getElementById('btnPlayPause');
+        const btnStep = document.getElementById('btnStep');
+        const btnClear = document.getElementById('btnClear');
+        const presetSelect = document.getElementById('presetSelect');
+        const playPauseText = document.getElementById('playPauseText');
+        const playIcon = document.getElementById('playIcon');
+        const valParticles = document.getElementById('valParticles');
+        const valFPS = document.getElementById('valFPS');
+
+        // Helper checks
+        function isWall(type) {
+            return type === 3 || type === 4 || type === 14 || type === 15 || type === 16 || type === 17 || 
+                   (type >= 18 && type <= 26);
+        }
+
+        function canDisplace(type, targetType) {
+            // Heavy sand/gunpowder sinks in water, oil, gas, steam
+            if (type === 1 || type === 12 || type === 27) {
+                return targetType === 2 || targetType === 6 || targetType === 7 || targetType === 13;
+            }
+            // Liquids sink in gas, steam
+            if (type === 2 || type === 6 || type === 9 || type === 8) {
+                return targetType === 7 || targetType === 13;
+            }
+            return false;
+        }
+
+        // Get neighbor indices
+        function getNeighbors(x, y) {
+            const arr = [];
+            if (x > 0) arr.push(y * gridWidth + (x - 1));
+            if (x < gridWidth - 1) arr.push(y * gridWidth + (x + 1));
+            if (y > 0) arr.push((y - 1) * gridWidth + x);
+            if (y < gridHeight - 1) arr.push((y + 1) * gridWidth + x);
+            return arr;
+        }
+
+        // Particle swapping & movement
+        function swapParticles(idx1, idx2) {
+            const t1 = grid[idx1];
+            const t2 = grid[idx2];
+            const l1 = life[idx1];
+            const l2 = life[idx2];
+            
+            grid[idx1] = t2;
+            grid[idx2] = t1;
+            life[idx1] = l2;
+            life[idx2] = l1;
+            
+            modified[idx1] = 1;
+            modified[idx2] = 1;
+        }
+
+        function moveParticle(from, to) {
+            const type = grid[from];
+            
+            // Intercept Portal IN transitions
+            if (grid[to] === 18 && portalAOuts.length > 0) {
+                const outIdx = portalAOuts[Math.floor(Math.random() * portalAOuts.length)];
+                const ox = outIdx % gridWidth;
+                const oy = Math.floor(outIdx / gridWidth);
+                const neighbors = getNeighbors(ox, oy);
+                const emptyN = neighbors.filter(n => grid[n] === 0);
+                if (emptyN.length > 0) {
+                    const dest = emptyN[Math.floor(Math.random() * emptyN.length)];
+                    grid[dest] = type;
+                    life[dest] = life[from];
+                    grid[from] = 0;
+                    life[from] = 0;
+                    modified[dest] = 1;
+                    return;
+                }
+            }
+            if (grid[to] === 20 && portalBOuts.length > 0) {
+                const outIdx = portalBOuts[Math.floor(Math.random() * portalBOuts.length)];
+                const ox = outIdx % gridWidth;
+                const oy = Math.floor(outIdx / gridWidth);
+                const neighbors = getNeighbors(ox, oy);
+                const emptyN = neighbors.filter(n => grid[n] === 0);
+                if (emptyN.length > 0) {
+                    const dest = emptyN[Math.floor(Math.random() * emptyN.length)];
+                    grid[dest] = type;
+                    life[dest] = life[from];
+                    grid[from] = 0;
+                    life[from] = 0;
+                    modified[dest] = 1;
+                    return;
+                }
+            }
+
+            grid[to] = type;
+            life[to] = life[from];
+            grid[from] = 0;
+            life[from] = 0;
+            modified[to] = 1;
+        }
+
+        // Teleportation from resting positions
+        function checkPortal(x, y, idx) {
+            if (y < gridHeight - 1) {
+                const belowIdx = idx + gridWidth;
+                const belowType = grid[belowIdx];
+                if (belowType === 18) return teleport(idx, portalAOuts);
+                if (belowType === 20) return teleport(idx, portalBOuts);
+            }
+            return false;
+        }
+
+        function teleport(idx, destList) {
+            if (destList.length === 0) return false;
+            const outIdx = destList[Math.floor(Math.random() * destList.length)];
+            const ox = outIdx % gridWidth;
+            const oy = Math.floor(outIdx / gridWidth);
+            const neighbors = getNeighbors(ox, oy);
+            const emptyN = neighbors.filter(n => grid[n] === 0);
+            
+            if (emptyN.length > 0) {
+                const dest = emptyN[Math.floor(Math.random() * emptyN.length)];
+                grid[dest] = grid[idx];
+                life[dest] = life[idx];
+                grid[idx] = 0;
+                life[idx] = 0;
+                modified[dest] = 1;
+                return true;
+            }
+            return false;
+        }
+
+        // Explosion physics
+        function explode(centerIdx) {
+            const cx = centerIdx % gridWidth;
+            const cy = Math.floor(centerIdx / gridWidth);
+            const radius = 12;
+            
+            for (let dy = -radius; dy <= radius; dy++) {
+                for (let dx = -radius; dx <= radius; dx++) {
+                    const x = cx + dx;
+                    const y = cy + dy;
+                    if (x >= 0 && x < gridWidth && y >= 0 && y < gridHeight) {
+                        const dist = dx * dx + dy * dy;
+                        if (dist <= radius * radius) {
+                            const nIdx = y * gridWidth + x;
+                            const nType = grid[nIdx];
+                            
+                            // Don't blow up indestructible gadgets or glass
+                            if (nType !== 14 && nType !== 15 && nType !== 16 && nType !== 17 && !(nType >= 18 && nType <= 26)) {
+                                if (dist < radius * radius * 0.45) {
+                                    grid[nIdx] = 5; // Fire
+                                    life[nIdx] = 15 + Math.random() * 25;
+                                } else if (dist < radius * radius * 0.8) {
+                                    grid[nIdx] = Math.random() > 0.5 ? 5 : 7; // Fire or Gas
+                                    life[nIdx] = 10 + Math.random() * 15;
+                                } else {
+                                    grid[nIdx] = 0; // Destroyed to air
+                                }
+                                modified[nIdx] = 1;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Local element chemical reactions
+        function interactWater(x, y, idx) {
+            const neighbors = getNeighbors(x, y);
+            for (const n of neighbors) {
+                const nType = grid[n];
+                if (nType === 10) { // Plant growing
+                    if (Math.random() < 0.12) {
+                        const pNeighbors = getNeighbors(n % gridWidth, Math.floor(n / gridWidth));
+                        const emptyP = pNeighbors.filter(pn => grid[pn] === 0);
+                        if (emptyP.length > 0) {
+                            const growIdx = emptyP[Math.floor(Math.random() * emptyP.length)];
+                            grid[growIdx] = 10;
+                            grid[idx] = 0;
+                            modified[growIdx] = 1;
+                            return true;
+                        }
+                    }
+                }
+                if (nType === 11) { // Freezing
+                    if (Math.random() < 0.04) {
+                        grid[idx] = 11;
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        function interactLava(x, y, idx) {
+            const neighbors = getNeighbors(x, y);
+            for (const n of neighbors) {
+                const nType = grid[n];
+                if (nType === 2) { // Lava + Water -> Stone & Steam
+                    grid[n] = 13; // Water -> Steam
+                    life[n] = 30 + Math.random() * 40;
+                    grid[idx] = 4; // Lava -> Stone Wall
+                    modified[n] = 1;
+                    modified[idx] = 1;
+                    return true;
+                }
+                if (nType === 11) { // Lava melts Ice
+                    grid[n] = 2;
+                    modified[n] = 1;
+                }
+                if (nType === 3 || nType === 10) { // Wood, Plant combusts
+                    grid[n] = 5;
+                    life[n] = 30 + Math.random() * 50;
+                    modified[n] = 1;
+                }
+                if (nType === 6 || nType === 7) { // Oil, Gas ignite
+                    grid[n] = 5;
+                    life[n] = 40 + Math.random() * 60;
+                    modified[n] = 1;
+                }
+                if (nType === 12) { // Gunpowder explodes
+                    explode(n);
+                }
+            }
+            return false;
+        }
+
+        function interactAcid(x, y, idx) {
+            const neighbors = getNeighbors(x, y);
+            for (const n of neighbors) {
+                const nType = grid[n];
+                // Dissolves Sand, Wood, Stone, Plant, Oil, Gunpowder, Rock
+                if (nType === 1 || nType === 3 || nType === 4 || nType === 6 || nType === 10 || nType === 12 || nType === 27) {
+                    grid[n] = 7; // Dissolve victim to Methane smoke
+                    life[n] = 8 + Math.random() * 10;
+                    grid[idx] = 0; // Acid burns out
+                    modified[n] = 1;
+                    modified[idx] = 1;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function interactFire(x, y, idx) {
+            const neighbors = getNeighbors(x, y);
+            for (const n of neighbors) {
+                const nType = grid[n];
+                if (nType === 3 || nType === 10) { // Wood/Plant
+                    if (Math.random() < 0.16) {
+                        grid[n] = 5;
+                        life[n] = 25 + Math.random() * 40;
+                        modified[n] = 1;
+                    }
+                }
+                if (nType === 6 || nType === 7) { // Oil/Gas
+                    grid[n] = 5;
+                    life[n] = 30 + Math.random() * 50;
+                    modified[n] = 1;
+                }
+                if (nType === 12) { // Gunpowder
+                    explode(n);
+                }
+                if (nType === 11) { // Melts Ice
+                    if (Math.random() < 0.08) {
+                        grid[n] = 2;
+                        modified[n] = 1;
+                    }
+                }
+            }
+        }
+
+        // Element Physics handlers
+        function handleSand(x, y, idx) {
+            if (checkPortal(x, y, idx)) return;
+            if (y < gridHeight - 1) {
+                const down = idx + gridWidth;
+                if (grid[down] === 0) {
+                    moveParticle(idx, down);
+                    return;
+                } else if (canDisplace(1, grid[down])) {
+                    swapParticles(idx, down);
+                    return;
+                }
+                const dl = down - 1;
+                const dr = down + 1;
+                const canLeft = (x > 0 && (grid[dl] === 0 || canDisplace(1, grid[dl])));
+                const canRight = (x < gridWidth - 1 && (grid[dr] === 0 || canDisplace(1, grid[dr])));
+                
+                if (canLeft && canRight) {
+                    const dest = Math.random() > 0.5 ? dl : dr;
+                    if (grid[dest] === 0) moveParticle(idx, dest);
+                    else swapParticles(idx, dest);
+                } else if (canLeft) {
+                    if (grid[dl] === 0) moveParticle(idx, dl);
+                    else swapParticles(idx, dl);
+                } else if (canRight) {
+                    if (grid[dr] === 0) moveParticle(idx, dr);
+                    else swapParticles(idx, dr);
+                }
+            }
+        }
+
+        function handleRock(x, y, idx) {
+            // Rock is heavy falling solid. Falls straight down, slides only if steep.
+            if (checkPortal(x, y, idx)) return;
+            if (y < gridHeight - 1) {
+                const down = idx + gridWidth;
+                if (grid[down] === 0) {
+                    moveParticle(idx, down);
+                    return;
+                } else if (canDisplace(27, grid[down])) {
+                    swapParticles(idx, down);
+                    return;
+                }
+                
+                // Low probability slide (heavy rocks stick together)
+                if (Math.random() < 0.15) {
+                    const dl = down - 1;
+                    const dr = down + 1;
+                    const canLeft = (x > 0 && (grid[dl] === 0 || canDisplace(27, grid[dl])));
+                    const canRight = (x < gridWidth - 1 && (grid[dr] === 0 || canDisplace(27, grid[dr])));
+                    if (canLeft && canRight) {
+                        const dest = Math.random() > 0.5 ? dl : dr;
+                        if (grid[dest] === 0) moveParticle(idx, dest);
+                        else swapParticles(idx, dest);
+                    } else if (canLeft) {
+                        if (grid[dl] === 0) moveParticle(idx, dl);
+                        else swapParticles(idx, dl);
+                    } else if (canRight) {
+                        if (grid[dr] === 0) moveParticle(idx, dr);
+                        else swapParticles(idx, dr);
+                    }
+                }
+            }
+        }
+
+        function handleWater(x, y, idx) {
+            if (checkPortal(x, y, idx)) return;
+            if (interactWater(x, y, idx)) return;
+            
+            if (y < gridHeight - 1) {
+                const down = idx + gridWidth;
+                if (grid[down] === 0) {
+                    moveParticle(idx, down);
+                    return;
+                } else if (canDisplace(2, grid[down])) {
+                    swapParticles(idx, down);
+                    return;
+                }
+                const dl = down - 1;
+                const dr = down + 1;
+                const canLeft = (x > 0 && (grid[dl] === 0 || canDisplace(2, grid[dl])));
+                const canRight = (x < gridWidth - 1 && (grid[dr] === 0 || canDisplace(2, grid[dr])));
+                
+                if (canLeft && canRight) {
+                    const dest = Math.random() > 0.5 ? dl : dr;
+                    if (grid[dest] === 0) moveParticle(idx, dest);
+                    else swapParticles(idx, dest);
+                    return;
+                } else if (canLeft) {
+                    if (grid[dl] === 0) moveParticle(idx, dl);
+                    else swapParticles(idx, dl);
+                    return;
+                } else if (canRight) {
+                    if (grid[dr] === 0) moveParticle(idx, dr);
+                    else swapParticles(idx, dr);
+                    return;
+                }
+            }
+            
+            // horizontal flow
+            const left = idx - 1;
+            const right = idx + 1;
+            const canFlowLeft = (x > 0 && (grid[left] === 0 || canDisplace(2, grid[left])));
+            const canFlowRight = (x < gridWidth - 1 && (grid[right] === 0 || canDisplace(2, grid[right])));
+            
+            if (canFlowLeft && canFlowRight) {
+                const dest = Math.random() > 0.5 ? left : right;
+                if (grid[dest] === 0) moveParticle(idx, dest);
+                else swapParticles(idx, dest);
+            } else if (canFlowLeft) {
+                if (grid[left] === 0) moveParticle(idx, left);
+                else swapParticles(idx, left);
+            } else if (canFlowRight) {
+                if (grid[right] === 0) moveParticle(idx, right);
+                else swapParticles(idx, right);
+            }
+        }
+
+        function handleOil(x, y, idx) {
+            if (checkPortal(x, y, idx)) return;
+            // Oil behaves like viscous water
+            if (y < gridHeight - 1) {
+                const down = idx + gridWidth;
+                if (grid[down] === 0) {
+                    moveParticle(idx, down);
+                    return;
+                } else if (canDisplace(6, grid[down])) {
+                    swapParticles(idx, down);
+                    return;
+                }
+                const dl = down - 1;
+                const dr = down + 1;
+                const canLeft = (x > 0 && (grid[dl] === 0 || canDisplace(6, grid[dl])));
+                const canRight = (x < gridWidth - 1 && (grid[dr] === 0 || canDisplace(6, grid[dr])));
+                
+                if (canLeft && canRight) {
+                    const dest = Math.random() > 0.5 ? dl : dr;
+                    if (grid[dest] === 0) moveParticle(idx, dest);
+                    else swapParticles(idx, dest);
+                    return;
+                } else if (canLeft) {
+                    if (grid[dl] === 0) moveParticle(idx, dl);
+                    else swapParticles(idx, dl);
+                    return;
+                } else if (canRight) {
+                    if (grid[dr] === 0) moveParticle(idx, dr);
+                    else swapParticles(idx, dr);
+                    return;
+                }
+            }
+            
+            // Flow slower (65% chance horizontal movement)
+            if (Math.random() < 0.65) {
+                const left = idx - 1;
+                const right = idx + 1;
+                const canFlowLeft = (x > 0 && (grid[left] === 0 || canDisplace(6, grid[left])));
+                const canFlowRight = (x < gridWidth - 1 && (grid[right] === 0 || canDisplace(6, grid[right])));
+                
+                if (canFlowLeft && canFlowRight) {
+                    const dest = Math.random() > 0.5 ? left : right;
+                    if (grid[dest] === 0) moveParticle(idx, dest);
+                    else swapParticles(idx, dest);
+                } else if (canFlowLeft) {
+                    if (grid[left] === 0) moveParticle(idx, left);
+                    else swapParticles(idx, left);
+                } else if (canFlowRight) {
+                    if (grid[right] === 0) moveParticle(idx, right);
+                    else swapParticles(idx, right);
+                }
+            }
+        }
+
+        // Processing spouts
+        function updateSpouts() {
+            // Emitters trigger every 2 frames to avoid clog
+            if (frameCount % 2 !== 0) return;
+            
+            for (let i = 0; i < gridLength; i++) {
+                const type = grid[i];
+                if (type >= 22 && type <= 25) {
+                    const x = i % gridWidth;
+                    const y = Math.floor(i / gridWidth);
+                    
+                    let spawnType = 0;
+                    if (type === 22) spawnType = 1;  // Sand
+                    if (type === 23) spawnType = 2;  // Water
+                    if (type === 24) spawnType = 8;  // Lava
+                    if (type === 25) spawnType = 9;  // Acid
+                    
+                    if (spawnType !== 0) {
+                        // Priority 1: Directly below
+                        if (y < gridHeight - 1) {
+                            const below = i + gridWidth;
+                            if (grid[below] === 0) {
+                                grid[below] = spawnType;
+                                if (spawnType === 5) life[below] = 30;
+                                continue;
+                            }
+                        }
+                        // Priority 2: Left, right, above
+                        const neighbors = [];
+                        if (x > 0) neighbors.push(i - 1);
+                        if (x < gridWidth - 1) neighbors.push(i + 1);
+                        if (y > 0) neighbors.push(i - gridWidth);
+                        
+                        const emptyN = neighbors.filter(n => grid[n] === 0);
+                        if (emptyN.length > 0) {
+                            const dest = emptyN[Math.floor(Math.random() * emptyN.length)];
+                            grid[dest] = spawnType;
+                            if (spawnType === 5) life[dest] = 30;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Full physics tick
+        function updateSimulation() {
+            modified.fill(0);
+            updateSpouts();
+            
+            // Loop from bottom to top, alternating columns to prevent horizontal bias
+            const leftToRight = (frameCount % 2 === 0);
+            
+            for (let y = gridHeight - 1; y >= 0; y--) {
+                for (let xCol = 0; xCol < gridWidth; xCol++) {
+                    const x = leftToRight ? xCol : (gridWidth - 1 - xCol);
+                    const idx = y * gridWidth + x;
+                    const type = grid[idx];
+                    
+                    if (type === 0 || modified[idx]) continue;
+                    
+                    // Conveyor Action: conveyor belt pushes particles sitting directly on top
+                    if (type === 15 || type === 16) {
+                        if (y > 0) {
+                            const aboveIdx = (y - 1) * gridWidth + x;
+                            const aboveType = grid[aboveIdx];
+                            if (aboveType !== 0 && !isWall(aboveType) && !modified[aboveIdx]) {
+                                const dir = (type === 15) ? -1 : 1;
+                                const destX = x + dir;
+                                if (destX >= 0 && destX < gridWidth) {
+                                    const destIdx = (y - 1) * gridWidth + destX;
+                                    if (grid[destIdx] === 0) {
+                                        grid[destIdx] = aboveType;
+                                        grid[aboveIdx] = 0;
+                                        modified[destIdx] = 1;
+                                    }
+                                }
+                            }
+                        }
+                        continue;
+                    }
+                    
+                    // Drain Hole Action: deletes dynamic particles directly adjacent
+                    if (type === 17) {
+                        const neighbors = [idx - 1, idx + 1, idx - gridWidth, idx + gridWidth];
+                        for (const n of neighbors) {
+                            if (n >= 0 && n < gridLength && grid[n] !== 0 && !isWall(grid[n]) && grid[n] !== 17) {
+                                grid[n] = 0;
+                            }
+                        }
+                        continue;
+                    }
+                    
+                    // Portals & static elements don't move themselves
+                    if (isWall(type) || type === 18 || type === 19 || type === 20 || type === 21) {
+                        continue;
+                    }
+                    
+                    // Dynamic Physics switch
+                    switch (type) {
+                        case 1:  handleSand(x, y, idx); break;
+                        case 2:  handleWater(x, y, idx); break;
+                        case 5:  handleFire(x, y, idx); break;
+                        case 6:  handleOil(x, y, idx); break;
+                        case 7:  handleGas(x, y, idx); break;
+                        case 8:  handleLava(x, y, idx); break;
+                        case 9:  handleAcid(x, y, idx); break;
+                        case 12: handleSand(x, y, idx); break; // Gunpowder falls same as sand
+                        case 13: handleSteam(x, y, idx); break;
+                        case 27: handleRock(x, y, idx); break;
+                    }
+                }
+            }
+            
+            frameCount++;
+        }
+
+        // Render scene to canvas
+        function render() {
+            const data = imgData.data;
+            let activeCount = 0;
+            
+            for (let i = 0; i < gridLength; i++) {
+                const type = grid[i];
+                let color = colors[type];
+                
+                if (type !== 0) activeCount++;
+                
+                // Visual flares & dynamic shifts
+                if (type === 5) { // Fire flickering
+                    const intensity = Math.floor(Math.random() * 80);
+                    color = [239, 68 + intensity, 68 - intensity, 255];
+                } else if (type === 8) { // Lava glowing
+                    const glow = Math.floor(Math.random() * 40);
+                    color = [249 - glow, 115 - glow / 2, 22, 255];
+                } else if (type === 15) { // Conveyor L arrow scroll animation
+                    const scroll = (i % gridWidth + Math.floor(frameCount / 2)) % 6;
+                    color = scroll < 3 ? [124, 58, 237, 255] : [168, 85, 247, 255];
+                } else if (type === 16) { // Conveyor R arrow scroll animation
+                    const scroll = (i % gridWidth - Math.floor(frameCount / 2) + 600) % 6;
+                    color = scroll < 3 ? [124, 58, 237, 255] : [168, 85, 247, 255];
+                } else if (type === 18 || type === 20) { // Portal IN swirling
+                    const swirl = Math.sin(frameCount * 0.15 + i) * 30;
+                    color = type === 18 ? [236, 72 + swirl, 153 - swirl, 255] : [6, 182 + swirl, 212 - swirl, 255];
+                } else if (type === 10) { // Plant growing foliage variance
+                    const v = (i * 13) % 20;
+                    color = [21, 128 - v, 61, 255];
+                }
+                
+                const p = i * 4;
+                data[p]   = color[0];
+                data[p+1] = color[1];
+                data[p+2] = color[2];
+                data[p+3] = color[3];
+            }
+            
+            // Draw pixel grid onto offscreen canvas
+            offscreenCtx.putImageData(imgData, 0, 0);
+            
+            // Clear main views
+            mainCtx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+            bloomCtx.clearRect(0, 0, bloomCanvas.width, bloomCanvas.height);
+            
+            // Paint background bloom
+            bloomCtx.drawImage(offscreenCanvas, 0, 0);
+            
+            // Scale and draw main crisp canvas (with anti-aliasing disabled)
+            mainCtx.imageSmoothingEnabled = false;
+            mainCtx.drawImage(offscreenCanvas, 0, 0, mainCanvas.width, mainCanvas.height);
+            
+            // Draw brush cursor preview if mouse inside canvas
+            if (lastMouseX >= 0 && lastMouseY >= 0) {
+                mainCtx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+                mainCtx.lineWidth = 1.5;
+                mainCtx.beginPath();
+                const radiusPixels = (brushSize / gridWidth) * mainCanvas.width;
+                mainCtx.arc(lastMouseX, lastMouseY, radiusPixels, 0, Math.PI * 2);
+                mainCtx.stroke();
+            }
+            
+            // Update UI metrics
+            valParticles.textContent = activeCount;
+        }
+
+        // Teleportation portals cache builder
+        function rebuildPortalCache() {
+            portalAOuts = [];
+            portalBOuts = [];
+            for (let i = 0; i < gridLength; i++) {
+                if (grid[i] === 19) portalAOuts.push(i);
+                if (grid[i] === 21) portalBOuts.push(i);
+            }
+        }
+
+        // Draw brush strokes
+        function drawBrush(gx, gy, element, size) {
+            const rad = size - 1;
+            
+            for (let dy = -rad; dy <= rad; dy++) {
+                for (let dx = -rad; dx <= rad; dx++) {
+                    const nx = gx + dx;
+                    const ny = gy + dy;
+                    if (nx >= 0 && nx < gridWidth && ny >= 0 && ny < gridHeight) {
+                        // Check brush circular constraint
+                        if (dx * dx + dy * dy <= rad * rad) {
+                            const idx = ny * gridWidth + nx;
+                            if (element === 0) {
+                                // Eraser clears everything
+                                grid[idx] = 0;
+                                life[idx] = 0;
+                            } else {
+                                // Draw if empty or if overwrite is normal wall/element
+                                if (grid[idx] === 0 || isWall(element) || element === 10 || element === 11 || element === 27) {
+                                    grid[idx] = element;
+                                    life[idx] = (element === 5) ? 20 + Math.random() * 30 : 
+                                                (element === 13) ? 30 + Math.random() * 40 : 0;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            rebuildPortalCache();
+        }
+
+        // Interpolated painting
+        function paintStroke(x0, y0, x1, y1) {
+            const gx0 = Math.floor((x0 / mainCanvas.width) * gridWidth);
+            const gy0 = Math.floor((y0 / mainCanvas.height) * gridHeight);
+            const gx1 = Math.floor((x1 / mainCanvas.width) * gridWidth);
+            const gy1 = Math.floor((y1 / mainCanvas.height) * gridHeight);
+            
+            const dx = Math.abs(gx1 - gx0);
+            const dy = Math.abs(gy1 - gy0);
+            const sx = (gx0 < gx1) ? 1 : -1;
+            const sy = (gy0 < gy1) ? 1 : -1;
+            let err = dx - dy;
+            
+            let cx = gx0;
+            let cy = gy0;
+            
+            while (true) {
+                drawBrush(cx, cy, currentElement, brushSize);
+                if (cx === gx1 && cy === gy1) break;
+                const e2 = 2 * err;
+                if (e2 > -dy) { err -= dy; cx += sx; }
+                if (e2 < dx) { err += dx; cy += sy; }
+            }
+        }
+
+        // Canvas mouse handlers
+        mainCanvas.addEventListener('mousedown', (e) => {
+            isDrawing = true;
+            const rect = mainCanvas.getBoundingClientRect();
+            const mx = e.clientX - rect.left;
+            const my = e.clientY - rect.top;
+            paintStroke(mx, my, mx, my);
+            lastMouseX = mx;
+            lastMouseY = my;
+        });
+
+        mainCanvas.addEventListener('mousemove', (e) => {
+            const rect = mainCanvas.getBoundingClientRect();
+            const mx = e.clientX - rect.left;
+            const my = e.clientY - rect.top;
+            
+            if (isDrawing) {
+                paintStroke(lastMouseX, lastMouseY, mx, my);
+            }
+            
+            lastMouseX = mx;
+            lastMouseY = my;
+        });
+
+        window.addEventListener('mouseup', () => {
+            isDrawing = false;
+        });
+
+        mainCanvas.addEventListener('mouseleave', () => {
+            lastMouseX = -1;
+            lastMouseY = -1;
+        });
+
+        // Touch handlers for mobile
+        mainCanvas.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1) {
+                isDrawing = true;
+                const rect = mainCanvas.getBoundingClientRect();
+                const mx = e.touches[0].clientX - rect.left;
+                const my = e.touches[0].clientY - rect.top;
+                paintStroke(mx, my, mx, my);
+                lastMouseX = mx;
+                lastMouseY = my;
+                e.preventDefault();
+            }
+        });
+
+        mainCanvas.addEventListener('touchmove', (e) => {
+            if (isDrawing && e.touches.length === 1) {
+                const rect = mainCanvas.getBoundingClientRect();
+                const mx = e.touches[0].clientX - rect.left;
+                const my = e.touches[0].clientY - rect.top;
+                paintStroke(lastMouseX, lastMouseY, mx, my);
+                lastMouseX = mx;
+                lastMouseY = my;
+                e.preventDefault();
+            }
+        });
+
+        mainCanvas.addEventListener('touchend', () => {
+            isDrawing = false;
+        });
+
+        // Sidebar interactions
+        elementBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                elementBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentElement = parseInt(btn.getAttribute('data-element'));
+            });
+        });
+
+        brushSlider.addEventListener('input', () => {
+            brushSize = parseInt(brushSlider.value);
+            brushSizeVal.textContent = brushSize + 'px';
+        });
+
+        simSpeedSlider.addEventListener('input', () => {
+            speedMultiplier = parseInt(simSpeedSlider.value);
+            const speedNames = ["0x (Pause)", "0.5x", "1x", "2x", "5x"];
+            simSpeedVal.textContent = speedNames[speedMultiplier];
+            if (speedMultiplier === 0) {
+                isPaused = true;
+                playPauseText.textContent = "Play";
+                playIcon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+            } else {
+                isPaused = false;
+                playPauseText.textContent = "Pause";
+                playIcon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+            }
+        });
+
+        btnPlayPause.addEventListener('click', () => {
+            isPaused = !isPaused;
+            if (isPaused) {
+                playPauseText.textContent = "Play";
+                playIcon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+            } else {
+                playPauseText.textContent = "Pause";
+                playIcon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+                if (speedMultiplier === 0) {
+                    speedMultiplier = 2; // set to 1x
+                    simSpeedSlider.value = 2;
+                    simSpeedVal.textContent = "1x";
+                }
+            }
+        });
+
+        btnStep.addEventListener('click', () => {
+            updateSimulation();
+            render();
+        });
+
+        btnClear.addEventListener('click', () => {
+            grid.fill(0);
+            life.fill(0);
+            rebuildPortalCache();
+            render();
+        });
+
+        // Presets logic
+        function loadPreset(name) {
+            grid.fill(0);
+            life.fill(0);
+            
+            if (name === 'volcano') {
+                // Drawing chamber walls (Stone, type 4)
+                // Left funnel wall
+                for (let y = 10; y < 110; y++) {
+                    const x = 50 + Math.floor(y * 0.4);
+                    grid[y * gridWidth + x] = 4;
+                }
+                // Right funnel wall
+                for (let y = 10; y < 110; y++) {
+                    const x = 150 - Math.floor(y * 0.4);
+                    grid[y * gridWidth + x] = 4;
+                }
+                
+                // Bottom chamber basin
+                for (let x = 80; x <= 120; x++) {
+                    grid[110 * gridWidth + x] = 4;
+                }
+
+                // Place Lava spout (24) above the funnel
+                grid[12 * gridWidth + 100] = 24;
+                
+                // Wood bridges that block the path initially
+                for (let x = 84; x <= 116; x++) {
+                    grid[70 * gridWidth + x] = 3;
+                    grid[90 * gridWidth + x] = 3;
+                }
+                
+                // Water pool at the bottom basin
+                for (let y = 98; y < 110; y++) {
+                    for (let x = 90; x < 110; x++) {
+                        grid[y * gridWidth + x] = 2;
+                    }
+                }
+                
+                // Some gunpowder at the corners
+                for (let y = 65; y < 70; y++) {
+                    for (let x = 82; x < 87; x++) {
+                        grid[y * gridWidth + x] = 12;
+                    }
+                }
+            } 
+            else if (name === 'factory') {
+                // Conveyors and Spouts
+                // Conveyor 1 Right at the top left
+                for (let x = 20; x < 90; x++) {
+                    grid[30 * gridWidth + x] = 16; // conveyor right
+                }
+                grid[15 * gridWidth + 30] = 22; // spout sand
+                
+                // Conveyor 2 Left at the middle right
+                for (let x = 110; x < 180; x++) {
+                    grid[60 * gridWidth + x] = 15; // conveyor left
+                }
+                grid[45 * gridWidth + 170] = 23; // spout water
+                
+                // A diagonal glass slide (Glass, 14) directing flow
+                for (let x = 80; x < 120; x++) {
+                    const y = 30 + (x - 80);
+                    grid[y * gridWidth + x] = 14;
+                }
+                
+                // Conveyor 3 Right below the slide
+                for (let x = 60; x < 140; x++) {
+                    grid[95 * gridWidth + x] = 16; // conveyor right
+                }
+                grid[80 * gridWidth + 70] = 24; // spout lava
+                
+                // Acid pool bottom right container
+                for (let y = 115; y <= 140; y++) {
+                    grid[y * gridWidth + 130] = 4; // Left wall
+                    grid[y * gridWidth + 169] = 4; // Right wall
+                }
+                for (let x = 130; x <= 169; x++) {
+                    grid[140 * gridWidth + x] = 4; // Bottom floor
+                }
+                for (let x = 131; x < 169; x++) {
+                    grid[140 * gridWidth + x] = 17; // Drain at bottom
+                    for (let y = 120; y < 140; y++) {
+                        grid[y * gridWidth + x] = 9; // acid
+                    }
+                }
+            }
+            else if (name === 'portal') {
+                // Diagonal ramps (Glass, 14) and Portals
+                // Ramp 1
+                for (let x = 20; x < 80; x++) {
+                    const y = 30 + Math.floor((x - 20) * 0.5);
+                    grid[y * gridWidth + x] = 14;
+                }
+                // Portal A IN at the bottom of Ramp 1
+                for (let x = 75; x < 83; x++) {
+                    grid[60 * gridWidth + x] = 18;
+                }
+                
+                // Portal A OUT at top of Ramp 2
+                for (let x = 130; x < 135; x++) {
+                    grid[25 * gridWidth + x] = 19;
+                }
+                
+                // Ramp 2
+                for (let x = 110; x < 170; x++) {
+                    const y = 35 + Math.floor((170 - x) * 0.5);
+                    grid[y * gridWidth + x] = 14;
+                }
+                // Portal B IN at bottom of Ramp 2
+                for (let x = 107; x < 114; x++) {
+                    grid[65 * gridWidth + x] = 20;
+                }
+                
+                // Portal B OUT at top of Ramp 1
+                for (let x = 30; x < 35; x++) {
+                    grid[20 * gridWidth + x] = 21;
+                }
+                
+                // Place spout at the top to feed sand initially
+                grid[10 * gridWidth + 50] = 22; // spout sand
+                
+                // Drain hole at the bottom just in case
+                for (let x = 90; x < 110; x++) {
+                    grid[148 * gridWidth + x] = 17;
+                }
+            }
+            else if (name === 'acid') {
+                // Maze of wood blocks (3) and plants (10)
+                // Spawn several Acid spouts at the top
+                grid[10 * gridWidth + 30] = 25; // spout acid
+                grid[10 * gridWidth + 90] = 25; // spout acid
+                grid[10 * gridWidth + 150] = 25; // spout acid
+                
+                // Horizontal wood shelves with holes
+                for (let row = 40; row < 130; row += 30) {
+                    for (let x = 10; x < 190; x++) {
+                        // Create holes
+                        const inHole = (x % 40 > 32);
+                        if (!inHole) {
+                            grid[row * gridWidth + x] = 3; // wood
+                        } else {
+                            // Grow plant at the tips
+                            grid[row * gridWidth + x] = 10; // plant
+                        }
+                    }
+                }
+                
+                // Some oil pools on shelves
+                for (let x = 60; x < 80; x++) {
+                    grid[39 * gridWidth + x] = 6;
+                }
+                for (let x = 120; x < 140; x++) {
+                    grid[69 * gridWidth + x] = 6;
+                }
+                
+                // Fire spouts near bottom to ignite gas and oil
+                grid[140 * gridWidth + 50] = 5;
+                life[140 * gridWidth + 50] = 250;
+                grid[140 * gridWidth + 140] = 5;
+                life[140 * gridWidth + 140] = 250;
+                
+                // Ice blocks at the very bottom
+                for (let y = 145; y < 150; y++) {
+                    for (let x = 10; x < 190; x++) {
+                        grid[y * gridWidth + x] = 11; // ice
+                    }
+                }
+            }
+            
+            rebuildPortalCache();
+            render();
+        }
+
+        presetSelect.addEventListener('change', () => {
+            loadPreset(presetSelect.value);
+        });
+
+        // Main game loop
+        function tick() {
+            const now = performance.now();
+            const elapsed = now - lastTime;
+            
+            if (elapsed >= 1000) {
+                fps = Math.round((frameCount * 1000) / elapsed);
+                valFPS.textContent = fps;
+                frameCount = 0;
+                lastTime = now;
+            }
+            
+            if (!isPaused && speedMultiplier > 0) {
+                // Handle speed multipliers:
+                // 1 = 0.5x (every 2 frames)
+                // 2 = 1x (every frame)
+                // 3 = 2x (2 steps per frame)
+                // 4 = 5x (5 steps per frame)
+                if (speedMultiplier === 1) {
+                    if (window.tickCount === undefined) window.tickCount = 0;
+                    window.tickCount++;
+                    if (window.tickCount % 2 === 0) {
+                        updateSimulation();
+                    }
+                } else if (speedMultiplier === 2) {
+                    updateSimulation();
+                } else if (speedMultiplier === 3) {
+                    updateSimulation();
+                    updateSimulation();
+                } else if (speedMultiplier === 4) {
+                    updateSimulation();
+                    updateSimulation();
+                    updateSimulation();
+                    updateSimulation();
+                    updateSimulation();
+                }
+            }
+            
+            render();
+            requestAnimationFrame(tick);
+        }
+
+        // Initialize empty grid with borders
+        function initGrid() {
+            grid.fill(0);
+            life.fill(0);
+            
+            // Stone borders at bottom and sides
+            for (let x = 0; x < gridWidth; x++) {
+                grid[(gridHeight - 1) * gridWidth + x] = 4; // Stone floor
+            }
+            for (let y = 0; y < gridHeight; y++) {
+                grid[y * gridWidth + 0] = 4; // Left border
+                grid[y * gridWidth + (gridWidth - 1)] = 4; // Right border
+            }
+            
+            rebuildPortalCache();
+            render();
+        }
+
+        // Start
+        initGrid();
+        requestAnimationFrame(tick);
+    </script>
+</body>
+</html>

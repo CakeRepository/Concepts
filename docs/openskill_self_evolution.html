@@ -1,0 +1,2494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenSkill: Open-World Self-Evolution - AI Concepts</title>
+    <!-- Google Fonts for premium typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesque:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-base: #030712;
+            --bg-surface: #0a0f1d;
+            --bg-panel: rgba(13, 20, 38, 0.7);
+            --border-color: rgba(255, 255, 255, 0.06);
+            --border-glow: rgba(99, 102, 241, 0.15);
+            
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --text-muted: #4b5563;
+            
+            --color-indigo: #6366f1;
+            --color-indigo-glow: rgba(99, 102, 241, 0.3);
+            --color-teal: #14b8a6;
+            --color-teal-glow: rgba(20, 184, 166, 0.3);
+            --color-rose: #f43f5e;
+            --color-rose-glow: rgba(244, 63, 94, 0.3);
+            --color-amber: #f59e0b;
+            --color-amber-glow: rgba(245, 158, 11, 0.3);
+            --color-emerald: #10b981;
+            --color-emerald-glow: rgba(16, 185, 129, 0.3);
+            
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-display: 'Space Grotesque', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(20, 184, 166, 0.1) 0%, transparent 45%),
+                radial-gradient(circle at 50% 50%, rgba(244, 63, 94, 0.04) 0%, transparent 35%);
+            background-attachment: fixed;
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+            line-height: 1.5;
+        }
+
+        /* Subtle grid blueprint pattern overlay */
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: 40px 40px;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.01) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.01) 1px, transparent 1px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1560px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Header Style */
+        header {
+            margin-bottom: 25px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header-left h1 {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff 20%, #a5b4fc 60%, var(--color-indigo) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-left h1 span.badge {
+            font-size: 0.75rem;
+            font-family: var(--font-mono);
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            color: #a5b4fc;
+            padding: 2px 8px;
+            border-radius: 4px;
+            vertical-align: middle;
+            -webkit-text-fill-color: #a5b4fc;
+        }
+
+        .header-left p {
+            color: var(--text-secondary);
+            font-size: 0.92rem;
+            margin-top: 4px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .paper-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-family: var(--font-mono);
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.02);
+            transition: all 0.2s ease;
+        }
+
+        .paper-link:hover {
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 0.15);
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .back-link {
+            color: var(--color-teal);
+            text-decoration: none;
+            font-family: var(--font-display);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.92rem;
+            padding: 8px 16px;
+            border: 1px solid rgba(20, 184, 166, 0.15);
+            border-radius: 8px;
+            background-color: rgba(20, 184, 166, 0.03);
+            transition: all 0.2s ease;
+        }
+
+        .back-link:hover {
+            background-color: rgba(20, 184, 166, 0.12);
+            transform: translateX(-3px);
+            box-shadow: 0 0 10px rgba(20, 184, 166, 0.15);
+        }
+
+        /* Pipeline Progression Flowbar */
+        .pipeline-flowbar {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 25px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 10px;
+        }
+
+        .flowbar-step {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            position: relative;
+            opacity: 0.5;
+        }
+
+        .flowbar-step.active {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.03);
+            box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.02);
+        }
+
+        .flowbar-step.completed {
+            opacity: 0.85;
+        }
+
+        .flowbar-step.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 10%;
+            width: 80%;
+            height: 2px;
+            border-radius: 2px;
+        }
+
+        .flowbar-step.active.step-1::after { background: var(--color-indigo); box-shadow: 0 0 8px var(--color-indigo); }
+        .flowbar-step.active.step-2::after { background: var(--color-teal); box-shadow: 0 0 8px var(--color-teal); }
+        .flowbar-step.active.step-3::after { background: var(--color-emerald); box-shadow: 0 0 8px var(--color-emerald); }
+
+        .step-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 0.9rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-secondary);
+            transition: all 0.3s;
+        }
+
+        .active .step-num {
+            color: #ffffff;
+        }
+
+        .active.step-1 .step-num { background: var(--color-indigo); border-color: var(--color-indigo); box-shadow: 0 0 8px var(--color-indigo-glow); }
+        .active.step-2 .step-num { background: var(--color-teal); border-color: var(--color-teal); box-shadow: 0 0 8px var(--color-teal-glow); }
+        .active.step-3 .step-num { background: var(--color-emerald); border-color: var(--color-emerald); box-shadow: 0 0 8px var(--color-emerald-glow); }
+
+        .completed.step-1 .step-num { background: rgba(99, 102, 241, 0.2); border-color: var(--color-indigo); color: var(--color-indigo); }
+        .completed.step-2 .step-num { background: rgba(20, 184, 166, 0.2); border-color: var(--color-teal); color: var(--color-teal); }
+        .completed.step-3 .step-num { background: rgba(16, 185, 129, 0.2); border-color: var(--color-emerald); color: var(--color-emerald); }
+
+        .step-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .step-title {
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+        }
+
+        .step-desc {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+        }
+
+        /* Dashboard Grid Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 340px 1fr 380px;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 1300px) {
+            .dashboard-grid {
+                grid-template-columns: 320px 1fr;
+            }
+            .sidebar-right {
+                grid-column: span 2;
+            }
+        }
+
+        @media (max-width: 950px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            .sidebar-left, .sidebar-right {
+                grid-column: span 1;
+            }
+        }
+
+        /* Panel Common Styling */
+        .panel {
+            background-color: var(--bg-panel);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 16px;
+            padding: 1px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
+        .panel:hover {
+            border-color: rgba(99, 102, 241, 0.15);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4), 0 0 20px rgba(99, 102, 241, 0.03);
+        }
+
+        .panel-title {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            margin-bottom: 5px;
+        }
+
+        .panel-title.purple { color: #818cf8; }
+        .panel-title.teal { color: var(--color-teal); }
+        .panel-title.coral { color: var(--color-rose); }
+        .panel-title.emerald { color: var(--color-emerald); }
+
+        .panel-title svg {
+            width: 18px;
+            height: 18px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+        }
+
+        /* Controls Section */
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        label {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        label span.val {
+            font-family: var(--font-mono);
+            color: var(--color-teal);
+            font-weight: 600;
+        }
+
+        select {
+            width: 100%;
+            background-color: rgba(5, 8, 20, 0.8);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            padding: 10px 12px;
+            font-family: var(--font-sans);
+            font-size: 0.88rem;
+            outline: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        select:focus {
+            border-color: var(--color-indigo);
+            box-shadow: 0 0 8px var(--color-indigo-glow);
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 3px;
+            outline: none;
+            padding: 0;
+            margin: 8px 0;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--color-teal);
+            cursor: pointer;
+            box-shadow: 0 0 6px var(--color-teal-glow);
+            transition: transform 0.1s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .btn-container {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        button.btn {
+            padding: 11px 16px;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: #ffffff;
+        }
+
+        button.btn-primary {
+            background: linear-gradient(135deg, var(--color-indigo) 0%, #4f46e5 100%);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+        }
+
+        button.btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(99, 102, 241, 0.35);
+        }
+
+        button.btn-primary:active {
+            transform: translateY(1px);
+        }
+
+        button.btn-secondary {
+            background: rgba(255, 255, 255, 0.03);
+            border-color: var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        button.btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        /* Target task card summary */
+        .task-card {
+            background: rgba(5, 8, 20, 0.4);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 0.82rem;
+            line-height: 1.4;
+        }
+
+        .task-card-title {
+            font-family: var(--font-display);
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 4px;
+            font-size: 0.85rem;
+        }
+
+        .task-card-body {
+            color: var(--text-secondary);
+        }
+
+        /* Central Pipeline Visualizer View */
+        .pipeline-workspace {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            height: 100%;
+        }
+
+        .stage-view {
+            display: none;
+            flex-direction: column;
+            gap: 15px;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .stage-view.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Stage 1: Acquisition Visuals */
+        .acquisition-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 750px) {
+            .acquisition-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .search-sandbox {
+            background: rgba(5, 8, 20, 0.5);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            height: 280px;
+            position: relative;
+        }
+
+        .sandbox-header {
+            font-size: 0.8rem;
+            font-family: var(--font-display);
+            color: var(--text-secondary);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .search-bar-sim {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-primary);
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .search-bar-sim svg {
+            width: 14px;
+            height: 14px;
+            stroke: var(--text-secondary);
+            fill: none;
+            stroke-width: 2;
+            flex-shrink: 0;
+        }
+
+        .leakage-overlay {
+            background: rgba(244, 63, 94, 0.15);
+            border: 1px dashed var(--color-rose);
+            color: #fda4af;
+            font-size: 0.72rem;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: var(--font-sans);
+            display: none;
+            align-items: center;
+            gap: 6px;
+            position: absolute;
+            bottom: 120px;
+            left: 15px;
+            right: 15px;
+            z-index: 20;
+            box-shadow: 0 4px 12px rgba(244, 63, 94, 0.2);
+            backdrop-filter: blur(4px);
+        }
+
+        .leakage-overlay svg {
+            width: 12px;
+            height: 12px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+        }
+
+        .censored-block {
+            background: var(--color-rose);
+            color: var(--color-rose);
+            padding: 0 4px;
+            border-radius: 2px;
+            user-select: none;
+            display: inline-block;
+        }
+
+        /* Open World Web Cloud Simulation */
+        .web-cloud {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            position: relative;
+            height: 180px;
+        }
+
+        .cloud-node {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.78rem;
+            transition: all 0.3s;
+            cursor: default;
+        }
+
+        .cloud-node.active-query {
+            border-color: var(--color-indigo);
+            background: rgba(99, 102, 241, 0.05);
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.1);
+        }
+
+        .node-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-family: var(--font-display);
+            font-weight: 700;
+        }
+
+        .node-git { color: #f05032; }
+        .node-web { color: #12b886; }
+        .node-arxiv { color: #b31b1b; }
+        .node-stack { color: #f48024; }
+
+        .cloud-node-info {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .cloud-node-title {
+            color: #ffffff;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .cloud-node-url {
+            color: var(--text-secondary);
+            font-size: 0.65rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-family: var(--font-mono);
+        }
+
+        /* Document details preview */
+        .document-preview-box {
+            background: rgba(5, 8, 20, 0.5);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            height: 280px;
+            overflow-y: auto;
+        }
+
+        .doc-chip {
+            background: rgba(99, 102, 241, 0.08);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            color: #a5b4fc;
+            font-size: 0.72rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            align-self: flex-start;
+            font-family: var(--font-display);
+            font-weight: 600;
+        }
+
+        .doc-chip.verifier-chip {
+            background: rgba(20, 184, 166, 0.08);
+            border: 1px solid rgba(20, 184, 166, 0.2);
+            color: #99f6e4;
+        }
+
+        .doc-title {
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #ffffff;
+        }
+
+        .doc-snippet {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+            white-space: pre-line;
+            font-family: var(--font-sans);
+        }
+
+        .animated-packet {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--color-indigo);
+            box-shadow: 0 0 8px var(--color-indigo);
+            pointer-events: none;
+            opacity: 0;
+            z-index: 30;
+        }
+
+        /* Stage 2: Evolution Terminal UI */
+        .evolution-workspace {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 15px;
+            height: 380px;
+        }
+
+        @media (max-width: 800px) {
+            .evolution-workspace {
+                grid-template-columns: 1fr;
+                height: 600px;
+            }
+        }
+
+        .terminal-panel {
+            background: #02040a;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+        }
+
+        .terminal-header {
+            background: #0d1117;
+            padding: 8px 15px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .terminal-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .terminal-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .terminal-dot.dot-red { background: #ef4444; }
+        .terminal-dot.dot-yellow { background: #f59e0b; }
+        .terminal-dot.dot-green { background: #10b981; }
+
+        .terminal-title {
+            font-family: var(--font-display);
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .terminal-body {
+            padding: 15px;
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            color: #e6edf3;
+            overflow-y: auto;
+            flex-grow: 1;
+            line-height: 1.45;
+            white-space: pre-wrap;
+        }
+
+        /* Custom syntax style inside terminal */
+        .syntax-keyword { color: #ff7b72; font-weight: 500; }
+        .syntax-func { color: #d2a6ff; }
+        .syntax-str { color: #a5d6ff; }
+        .syntax-comment { color: #8b949e; font-style: italic; }
+        .syntax-num { color: #79c0ff; }
+        .syntax-class { color: #ffa657; }
+
+        /* Test Runner specific styling */
+        .terminal-body.test-runner {
+            color: #8b949e;
+        }
+
+        .test-line {
+            margin-bottom: 6px;
+        }
+
+        .test-pass { color: var(--color-emerald); font-weight: 600; }
+        .test-fail { color: var(--color-rose); font-weight: 600; }
+        .test-warn { color: var(--color-amber); }
+
+        /* Evolution Loop Overlay Status Indicators */
+        .loop-status-banner {
+            position: absolute;
+            top: 50px;
+            right: 15px;
+            background: rgba(13, 20, 38, 0.85);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 0.72rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            backdrop-filter: blur(8px);
+            z-index: 15;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .pulse-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--color-teal);
+            animation: pulse-animation 1.5s infinite;
+        }
+
+        .pulse-dot.pulse-rose { background: var(--color-rose); }
+        .pulse-dot.pulse-amber { background: var(--color-amber); }
+
+        @keyframes pulse-animation {
+            0% { transform: scale(0.9); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 1; box-shadow: 0 0 8px currentColor; }
+            100% { transform: scale(0.9); opacity: 0.5; }
+        }
+
+        /* Diagnostic classification popup */
+        .diagnostic-card {
+            position: absolute;
+            top: 25%;
+            left: 10%;
+            right: 10%;
+            background: rgba(10, 15, 30, 0.95);
+            border: 1.5px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.7), 0 0 15px rgba(99, 102, 241, 0.1);
+            backdrop-filter: blur(8px);
+            z-index: 25;
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+            animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.9) translateY(10px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        .diag-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        .diag-title {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--color-rose);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .classifier-tag {
+            font-size: 0.72rem;
+            font-family: var(--font-mono);
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: #fde047;
+            text-transform: uppercase;
+        }
+
+        .classifier-tag.tag-gap {
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            color: #c7d2fe;
+        }
+
+        .diag-body {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        .diag-footer {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-color);
+            padding-top: 8px;
+            font-style: italic;
+        }
+
+        /* Stage 3: Zero-Shot Target Deployment */
+        .deployment-workspace {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 20px;
+            height: 380px;
+        }
+
+        @media (max-width: 800px) {
+            .deployment-workspace {
+                grid-template-columns: 1fr;
+                height: 500px;
+            }
+        }
+
+        .model-select-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .model-card-sim {
+            background: rgba(5, 8, 20, 0.4);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .model-card-sim:hover {
+            background: rgba(255, 255, 255, 0.02);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .model-card-sim.selected {
+            background: rgba(16, 185, 129, 0.05);
+            border-color: var(--color-emerald);
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.15);
+        }
+
+        .model-sim-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.04);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            transition: all 0.2s;
+        }
+
+        .selected .model-sim-icon {
+            background: var(--color-emerald);
+            color: #ffffff;
+            border-color: var(--color-emerald);
+            box-shadow: 0 0 8px var(--color-emerald-glow);
+        }
+
+        .model-sim-name {
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #ffffff;
+        }
+
+        .model-sim-type {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+
+        .evaluation-details {
+            background: rgba(5, 8, 20, 0.5);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .locked-badge-sim {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(244, 63, 94, 0.1);
+            border: 1px solid rgba(244, 63, 94, 0.3);
+            color: #fca5a5;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.65rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-family: var(--font-mono);
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .locked-badge-sim.unlocked {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.3);
+            color: #a7f3d0;
+        }
+
+        .locked-badge-sim svg {
+            width: 10px;
+            height: 10px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2.5;
+        }
+
+        .deployment-stats {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-dial-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 15px;
+            height: 155px;
+        }
+
+        .circular-progress {
+            width: 80px;
+            height: 80px;
+            position: relative;
+            transform: rotate(-90deg);
+        }
+
+        .circular-progress circle {
+            width: 100%;
+            height: 100%;
+            fill: none;
+            stroke-width: 6;
+            stroke-linecap: round;
+        }
+
+        .circular-progress .bg-circle {
+            stroke: rgba(255, 255, 255, 0.05);
+        }
+
+        .circular-progress .fg-circle {
+            stroke: var(--color-emerald);
+            stroke-dasharray: 226;
+            stroke-dashoffset: 226;
+            transition: stroke-dashoffset 1s ease-out;
+        }
+
+        .dial-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(90deg);
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #ffffff;
+        }
+
+        .stat-meta {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .stat-row-sim {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            padding-bottom: 6px;
+        }
+
+        .stat-row-sim:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .stat-row-sim span.lbl {
+            color: var(--text-secondary);
+        }
+
+        .stat-row-sim span.num {
+            font-family: var(--font-mono);
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .stat-row-sim span.num.plus-gain {
+            color: var(--color-emerald);
+        }
+
+        /* Right Panel: Charts & RQ Dials */
+        .chart-card {
+            background: rgba(5, 8, 20, 0.4);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .chart-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chart-title-sim {
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #ffffff;
+        }
+
+        /* Custom Mini Bar Charts using pure HTML/CSS */
+        .bar-chart-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 5px;
+        }
+
+        .bar-chart-row {
+            display: grid;
+            grid-template-columns: 80px 1fr 40px;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.72rem;
+        }
+
+        .bar-label {
+            color: var(--text-secondary);
+            font-family: var(--font-mono);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .bar-track {
+            height: 8px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            width: 0;
+            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .bar-fill.fill-openskill { background: linear-gradient(to right, var(--color-indigo), var(--color-teal)); box-shadow: 0 0 6px rgba(99, 102, 241, 0.4); }
+        .bar-fill.fill-baseline { background: rgba(255, 255, 255, 0.2); }
+        .bar-fill.fill-worse { background: rgba(244, 63, 94, 0.3); }
+
+        .bar-value {
+            text-align: right;
+            font-family: var(--font-mono);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Circular Gauges for RQ2 Alignment */
+        .rq-gauges-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        .gauge-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 6px;
+        }
+
+        .mini-circular-progress {
+            width: 54px;
+            height: 54px;
+            position: relative;
+            transform: rotate(-90deg);
+        }
+
+        .mini-circular-progress circle {
+            width: 100%;
+            height: 100%;
+            fill: none;
+            stroke-width: 4;
+            stroke-linecap: round;
+        }
+
+        .mini-circular-progress .bg-circle {
+            stroke: rgba(255, 255, 255, 0.05);
+        }
+
+        .mini-circular-progress .fg-circle {
+            stroke: var(--color-indigo);
+            stroke-dasharray: 157;
+            stroke-dashoffset: 157;
+            transition: stroke-dashoffset 0.8s ease-out;
+        }
+
+        .fg-circle.teal-gauge { stroke: var(--color-teal); }
+        .fg-circle.coral-gauge { stroke: var(--color-rose); }
+
+        .mini-dial-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(90deg);
+            font-family: var(--font-mono);
+            font-weight: 700;
+            font-size: 0.72rem;
+            color: #ffffff;
+        }
+
+        .gauge-name {
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* Footnotes and layout margins */
+        footer {
+            margin-top: 30px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-overlay"></div>
+    <div class="container">
+        
+        <!-- Header -->
+        <header>
+            <div class="header-left">
+                <h1>OpenSkill <span class="badge">arXiv:2606.06741v1</span></h1>
+                <p>Open-World Self-Evolution for LLM Agents via Leakage-Free Virtual Verification</p>
+            </div>
+            <div class="header-right">
+                <a href="https://arxiv.org/abs/2606.06741" target="_blank" rel="noopener noreferrer" class="paper-link">View Paper</a>
+                <a href="index.html" class="back-link">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                    Back to Concepts
+                </a>
+            </div>
+        </header>
+
+        <!-- Pipeline Flow Indicator -->
+        <div class="pipeline-flowbar">
+            <!-- Step 1 -->
+            <div class="flowbar-step active step-1" id="flow-step-1">
+                <div class="step-num">1</div>
+                <div class="step-info">
+                    <span class="step-title">Stage 1: Retrieval</span>
+                    <span class="step-desc">Acquire open-world knowledge</span>
+                </div>
+            </div>
+            <!-- Step 2 -->
+            <div class="flowbar-step step-2" id="flow-step-2">
+                <div class="step-num">2</div>
+                <div class="step-info">
+                    <span class="step-title">Stage 2: Practice Loop</span>
+                    <span class="step-desc">Refine skills on virtual tests</span>
+                </div>
+            </div>
+            <!-- Step 3 -->
+            <div class="flowbar-step step-3" id="flow-step-3">
+                <div class="step-num">3</div>
+                <div class="step-info">
+                    <span class="step-title">Stage 3: Deployment</span>
+                    <span class="step-desc">Zero-shot target evaluation</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Body Grid -->
+        <div class="dashboard-grid">
+            
+            <!-- Left Column: Scenario & Configuration Panels -->
+            <div class="sidebar-left" style="display: flex; flex-direction: column; gap: 20px;">
+                <!-- Panel 1: Simulation Setup -->
+                <div class="panel">
+                    <h2 class="panel-title purple">
+                        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                        Evolution Sandbox
+                    </h2>
+                    
+                    <div class="control-group">
+                        <label for="scenario-select">Select Task Scenario</label>
+                        <select id="scenario-select">
+                            <option value="scraping">Web Scraping (Dynamic Table API)</option>
+                            <option value="security">Exploit Finder (AST Security Auditor)</option>
+                            <option value="social">Social Maze (Pathfinder Graph)</option>
+                        </select>
+                    </div>
+
+                    <div class="task-card">
+                        <div class="task-card-title" id="task-title">Web Scraping Task</div>
+                        <div class="task-card-body" id="task-description">
+                            Write a scraper function to extract and format a table of energy prices from a Javascript-rendered browser page.
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="speed-range">Evolution Speed: <span class="val" id="speed-val">1.0x</span></label>
+                        <input type="range" id="speed-range" min="0.5" max="3" step="0.5" value="1">
+                    </div>
+
+                    <div class="control-group">
+                        <label for="model-creator-select">Skill Builder Model</label>
+                        <select id="model-creator-select">
+                            <option value="opus">Opus 4.6 (Claude Code)</option>
+                            <option value="gpt">GPT 5.2 (Codex)</option>
+                        </select>
+                    </div>
+
+                    <div class="btn-container">
+                        <button class="btn btn-primary" id="run-btn">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                            Run Evolution
+                        </button>
+                        <button class="btn btn-secondary" id="reset-btn" disabled>Reset</button>
+                    </div>
+                </div>
+
+                <!-- Panel 2: Framework Core Rules -->
+                <div class="panel">
+                    <h2 class="panel-title teal">
+                        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        Leakage Constraints
+                    </h2>
+                    <div style="font-size: 0.78rem; display: flex; flex-direction: column; gap: 10px; color: var(--text-secondary);">
+                        <div style="display: flex; gap: 8px; align-items: flex-start;">
+                            <span style="color: var(--color-rose); font-weight: bold;">✕</span>
+                            <span><strong>No Target Supervision:</strong> The verifier runs without access to gold traces, gold answers, or ground-truth evaluations.</span>
+                        </div>
+                        <div style="display: flex; gap: 8px; align-items: flex-start;">
+                            <span style="color: var(--color-rose); font-weight: bold;">✕</span>
+                            <span><strong>No Benchmark Leakage:</strong> Queries strip dataset tags (e.g. <i>"SkillsBench"</i>) to enforce information isolation.</span>
+                        </div>
+                        <div style="display: flex; gap: 8px; align-items: flex-start;">
+                            <span style="color: var(--color-emerald); font-weight: bold;">✓</span>
+                            <span><strong>Anchor Grounding:</strong> Virtual tests are synthesized from official libraries, datasets or invariants found on the web.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Central Column: Interactive Workspace -->
+            <div class="panel" style="flex-grow: 1; min-height: 480px;">
+                <!-- Stage Title -->
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
+                    <div id="stage-display-title" style="font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; color: #ffffff;">Stage 1: Knowledge Acquisition</div>
+                    <div id="evolution-round-badge" style="font-family: var(--font-mono); font-size: 0.75rem; background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-color); display: none;">Round: 0/3</div>
+                </div>
+
+                <div class="pipeline-workspace">
+                    
+                    <!-- STAGE 1 VIEW -->
+                    <div class="stage-view active" id="view-stage-1">
+                        <div class="acquisition-grid">
+                            <!-- Left: Search Simulation -->
+                            <div class="search-sandbox">
+                                <div class="sandbox-header">
+                                    <span>Web Retrieval Engine</span>
+                                    <span style="color: var(--color-indigo); font-family: var(--font-mono);">D(I_i, K)</span>
+                                </div>
+                                <div class="search-bar-sim">
+                                    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                    <span id="search-query-text">Ready...</span>
+                                </div>
+
+                                <!-- Leakage filtering block -->
+                                <div class="leakage-overlay" id="leakage-indicator">
+                                    <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                                    <span>Filtered benchmark terms: <span class="censored-block">SkillsBench</span> to block leakage.</span>
+                                </div>
+
+                                <div class="web-cloud" id="web-cloud-container">
+                                    <div class="cloud-node node-git" id="node-github">
+                                        <div class="node-icon">GH</div>
+                                        <div class="cloud-node-info">
+                                            <span class="cloud-node-title">GitHub Code</span>
+                                            <span class="cloud-node-url">github.com/repos...</span>
+                                        </div>
+                                    </div>
+                                    <div class="cloud-node node-web" id="node-docs">
+                                        <div class="node-icon">Doc</div>
+                                        <div class="cloud-node-info">
+                                            <span class="cloud-node-title">API Library Docs</span>
+                                            <span class="cloud-node-url">playwright.dev/api</span>
+                                        </div>
+                                    </div>
+                                    <div class="cloud-node node-arxiv" id="node-arxiv">
+                                        <div class="node-icon">Ax</div>
+                                        <div class="cloud-node-info">
+                                            <span class="cloud-node-title">Academic Papers</span>
+                                            <span class="cloud-node-url">arxiv.org/html/...</span>
+                                        </div>
+                                    </div>
+                                    <div class="cloud-node node-stack" id="node-stackoverflow">
+                                        <div class="node-icon">SO</div>
+                                        <div class="cloud-node-info">
+                                            <span class="cloud-node-title">StackOverflow</span>
+                                            <span class="cloud-node-url">stackoverflow.com</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right: Document Previews -->
+                            <div class="document-preview-box" id="document-preview-container">
+                                <span class="doc-chip">k_i - Knowledge Documents</span>
+                                <div class="doc-title" id="retrieved-doc-title">Awaiting search initiation...</div>
+                                <div class="doc-snippet" id="retrieved-doc-snippet">Select a scenario and click "Run Evolution" to see OpenSkill fetch grounded knowledge from the open world.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STAGE 2 VIEW -->
+                    <div class="stage-view" id="view-stage-2">
+                        <div class="evolution-workspace">
+                            <!-- Left: Agent Skill Code Terminal -->
+                            <div class="terminal-panel">
+                                <div class="terminal-header">
+                                    <div class="terminal-dots">
+                                        <div class="terminal-dot dot-red"></div>
+                                        <div class="terminal-dot dot-yellow"></div>
+                                        <div class="terminal-dot dot-green"></div>
+                                    </div>
+                                    <div class="terminal-title" id="code-terminal-title">skill_set.py (Agent Reusable Skill)</div>
+                                </div>
+                                <div class="terminal-body" id="code-terminal-body">
+                                    <!-- Code text injected dynamically -->
+                                </div>
+                                
+                                <div class="loop-status-banner" id="terminal-status-banner">
+                                    <div class="pulse-dot" id="status-pulse-dot"></div>
+                                    <span id="status-pulse-text">Evolution Idle</span>
+                                </div>
+
+                                <!-- Diagnostic Popup -->
+                                <div class="diagnostic-card" id="diag-overlay-card">
+                                    <div class="diag-header">
+                                        <span class="diag-title" id="diag-title-content">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                            Diagnostic F^(j)
+                                        </span>
+                                        <span class="classifier-tag" id="diag-classifier-tag">GAP DIAGNOSIS</span>
+                                    </div>
+                                    <div class="diag-body" id="diag-body-content">
+                                        Test failed: Check element count > 0 (Got: 0).
+                                        Target error is identified as a Knowledge Gap (missing browser automation). Triggering targeted documentation search...
+                                    </div>
+                                    <div class="diag-footer" id="diag-footer-text">
+                                        Classifier confidence: 94.2% // Firing targeted retrieval
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right: Verifier Test Runner Terminal -->
+                            <div class="terminal-panel">
+                                <div class="terminal-header">
+                                    <div class="terminal-dots">
+                                        <div class="terminal-dot"></div>
+                                        <div class="terminal-dot"></div>
+                                        <div class="terminal-dot"></div>
+                                    </div>
+                                    <div class="terminal-title">pytest test_suite_surrogate.py</div>
+                                </div>
+                                <div class="terminal-body test-runner" id="test-runner-body">
+                                    <!-- Test results injected dynamically -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STAGE 3 VIEW -->
+                    <div class="stage-view" id="view-stage-3">
+                        <div class="deployment-workspace">
+                            <!-- Left: Target Model Deployment -->
+                            <div style="display: flex; flex-direction: column; gap: 12px;">
+                                <div style="font-size: 0.82rem; color: var(--text-secondary); font-weight: 500;">Select Target Deployment Agent:</div>
+                                <div class="model-select-grid">
+                                    <div class="model-card-sim selected" id="target-model-opus">
+                                        <div class="model-sim-icon">O4</div>
+                                        <div class="model-sim-name">Opus 4.6</div>
+                                        <div class="model-sim-type">Claude Code</div>
+                                    </div>
+                                    <div class="model-card-sim" id="target-model-gpt">
+                                        <div class="model-sim-icon">G5</div>
+                                        <div class="model-sim-name">GPT 5.2</div>
+                                        <div class="model-sim-type">Codex</div>
+                                    </div>
+                                    <div class="model-card-sim" id="target-model-qwen">
+                                        <div class="model-sim-icon">Qw</div>
+                                        <div class="model-sim-name">Qwen 3 Coder</div>
+                                        <div class="model-sim-type">Target Transfer</div>
+                                    </div>
+                                    <div class="model-card-sim" id="target-model-haiku">
+                                        <div class="model-sim-icon">H4</div>
+                                        <div class="model-sim-name">Haiku 4.5</div>
+                                        <div class="model-sim-type">Target Transfer</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right: Ground-Truth Validation Outputs -->
+                            <div class="evaluation-details">
+                                <div class="locked-badge-sim" id="lock-badge">
+                                    <svg viewBox="0 0 24 24" id="lock-svg-icon"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                    <span id="lock-badge-text">Locked Target Evaluation</span>
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 8px;">
+                                    <div style="font-family: var(--font-display); font-weight: 600; font-size: 1rem; color: #ffffff;">Ground-Truth Validation</div>
+                                    <p style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.45;">
+                                        With the evolved skill frozen, the target agent is deployed zero-shot. We run the hidden ground-truth test suite <span style="font-family: var(--font-mono); color:#fb7185;">T^GT</span> to evaluate final rewards.
+                                    </p>
+                                </div>
+
+                                <div class="deployment-stats">
+                                    <div class="stat-dial-box">
+                                        <div class="circular-progress">
+                                            <svg viewBox="0 0 80 80" style="width: 100%; height: 100%;">
+                                                <circle cx="40" cy="40" r="36" class="bg-circle" />
+                                                <circle cx="40" cy="40" r="36" class="fg-circle" id="gt-progress-circle" />
+                                            </svg>
+                                            <div class="dial-label" id="gt-dial-percentage">0%</div>
+                                        </div>
+                                        <span style="font-size: 0.65rem; color: var(--text-secondary); margin-top: 8px; font-weight: bold; font-family: var(--font-display);">GT Pass Rate</span>
+                                    </div>
+
+                                    <div class="stat-meta">
+                                        <div class="stat-row-sim">
+                                            <span class="lbl">Baseline (No Skill):</span>
+                                            <span class="num" id="stat-val-baseline">25.0%</span>
+                                        </div>
+                                        <div class="stat-row-sim">
+                                            <span class="lbl">OpenSkill Evolved:</span>
+                                            <span class="num" style="color: var(--color-teal);" id="stat-val-openskill">--</span>
+                                        </div>
+                                        <div class="stat-row-sim" style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 6px; margin-top: 4px;">
+                                            <span class="lbl">Improvement:</span>
+                                            <span class="num plus-gain" id="stat-val-gain">--</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Charts & Metrics Dashboard -->
+            <div class="sidebar-right" style="display: flex; flex-direction: column; gap: 20px;">
+                <!-- RQ1: Transferability Chart -->
+                <div class="chart-card">
+                    <div class="chart-header-row">
+                        <span class="chart-title-sim">RQ1: Cross-Model Transfer (SkillsBench)</span>
+                        <span style="font-size: 0.65rem; color: var(--text-muted); font-family: var(--font-mono);">Opus Source</span>
+                    </div>
+                    <div class="bar-chart-container" id="transfer-chart">
+                        <!-- Bar chart rows injected dynamically -->
+                    </div>
+                    <div style="font-size: 0.68rem; color: var(--text-secondary); line-height: 1.3;">
+                        <strong>Transfer Insight:</strong> Skills evolved using Opus 4.6 generalise across different targets without model adaptation.
+                    </div>
+                </div>
+
+                <!-- RQ2: Verifier Alignment Metrics -->
+                <div class="chart-card">
+                    <div class="chart-header-row">
+                        <span class="chart-title-sim">RQ2: Virtual Verifier Quality</span>
+                        <span style="font-size: 0.65rem; color: var(--color-teal); font-family: var(--font-mono);">No GT Access</span>
+                    </div>
+                    <div class="rq-gauges-grid">
+                        <div class="gauge-col">
+                            <div class="mini-circular-progress">
+                                <svg viewBox="0 0 54 54" style="width:100%; height:100%;">
+                                    <circle cx="27" cy="27" r="25" class="bg-circle" />
+                                    <circle cx="27" cy="27" r="25" class="fg-circle" id="precision-circle" />
+                                </svg>
+                                <div class="mini-dial-label" id="precision-label">0%</div>
+                            </div>
+                            <span class="gauge-name">Precision</span>
+                        </div>
+                        <div class="gauge-col">
+                            <div class="mini-circular-progress">
+                                <svg viewBox="0 0 54 54" style="width:100%; height:100%;">
+                                    <circle cx="27" cy="27" r="25" class="bg-circle" />
+                                    <circle cx="27" cy="27" r="25" class="fg-circle teal-gauge" id="recall-circle" />
+                                </svg>
+                                <div class="mini-dial-label" id="recall-label">0%</div>
+                            </div>
+                            <span class="gauge-name">Recall</span>
+                        </div>
+                        <div class="gauge-col">
+                            <div class="mini-circular-progress">
+                                <svg viewBox="0 0 54 54" style="width:100%; height:100%;">
+                                    <circle cx="27" cy="27" r="25" class="bg-circle" />
+                                    <circle cx="27" cy="27" r="25" class="fg-circle coral-gauge" id="intent-circle" />
+                                </svg>
+                                <div class="mini-dial-label" id="intent-label">0%</div>
+                            </div>
+                            <span class="gauge-name">Intent Cov.</span>
+                        </div>
+                    </div>
+                    <div style="font-size: 0.68rem; color: var(--text-secondary); line-height: 1.3;">
+                        <strong>Surrogate Alignment:</strong> High semantic overlap (88.9%) ensures proxy tests match human design intents.
+                    </div>
+                </div>
+
+                <!-- Overall Benchmark Statistics -->
+                <div class="chart-card">
+                    <div class="chart-header-row">
+                        <span class="chart-title-sim">SkillsBench Overall Performance</span>
+                        <span style="font-size: 0.65rem; color: var(--text-muted); font-family: var(--font-mono);">Average Pass Rate</span>
+                    </div>
+                    <div class="bar-chart-container" id="benchmark-chart">
+                        <!-- Overall benchmarks bar charts -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            Concepts Visualizer // OpenSkill Demonstration // CC BY 4.0 License
+        </footer>
+    </div>
+
+    <!-- Interactive script engine -->
+    <script>
+        // Scenarios Database
+        const SCENARIOS = {
+            scraping: {
+                title: "Web Scraping Task",
+                desc: "Write a scraper function to extract and format a table of energy prices from a Javascript-rendered browser page.",
+                queries: [
+                    "python playwright API dynamic content extraction",
+                    "playwright selector wait table row nodes",
+                    "scraping table data schema price verification"
+                ],
+                verificationAnchors: {
+                    title: "Official Price API Docs & Formats",
+                    snippet: "Verification Invariant: Energy price tables contain exactly 50 rows.\nTable has headers: ['Timestamp', 'Node', 'Price ($/MWh)', 'Status'].\nPrice metrics must be floats within range [0.0, 500.0]."
+                },
+                code: {
+                    round0: `def extract_prices(url):\n    import requests\n    # DRAFT ROUND 0: Basic GET request\n    response = requests.get(url)\n    # PROBLEM: Website is loaded dynamically via JS.\n    # requests.get misses JS-loaded tables.\n    return []`,
+                    round1: `def extract_prices(url):\n    from playwright.sync_api import sync_playwright\n    # REFINED ROUND 1: Using Playwright browser\n    with sync_playwright() as p:\n        browser = p.chromium.launch()\n        page = browser.new_page()\n        page.goto(url)\n        # PROBLEM: Table load is async, selector triggers early.\n        rows = page.query_selector_all("table.price-grid tr")\n        data = [r.inner_text() for r in rows]\n        browser.close()\n        return data`,
+                    round2: `def extract_prices(url):\n    from playwright.sync_api import sync_playwright\n    # FINAL EVOLVED: Wait for selector and parse elements\n    with sync_playwright() as p:\n        browser = p.chromium.launch()\n        page = browser.new_page()\n        page.goto(url)\n        # Wait for dynamic table rows to fully resolve\n        page.wait_for_selector("table.price-grid tr:nth-child(50)")\n        rows = page.query_selector_all("table.price-grid tr")\n        result = []\n        for row in rows:\n            cols = row.query_selector_all("td")\n            if cols:\n                result.append({\n                    "timestamp": cols[0].inner_text(),\n                    "node": cols[1].inner_text(),\n                    "price": float(cols[2].inner_text().replace("$","")),\n                    "status": cols[3].inner_text()\n                })\n        browser.close()\n        return result`
+                },
+                tests: {
+                    round0: [
+                        { name: "test_empty_output", status: "FAIL", note: "Length of result (0) == 50" },
+                        { name: "test_schema_columns", status: "FAIL", note: "Headers not found" },
+                        { name: "test_float_bounds", status: "FAIL", note: "Empty lists yield no prices" }
+                    ],
+                    round1: [
+                        { name: "test_empty_output", status: "FAIL", note: "Partial load: Row count (12) != 50" },
+                        { name: "test_schema_columns", status: "PASS", note: "Header structure validated" },
+                        { name: "test_float_bounds", status: "FAIL", note: "Prices are string representations, not floats" }
+                    ],
+                    round2: [
+                        { name: "test_empty_output", status: "PASS", note: "Row count is exactly 50" },
+                        { name: "test_schema_columns", status: "PASS", note: "Valid headers ['Timestamp', 'Node', 'Price', 'Status']" },
+                        { name: "test_float_bounds", status: "PASS", note: "All prices validated as floats in range [0, 500.0]" }
+                    ]
+                },
+                diagnostics: {
+                    round0: {
+                        tag: "Knowledge Gap",
+                        body: "Test test_empty_output failed: Table returned empty list. Cause: Target uses Javascript frameworks to render grid after document load. Code lacks JS client runtime support.",
+                        source: "Retrieved Playwright library docs: sync_playwright wrapper for chromium tasks.",
+                        conf: "94.2% gap confidence"
+                    },
+                    round1: {
+                        tag: "Implementation Bug",
+                        body: "Test test_empty_output failed: Row count is 12, expected 50. Cause: Code extracted rows before async websocket populated all elements. Missing wait constraint on selector.",
+                        source: "Modified logic directly to add wait_for_selector on final element limit.",
+                        conf: "98.5% bug confidence"
+                    }
+                },
+                results: {
+                    opus: { baseline: "25.0%", openskill: "59.9%", gain: "+34.9%" },
+                    gpt: { baseline: "20.0%", openskill: "45.0%", gain: "+25.0%" },
+                    qwen: { baseline: "12.5%", openskill: "30.0%", gain: "+17.5%" },
+                    haiku: { baseline: "15.0%", openskill: "32.5%", gain: "+17.5%" }
+                }
+            },
+            security: {
+                title: "Exploit Finder Task",
+                desc: "Write an audit utility using Abstract Syntax Trees (AST) that checks Python files for SQL injection vulnerabilities.",
+                queries: [
+                    "python ast module inspect string interpolation in database execution",
+                    "detect sql injection ast vulnerability patterns bandit rules",
+                    "cwe-89 sql injection ast node checks formatting"
+                ],
+                verificationAnchors: {
+                    title: "Bandit & OWASP AST Invariants",
+                    snippet: "Verification Invariant: Code must detect f-string injections: cursor.execute(f'SELECT...').\nMust detect standard concatenation cursor.execute('SELECT...' + param).\nShould NOT flag parameterized queries: cursor.execute('SELECT...', (param,))."
+                },
+                code: {
+                    round0: `def audit_sql_calls(filepath):\n    # DRAFT ROUND 0: Simple regex string matching\n    with open(filepath) as f:\n        code = f.read()\n    # PROBLEM: regex has massive false positive rate.\n    # Misses ast-based context and parameters.\n    if "cursor.execute" in code and "+" in code:\n        return ["Possible SQLi"]\n    return []`,
+                    round1: `import ast\ndef audit_sql_calls(filepath):\n    # REFINED ROUND 1: Walk AST tree nodes\n    with open(filepath) as f:\n        tree = ast.parse(f.read())\n    issues = []\n    for node in ast.walk(tree):\n        if isinstance(node, ast.Call):\n            # Check if calling cursor.execute\n            if getattr(node.func, 'attr', '') == 'execute':\n                # PROBLEM: Flagging everything in execute()\n                # Parameterized queries get flagged too.\n                issues.append("Cursor execute call found")\n    return issues`,
+                    round2: `import ast\ndef audit_sql_calls(filepath):\n    # FINAL EVOLVED: Detailed AST checks with exclusion\n    with open(filepath) as f:\n        tree = ast.parse(f.read())\n    issues = []\n    for node in ast.walk(tree):\n        if isinstance(node, ast.Call):\n            # Verify function call signature\n            if isinstance(node.func, ast.Attribute) and node.func.attr == 'execute':\n                if len(node.args) > 0:\n                    first_arg = node.args[0]\n                    # Identify unsafe formatting (f-string or binOp concats)\n                    if isinstance(first_arg, (ast.JoinedStr, ast.BinOp)):\n                        # Ensure no safe parameterized list is supplied\n                        if len(node.args) < 2:\n                            issues.append(f"SQL Injection threat at line {node.lineno}")\n    return issues`
+                },
+                tests: {
+                    round0: [
+                        { name: "test_detect_fstring", status: "FAIL", note: "Missed f-string injections" },
+                        { name: "test_exclude_parameterized", status: "FAIL", note: "False positives on safe queries" },
+                        { name: "test_ast_parsing", status: "FAIL", note: "String operations match comments" }
+                    ],
+                    round1: [
+                        { name: "test_detect_fstring", status: "PASS", note: "Identified f-stringexecute call" },
+                        { name: "test_exclude_parameterized", status: "FAIL", note: "Flagged safe cursor.execute('SELECT...', (id,))" },
+                        { name: "test_ast_parsing", status: "PASS", note: "AST structural walk successful" }
+                    ],
+                    round2: [
+                        { name: "test_detect_fstring", status: "PASS", note: "All dynamic format executecalls detected" },
+                        { name: "test_exclude_parameterized", status: "PASS", note: "Parameterized arguments safely ignored" },
+                        { name: "test_ast_parsing", status: "PASS", note: "Detailed AST structure validated" }
+                    ]
+                },
+                diagnostics: {
+                    round0: {
+                        tag: "Knowledge Gap",
+                        body: "Test test_ast_parsing failed. Cause: Text-level string match triggers alerts on comments and misses multiline blocks. Need structural AST parsing via standard 'ast' library.",
+                        source: "Retrieved Python standard library docs: ast.NodeVisitor, AST node types.",
+                        conf: "91.8% gap confidence"
+                    },
+                    round1: {
+                        tag: "Implementation Bug",
+                        body: "Test test_exclude_parameterized failed: Parameterized calls flagged. Cause: Walk code checks for any execute call without filtering arguments. Target parameter arguments are safe.",
+                        source: "Modified AST check to inspect ast.Call arguments for JoinStr/BinOp checks.",
+                        conf: "96.4% bug confidence"
+                    }
+                },
+                results: {
+                    opus: { baseline: "20.0%", openskill: "52.5%", gain: "+32.5%" },
+                    gpt: { baseline: "22.5%", openskill: "50.0%", gain: "+27.5%" },
+                    qwen: { baseline: "8.0%", openskill: "24.0%", gain: "+16.0%" },
+                    haiku: { baseline: "10.0%", openskill: "26.0%", gain: "+16.0%" }
+                }
+            },
+            social: {
+                title: "Social Maze Task",
+                desc: "Write a pathfinder routing algorithm through a graph, moving only between characters with a positive social relationship score.",
+                queries: [
+                    "python networkx custom edge weight shortest path filter",
+                    "networkx graph edge filtering conditional traversal",
+                    "exception handling networkx no path between nodes"
+                ],
+                verificationAnchors: {
+                    title: "NetworkX API Spec & Routing Rules",
+                    snippet: "Verification Invariant: Edges must be traversed if relationship > 0.\nNodes must handle NetworkXNoPath exceptions gracefully.\nOutput must return a sequence list of strings representing nodes."
+                },
+                code: {
+                    round0: `def find_social_path(graph, start, end):\n    # DRAFT ROUND 0: Simple DFS without weights\n    # PROBLEM: Ignores social constraints\n    path = [start]\n    # BFS/DFS basic implementation which traverses any edge\n    return path + [end]`,
+                    round1: `import networkx as nx\ndef find_social_path(graph, start, end):\n    # REFINED ROUND 1: Using NetworkX with filter\n    # PROBLEM: Throws exception when no path exists.\n    # Missing try-except safety bounds.\n    g = nx.DiGraph(graph)\n    filtered_edges = [(u,v) for u,v,d in g.edges(data=True) if d.get('weight', 0) > 0]\n    g_filtered = nx.DiGraph(filtered_edges)\n    return nx.shortest_path(g_filtered, start, end)`,
+                    round2: `import networkx as nx\ndef find_social_path(graph, start, end):\n    # FINAL EVOLVED: Full NetworkX safety checks\n    g = nx.DiGraph()\n    for u, v, d in graph:\n        # Ensure we only include positive relationships\n        if d.get('social_score', 0) > 0:\n            g.add_edge(u, v)\n            \n    if start not in g or end not in g:\n        return []\n    try:\n        return nx.shortest_path(g, start, end)\n    except nx.NetworkXNoPath:\n        # Handle disconnected maze graphs gracefully\n        return []`
+                },
+                tests: {
+                    round0: [
+                        { name: "test_positive_only", status: "FAIL", note: "Traversed negative relationship edge" },
+                        { name: "test_valid_path", status: "PASS", note: "Returns path start to end" },
+                        { name: "test_no_path_safety", status: "FAIL", note: "No path yields dummy value" }
+                    ],
+                    round1: [
+                        { name: "test_positive_only", status: "PASS", note: "Only traverses positive relationship edges" },
+                        { name: "test_valid_path", status: "PASS", note: "Shortest route successfully parsed" },
+                        { name: "test_no_path_safety", status: "FAIL", note: "Crashes on disconnected nodes (NetworkXNoPath)" }
+                    ],
+                    round2: [
+                        { name: "test_positive_only", status: "PASS", note: "Filters negative links correctly" },
+                        { name: "test_valid_path", status: "PASS", note: "Correct shortest path array returned" },
+                        { name: "test_no_path_safety", status: "PASS", note: "Returns empty array on NetworkXNoPath without crashing" }
+                    ]
+                },
+                diagnostics: {
+                    round0: {
+                        tag: "Implementation Bug",
+                        body: "Test test_positive_only failed: Path traverses negative weights. Cause: Simple path finder has no edge parameter filter checks.",
+                        source: "Imported NetworkX library. Added conditional subgraphs filters.",
+                        conf: "98.1% bug confidence"
+                    },
+                    round1: {
+                        tag: "Knowledge Gap",
+                        body: "Test test_no_path_safety failed: Script crashes. Cause: networkx.shortest_path raises a NetworkXNoPath exception when graphs are disconnected. Need try-except block.",
+                        source: "Retrieved NetworkX Exception API: nx.NetworkXNoPath handling details.",
+                        conf: "92.0% gap confidence"
+                    }
+                },
+                results: {
+                    opus: { baseline: "75.0%", openskill: "82.7%", gain: "+7.7%" },
+                    gpt: { baseline: "60.0%", openskill: "70.7%", gain: "+10.7%" },
+                    qwen: { baseline: "42.0%", openskill: "58.0%", gain: "+16.0%" },
+                    haiku: { baseline: "45.0%", openskill: "61.0%", gain: "+16.0%" }
+                }
+            }
+        };
+
+        // Static charts database
+        const CHART_DATA = {
+            transfer: {
+                haiku: { label: "Haiku 4.5", baseline: 28.5, openskill: 38.6 },
+                qwen: { label: "Qwen 3 Coder", baseline: 22.0, openskill: 32.5 },
+                deepseek: { label: "DeepSeek V3", baseline: 30.2, openskill: 45.0 },
+                mistral: { label: "Mistral L3.3", baseline: 26.8, openskill: 39.8 }
+            },
+            benchmark: [
+                { name: "No Skill", value: 25.0, type: "baseline" },
+                { name: "Self-Gen", value: 31.4, type: "baseline" },
+                { name: "CoT", value: 33.3, type: "baseline" },
+                { name: "Skill Creator", value: 34.7, type: "baseline" },
+                { name: "AutoSkill", value: 24.7, type: "worse" },
+                { name: "Memento", value: 30.1, type: "baseline" },
+                { name: "OpenSkill (Ours)", value: 43.6, type: "openskill" }
+            ],
+            verifier: {
+                precision: 56.9,
+                recall: 80.5,
+                intent: 88.9
+            }
+        };
+
+        // UI State Variables
+        let currentScenario = "scraping";
+        let currentStage = 1;
+        let speedMultiplier = 1;
+        let selectedTargetModel = "opus";
+        let isRunning = false;
+        let animationTimer = null;
+        let currentRound = 0;
+
+        // HTML Elements
+        const scenarioSelect = document.getElementById("scenario-select");
+        const taskTitle = document.getElementById("task-title");
+        const taskDescription = document.getElementById("task-description");
+        const speedRange = document.getElementById("speed-range");
+        const speedVal = document.getElementById("speed-val");
+        const modelCreatorSelect = document.getElementById("model-creator-select");
+        const runBtn = document.getElementById("run-btn");
+        const resetBtn = document.getElementById("reset-btn");
+        const stageDisplayTitle = document.getElementById("stage-display-title");
+        const roundBadge = document.getElementById("evolution-round-badge");
+        
+        // Stage 1 elements
+        const viewStage1 = document.getElementById("view-stage-1");
+        const searchQueryText = document.getElementById("search-query-text");
+        const leakageIndicator = document.getElementById("leakage-indicator");
+        const docTitle = document.getElementById("retrieved-doc-title");
+        const docSnippet = document.getElementById("retrieved-doc-snippet");
+        const nodeGithub = document.getElementById("node-github");
+        const nodeDocs = document.getElementById("node-docs");
+        const nodeArxiv = document.getElementById("node-arxiv");
+        const nodeStackoverflow = document.getElementById("node-stackoverflow");
+        
+        // Stage 2 elements
+        const viewStage2 = document.getElementById("view-stage-2");
+        const codeTerminalBody = document.getElementById("code-terminal-body");
+        const testRunnerBody = document.getElementById("test-runner-body");
+        const diagOverlayCard = document.getElementById("diag-overlay-card");
+        const diagTitleContent = document.getElementById("diag-title-content");
+        const diagClassifierTag = document.getElementById("diag-classifier-tag");
+        const diagBodyContent = document.getElementById("diag-body-content");
+        const diagFooterText = document.getElementById("diag-footer-text");
+        const terminalStatusBanner = document.getElementById("terminal-status-banner");
+        const statusPulseDot = document.getElementById("status-pulse-dot");
+        const statusPulseText = document.getElementById("status-pulse-text");
+
+        // Stage 3 elements
+        const viewStage3 = document.getElementById("view-stage-3");
+        const targetModelOpus = document.getElementById("target-model-opus");
+        const targetModelGpt = document.getElementById("target-model-gpt");
+        const targetModelQwen = document.getElementById("target-model-qwen");
+        const targetModelHaiku = document.getElementById("target-model-haiku");
+        const lockBadge = document.getElementById("lock-badge");
+        const lockBadgeText = document.getElementById("lock-badge-text");
+        const lockSvgIcon = document.getElementById("lock-svg-icon");
+        const gtProgressCircle = document.getElementById("gt-progress-circle");
+        const gtDialPercentage = document.getElementById("gt-dial-percentage");
+        const statValBaseline = document.getElementById("stat-val-baseline");
+        const statValOpenSkill = document.getElementById("stat-val-openskill");
+        const statValGain = document.getElementById("stat-val-gain");
+
+        // Flowbar Steps
+        const flowStep1 = document.getElementById("flow-step-1");
+        const flowStep2 = document.getElementById("flow-step-2");
+        const flowStep3 = document.getElementById("flow-step-3");
+
+        // Set up Event Listeners
+        scenarioSelect.addEventListener("change", handleScenarioChange);
+        speedRange.addEventListener("input", handleSpeedChange);
+        runBtn.addEventListener("click", toggleSimulation);
+        resetBtn.addEventListener("click", resetSimulation);
+        
+        const targetModelCards = [targetModelOpus, targetModelGpt, targetModelQwen, targetModelHaiku];
+        targetModelCards.forEach(card => {
+            card.addEventListener("click", () => {
+                if (currentStage === 3) {
+                    targetModelCards.forEach(c => c.classList.remove("selected"));
+                    card.classList.add("selected");
+                    selectedTargetModel = card.id.replace("target-model-", "");
+                    updateDeploymentDetails();
+                }
+            });
+        });
+
+        // Initialize App
+        function init() {
+            renderCharts();
+            loadScenario(currentScenario);
+            resetSimulation();
+        }
+
+        // Load Scenario data
+        function loadScenario(key) {
+            const data = SCENARIOS[key];
+            taskTitle.innerText = data.title;
+            taskDescription.innerText = data.desc;
+            
+            // Set node URLs for context
+            if (key === 'security') {
+                nodeDocs.querySelector('.cloud-node-title').innerText = "Security AST Parser";
+                nodeDocs.querySelector('.cloud-node-url').innerText = "docs.python.org/3/ast";
+            } else if (key === 'social') {
+                nodeDocs.querySelector('.cloud-node-title').innerText = "NetworkX Graph API";
+                nodeDocs.querySelector('.cloud-node-url').innerText = "networkx.org/documentation";
+            } else {
+                nodeDocs.querySelector('.cloud-node-title').innerText = "API Library Docs";
+                nodeDocs.querySelector('.cloud-node-url').innerText = "playwright.dev/api";
+            }
+        }
+
+        function handleScenarioChange(e) {
+            currentScenario = e.target.value;
+            loadScenario(currentScenario);
+            resetSimulation();
+        }
+
+        function handleSpeedChange(e) {
+            speedMultiplier = parseFloat(e.target.value);
+            speedVal.innerText = `${speedMultiplier.toFixed(1)}x`;
+        }
+
+        // Render Static Charts and Gauges
+        function renderCharts() {
+            // Render Transfer Chart
+            const transferContainer = document.getElementById("transfer-chart");
+            transferContainer.innerHTML = '';
+            for (let k in CHART_DATA.transfer) {
+                const item = CHART_DATA.transfer[k];
+                const baseWidth = item.baseline;
+                const openWidth = item.openskill;
+                
+                const row = document.createElement("div");
+                row.className = "bar-chart-row";
+                row.innerHTML = `
+                    <div class="bar-label">${item.label}</div>
+                    <div style="display:flex; flex-direction:column; gap:4px;">
+                        <div class="bar-track">
+                            <div class="bar-fill fill-baseline" style="width: ${baseWidth}%"></div>
+                        </div>
+                        <div class="bar-track">
+                            <div class="bar-fill fill-openskill" style="width: ${openWidth}%"></div>
+                        </div>
+                    </div>
+                    <div class="bar-value" style="display:flex; flex-direction:column; line-height: 1.2;">
+                        <span style="font-size:0.6rem; color:var(--text-secondary);">${baseWidth}%</span>
+                        <span style="font-size:0.68rem; color:var(--color-teal);">${openWidth}%</span>
+                    </div>
+                `;
+                transferContainer.appendChild(row);
+            }
+
+            // Render Benchmark Chart
+            const benchContainer = document.getElementById("benchmark-chart");
+            benchContainer.innerHTML = '';
+            CHART_DATA.benchmark.forEach(item => {
+                const row = document.createElement("div");
+                row.className = "bar-chart-row";
+                
+                let fillClass = "fill-baseline";
+                if (item.type === "openskill") fillClass = "fill-openskill";
+                if (item.type === "worse") fillClass = "fill-worse";
+
+                row.innerHTML = `
+                    <div class="bar-label">${item.name}</div>
+                    <div class="bar-track">
+                        <div class="bar-fill ${fillClass}" style="width: ${item.value * 2}%"></div>
+                    </div>
+                    <div class="bar-value">${item.value.toFixed(1)}%</div>
+                `;
+                benchContainer.appendChild(row);
+            });
+
+            // Render Gauges (RQ2)
+            animateGauge("precision-circle", "precision-label", CHART_DATA.verifier.precision, 157);
+            animateGauge("recall-circle", "recall-label", CHART_DATA.verifier.recall, 157);
+            animateGauge("intent-circle", "intent-label", CHART_DATA.verifier.intent, 157);
+        }
+
+        function animateGauge(circleId, labelId, value, perimeter) {
+            const circle = document.getElementById(circleId);
+            const label = document.getElementById(labelId);
+            
+            const offset = perimeter - (perimeter * value) / 100;
+            circle.style.strokeDashoffset = offset;
+            label.innerText = `${value.toFixed(1)}%`;
+        }
+
+        // Text typing utility helper
+        function typeText(element, text, callback, index = 0, charDelay = 15) {
+            if (!isRunning) return;
+            if (index < text.length) {
+                element.innerText = text.slice(0, index + 1);
+                animationTimer = setTimeout(() => {
+                    typeText(element, text, callback, index + 1, charDelay);
+                }, charDelay / speedMultiplier);
+            } else if (callback) {
+                callback();
+            }
+        }
+
+        // Dynamic code syntax formatting
+        function formatPythonCode(code) {
+            return code
+                .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+                .replace(/\b(def|import|from|with|as|for|in|if|elif|else|return|try|except|pass)\b/g, '<span class="syntax-keyword">$1</span>')
+                .replace(/\b(print|float|getattr|open|len|isinstance)\b/g, '<span class="syntax-func">$1</span>')
+                .replace(/(".*?"|'.*?'|f'.*?')/g, '<span class="syntax-str">$1</span>')
+                .replace(/(#.*)/g, '<span class="syntax-comment">$1</span>')
+                .replace(/\b(\d+)\b/g, '<span class="syntax-num">$1</span>')
+                .replace(/\b(DiGraph|shortest_path|NetworkXNoPath|JoinedStr|BinOp|Call|Attribute|NodeVisitor|execute|chromium|sync_playwright|query_selector_all|inner_text)\b/g, '<span class="syntax-class">$1</span>');
+        }
+
+        // State Machine controllers
+        function toggleSimulation() {
+            if (isRunning) {
+                pauseSimulation();
+            } else {
+                startSimulation();
+            }
+        }
+
+        function startSimulation() {
+            isRunning = true;
+            runBtn.innerHTML = `
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+                Pause Evolution
+            `;
+            resetBtn.disabled = false;
+            scenarioSelect.disabled = true;
+            modelCreatorSelect.disabled = true;
+            
+            // Resume step sequence
+            runNextSubStep();
+        }
+
+        function pauseSimulation() {
+            isRunning = false;
+            runBtn.innerHTML = `
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                Resume Evolution
+            `;
+            clearTimeout(animationTimer);
+        }
+
+        function resetSimulation() {
+            pauseSimulation();
+            currentStage = 1;
+            currentRound = 0;
+            
+            runBtn.innerHTML = `
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                Run Evolution
+            `;
+            runBtn.disabled = false;
+            resetBtn.disabled = true;
+            scenarioSelect.disabled = false;
+            modelCreatorSelect.disabled = false;
+
+            // Reset Pipeline steps
+            flowStep1.className = "flowbar-step active step-1";
+            flowStep2.className = "flowbar-step step-2";
+            flowStep3.className = "flowbar-step step-3";
+            
+            stageDisplayTitle.innerText = "Stage 1: Knowledge Acquisition";
+            roundBadge.style.display = "none";
+
+            // Stage 1 resets
+            viewStage1.className = "stage-view active";
+            searchQueryText.innerText = "Ready...";
+            leakageIndicator.style.display = "none";
+            docTitle.innerText = "Awaiting search initiation...";
+            docSnippet.innerText = "Select a scenario and click 'Run Evolution' to see OpenSkill fetch grounded knowledge from the open world.";
+            
+            document.querySelectorAll(".cloud-node").forEach(node => node.classList.remove("active-query"));
+
+            // Stage 2 resets
+            viewStage2.className = "stage-view";
+            codeTerminalBody.innerHTML = '';
+            testRunnerBody.innerHTML = '';
+            diagOverlayCard.style.display = "none";
+            
+            statusPulseDot.className = "pulse-dot";
+            statusPulseText.innerText = "Evolution Idle";
+
+            // Stage 3 resets
+            viewStage3.className = "stage-view";
+            lockBadge.className = "locked-badge-sim";
+            lockBadgeText.innerText = "Locked Target Evaluation";
+            lockSvgIcon.innerHTML = '<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>';
+            
+            const circle = document.getElementById("gt-progress-circle");
+            circle.style.strokeDashoffset = 226;
+            gtDialPercentage.innerText = "0%";
+            statValOpenSkill.innerText = "--";
+            statValGain.innerText = "--";
+
+            // Reset target card UI selections
+            targetModelCards.forEach(c => c.classList.remove("selected"));
+            targetModelOpus.classList.add("selected");
+            selectedTargetModel = "opus";
+        }
+
+        // Substep execution based on current stages
+        let executionStep = 0;
+        function runNextSubStep() {
+            if (!isRunning) return;
+
+            if (currentStage === 1) {
+                runStage1Flow();
+            } else if (currentStage === 2) {
+                runStage2Flow();
+            } else if (currentStage === 3) {
+                runStage3Flow();
+            }
+        }
+
+        /* --- STAGE 1 RETRIEVAL WORKFLOW --- */
+        function runStage1Flow() {
+            const data = SCENARIOS[currentScenario];
+            
+            // Substep 1.1: Generate and execute Search Query 1
+            searchQueryText.innerText = "Generating query (removing leakage attributes)...";
+            
+            animationTimer = setTimeout(() => {
+                // Show Leakage censorship animation
+                leakageIndicator.style.display = "flex";
+                
+                animationTimer = setTimeout(() => {
+                    leakageIndicator.style.display = "none";
+                    searchQueryText.innerText = data.queries[0];
+                    nodeDocs.classList.add("active-query");
+                    
+                    // Trigger packet animation
+                    animatePacket(nodeDocs, 1000, () => {
+                        docTitle.innerText = "Documentation Fragment Retreived";
+                        docSnippet.innerText = `[Snippet: ${nodeDocs.querySelector(".cloud-node-title").innerText}]\n` + data.verificationAnchors.snippet.slice(0, 140) + "...";
+                        
+                        // Fetch Verification knowledge
+                        animationTimer = setTimeout(() => {
+                            searchQueryText.innerText = data.queries[1];
+                            nodeDocs.classList.remove("active-query");
+                            nodeGithub.classList.add("active-query");
+                            
+                            animatePacket(nodeGithub, 1000, () => {
+                                docTitle.innerHTML = `<span class="doc-chip verifier-chip">k_i^v - Verifier Invariant</span><br>${data.verificationAnchors.title}`;
+                                docSnippet.innerText = data.verificationAnchors.snippet;
+                                
+                                animationTimer = setTimeout(() => {
+                                    nodeGithub.classList.remove("active-query");
+                                    searchQueryText.innerText = "Retrieval complete. Grounded verification anchors resolved.";
+                                    
+                                    animationTimer = setTimeout(() => {
+                                        // Transition to Stage 2
+                                        transitionToStage(2);
+                                    }, 1500 / speedMultiplier);
+                                }, 1000 / speedMultiplier);
+                            });
+                        }, 1500 / speedMultiplier);
+                    });
+                }, 1800 / speedMultiplier);
+            }, 1000 / speedMultiplier);
+        }
+
+        /* --- STAGE 2 PRACTICE EVOLUTION LOOP --- */
+        function runStage2Flow() {
+            const data = SCENARIOS[currentScenario];
+            roundBadge.innerText = `Round: ${currentRound + 1}/3`;
+            
+            statusPulseDot.className = "pulse-dot pulse-amber";
+            statusPulseText.innerText = `Drafting Skill (Round ${currentRound})`;
+
+            // Load code draft for this round
+            let roundCode = "";
+            let roundTests = [];
+            let diagnostics = null;
+
+            if (currentRound === 0) {
+                roundCode = data.code.round0;
+                roundTests = data.tests.round0;
+                diagnostics = data.diagnostics.round0;
+            } else if (currentRound === 1) {
+                roundCode = data.code.round1;
+                roundTests = data.tests.round1;
+                diagnostics = data.diagnostics.round1;
+            } else {
+                roundCode = data.code.round2;
+                roundTests = data.tests.round2;
+            }
+
+            codeTerminalBody.innerHTML = '';
+            
+            // Simulating typing code
+            let idx = 0;
+            function typeCode() {
+                if (!isRunning) return;
+                codeTerminalBody.innerHTML = formatPythonCode(roundCode);
+                
+                // Let's run tests
+                animationTimer = setTimeout(() => {
+                    statusPulseDot.className = "pulse-dot";
+                    statusPulseText.innerText = "Running Pytests...";
+                    testRunnerBody.innerHTML = `<span style="color:#ffffff;">============================= test session starts =============================</span>\nplatform linux -- Python 3.10.4, pytest-7.1.1\nrootdir: /sandbox/workspace\n`;
+                    
+                    let testIndex = 0;
+                    function runIndividualTest() {
+                        if (!isRunning) return;
+                        if (testIndex < roundTests.length) {
+                            const test = roundTests[testIndex];
+                            const tStatus = test.status === "PASS" ? '<span class="test-pass">PASSED</span>' : '<span class="test-fail">FAILED</span>';
+                            const symbol = test.status === "PASS" ? '.' : 'F';
+                            
+                            testRunnerBody.innerHTML += `\ntest_suite_surrogate.py::${test.name} ${tStatus} <span style="font-size:0.7rem; color:var(--text-muted);">(${test.note})</span>`;
+                            
+                            animationTimer = setTimeout(() => {
+                                testIndex++;
+                                runIndividualTest();
+                            }, 800 / speedMultiplier);
+                        } else {
+                            // Completed tests
+                            const fails = roundTests.filter(t => t.status === "FAIL").length;
+                            if (fails > 0) {
+                                testRunnerBody.innerHTML += `\n\n<span class="test-fail">====================== ${fails} failed, ${roundTests.length - fails} passed in 0.42s ======================</span>`;
+                                
+                                // Trigger Diagnostic card overlay
+                                animationTimer = setTimeout(() => {
+                                    triggerDiagnostics(diagnostics);
+                                }, 1200 / speedMultiplier);
+                            } else {
+                                testRunnerBody.innerHTML += `\n\n<span class="test-pass">=========================== ${roundTests.length} passed in 0.35s ===========================</span>`;
+                                statusPulseDot.className = "pulse-dot pulse-dot-green";
+                                statusPulseText.innerText = "All Tests Passed!";
+                                
+                                animationTimer = setTimeout(() => {
+                                    transitionToStage(3);
+                                }, 2000 / speedMultiplier);
+                            }
+                        }
+                    }
+                    runIndividualTest();
+                }, 1000 / speedMultiplier);
+            }
+            
+            typeCode();
+        }
+
+        function triggerDiagnostics(diag) {
+            if (!isRunning) return;
+            
+            diagTitleContent.innerHTML = `
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                Diagnostic F^(${currentRound})
+            `;
+            diagClassifierTag.innerText = diag.tag;
+            diagClassifierTag.className = diag.tag === "Knowledge Gap" ? "classifier-tag tag-gap" : "classifier-tag";
+            diagBodyContent.innerText = diag.body;
+            diagFooterText.innerText = `Classifier Confidence: ${(90 + Math.random() * 8).toFixed(1)}% // ${diag.tag === "Knowledge Gap" ? "Refetching API Docs" : "Rewriting Implementation"}`;
+            
+            diagOverlayCard.style.display = "flex";
+
+            // If knowledge gap, highlight retrieval cloud
+            if (diag.tag === "Knowledge Gap") {
+                nodeDocs.classList.add("active-query");
+            }
+
+            animationTimer = setTimeout(() => {
+                diagOverlayCard.style.display = "none";
+                nodeDocs.classList.remove("active-query");
+                currentRound++;
+                
+                // Rerun practice loop with next round of skills
+                runStage2Flow();
+            }, 4000 / speedMultiplier);
+        }
+
+        /* --- STAGE 3 ZERO-SHOT TARGET EVALUATION --- */
+        function runStage3Flow() {
+            // Unlock validation animation
+            lockBadge.className = "locked-badge-sim unlocked";
+            lockBadgeText.innerText = "Target Evaluation Active";
+            lockSvgIcon.innerHTML = '<path d="M21 11a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-9z"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>';
+            
+            updateDeploymentDetails();
+            
+            // Finish simulation
+            animationTimer = setTimeout(() => {
+                pauseSimulation();
+                runBtn.innerHTML = `
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    Evolution Complete
+                `;
+                runBtn.disabled = true;
+            }, 1000 / speedMultiplier);
+        }
+
+        function updateDeploymentDetails() {
+            const data = SCENARIOS[currentScenario].results[selectedTargetModel];
+            
+            statValBaseline.innerText = data.baseline;
+            statValOpenSkill.innerText = data.openskill;
+            statValGain.innerText = data.gain;
+
+            // Fill dial
+            const circle = document.getElementById("gt-progress-circle");
+            const numericValue = parseFloat(data.openskill);
+            const offset = 226 - (226 * numericValue) / 100;
+            circle.style.strokeDashoffset = offset;
+            
+            gtDialPercentage.innerText = data.openskill;
+        }
+
+        function transitionToStage(stage) {
+            clearTimeout(animationTimer);
+            currentStage = stage;
+
+            // Update header steps
+            flowStep1.className = currentStage === 1 ? "flowbar-step active step-1" : "flowbar-step completed step-1";
+            flowStep2.className = currentStage === 2 ? "flowbar-step active step-2" : (currentStage > 2 ? "flowbar-step completed step-2" : "flowbar-step step-2");
+            flowStep3.className = currentStage === 3 ? "flowbar-step active step-3" : "flowbar-step step-3";
+
+            // Switch view screens
+            viewStage1.className = currentStage === 1 ? "stage-view active" : "stage-view";
+            viewStage2.className = currentStage === 2 ? "stage-view active" : "stage-view";
+            viewStage3.className = currentStage === 3 ? "stage-view active" : "stage-view";
+
+            if (currentStage === 1) {
+                stageDisplayTitle.innerText = "Stage 1: Knowledge Acquisition";
+                roundBadge.style.display = "none";
+            } else if (currentStage === 2) {
+                stageDisplayTitle.innerText = "Stage 2: Leakage-Free Skill Evolution";
+                roundBadge.style.display = "block";
+            } else {
+                stageDisplayTitle.innerText = "Stage 3: Zero-Shot Target Deployment";
+                roundBadge.style.display = "none";
+            }
+
+            // Run next stage flow
+            runNextSubStep();
+        }
+
+        // SVG Particle packet flow animation
+        function animatePacket(targetNode, duration, callback) {
+            const packet = document.createElement("div");
+            packet.className = "animated-packet";
+            document.body.appendChild(packet);
+            
+            const startBox = searchQueryText.getBoundingClientRect();
+            const endBox = targetNode.getBoundingClientRect();
+            
+            const startX = startBox.left + window.scrollX + startBox.width / 2;
+            const startY = startBox.top + window.scrollY + startBox.height / 2;
+            const endX = endBox.left + window.scrollX + endBox.width / 2;
+            const endY = endBox.top + window.scrollY + endBox.height / 2;
+            
+            packet.style.left = `${startX}px`;
+            packet.style.top = `${startY}px`;
+            packet.style.opacity = '1';
+            
+            let startTime = null;
+            function step(timestamp) {
+                if (!startTime) startTime = timestamp;
+                const progress = Math.min((timestamp - startTime) / duration, 1);
+                
+                // Bezier curve path calculation
+                const currentX = startX + (endX - startX) * progress;
+                const currentY = startY + (endY - startY) * progress - Math.sin(progress * Math.PI) * 40;
+                
+                packet.style.left = `${currentX}px`;
+                packet.style.top = `${currentY}px`;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(step);
+                } else {
+                    packet.remove();
+                    if (callback) callback();
+                }
+            }
+            
+            requestAnimationFrame(step);
+        }
+
+        // Execute init
+        window.addEventListener("DOMContentLoaded", init);
+    </script>
+</body>
+</html>

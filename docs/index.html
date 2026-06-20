@@ -23,6 +23,12 @@
             --color-migration-glow: rgba(59, 130, 246, 0.15);
             --color-latent: #8b5cf6;
             --color-latent-glow: rgba(139, 92, 246, 0.15);
+            --color-generative: #f43f5e;
+            --color-generative-glow: rgba(244, 63, 94, 0.15);
+            --color-sandfunnel: #06b6d4;
+            --color-sandfunnel-glow: rgba(6, 182, 212, 0.15);
+            --color-openskill: #6366f1;
+            --color-openskill-glow: rgba(99, 102, 241, 0.15);
         }
 
         * {
@@ -149,6 +155,21 @@
         .project-card.card-latent:hover {
             border-color: rgba(139, 92, 246, 0.3);
             box-shadow: 0 10px 30px var(--color-latent-glow);
+            transform: translateY(-6px);
+        }
+        .project-card.card-generative:hover {
+            border-color: rgba(244, 63, 94, 0.3);
+            box-shadow: 0 10px 30px var(--color-generative-glow);
+            transform: translateY(-6px);
+        }
+        .project-card.card-sandfunnel:hover {
+            border-color: rgba(6, 182, 212, 0.3);
+            box-shadow: 0 10px 30px var(--color-sandfunnel-glow);
+            transform: translateY(-6px);
+        }
+        .project-card.card-openskill:hover {
+            border-color: rgba(99, 102, 241, 0.3);
+            box-shadow: 0 10px 30px var(--color-openskill-glow);
             transform: translateY(-6px);
         }
 
@@ -303,6 +324,157 @@
         .project-card.card-latent:hover .p3 { transform: translate3d(12px, 6px, 18px); }
         .project-card.card-latent:hover .p4 { transform: translate3d(-6px, -10px, -12px); }
 
+        /* Generative Preview CSS */
+        .generative-preview svg {
+            width: 64px;
+            height: 64px;
+            stroke: rgba(244, 63, 94, 0.4);
+            stroke-width: 1.5;
+            fill: none;
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .project-card.card-generative:hover .generative-preview svg {
+            stroke: var(--color-generative);
+            transform: rotate(180deg) scale(1.15);
+            filter: drop-shadow(0 0 8px rgba(244, 63, 94, 0.5));
+        }
+        .generative-path {
+            stroke-dasharray: 240;
+            stroke-dashoffset: 240;
+            transition: stroke-dashoffset 0.8s ease;
+        }
+        .project-card.card-generative:hover .generative-path {
+            animation: drawPattern 3s infinite linear;
+        }
+        @keyframes drawPattern {
+            0% { stroke-dashoffset: 240; }
+            50% { stroke-dashoffset: 0; }
+            100% { stroke-dashoffset: -240; }
+        }
+
+        /* Sandfunnel Preview CSS */
+        .sandfunnel-preview {
+            background: rgba(255, 255, 255, 0.015);
+        }
+        .mini-funnel-svg {
+            width: 70px;
+            height: 70px;
+            display: block;
+        }
+        .fp {
+            fill: #e2b767;
+            opacity: 0;
+            transition: all 0.3s;
+        }
+        .project-card.card-sandfunnel:hover .fp {
+            opacity: 1;
+        }
+        .project-card.card-sandfunnel:hover .f1 { animation: trickle1 1.5s infinite linear; }
+        .project-card.card-sandfunnel:hover .f2 { animation: trickle2 1.5s infinite linear; }
+        .project-card.card-sandfunnel:hover .f3 { animation: trickle3 1.5s infinite linear; }
+        .project-card.card-sandfunnel:hover .f4 { animation: trickle4 1.5s infinite linear; }
+        .project-card.card-sandfunnel:hover .f5 { animation: trickle5 1.5s infinite linear; }
+        .project-card.card-sandfunnel:hover .f6 { animation: trickle6 1.5s infinite linear; }
+        .project-card.card-sandfunnel:hover .fp-stream {
+            animation: streamFlow 0.8s infinite linear;
+            stroke: #e2b767;
+        }
+        @keyframes trickle1 {
+            0% { transform: translate(0, -10px); opacity: 0; }
+            20% { opacity: 1; }
+            100% { transform: translate(0, 45px); }
+        }
+        @keyframes trickle2 {
+            0% { transform: translate(-10px, -5px); opacity: 0; }
+            20% { opacity: 1; }
+            100% { transform: translate(15px, 30px); }
+        }
+        @keyframes trickle3 {
+            0% { transform: translate(10px, -5px); opacity: 0; }
+            20% { opacity: 1; }
+            100% { transform: translate(-15px, 30px); }
+        }
+        @keyframes trickle4 {
+            0% { transform: translate(-3px, 5px); opacity: 0; }
+            20% { opacity: 1; }
+            100% { transform: translate(7px, 15px); }
+        }
+        @keyframes trickle5 {
+            0% { transform: translate(3px, 5px); opacity: 0; }
+            20% { opacity: 1; }
+            100% { transform: translate(-7px, 15px); }
+        }
+        @keyframes trickle6 {
+            0% { transform: translate(0, 10px); opacity: 0; }
+            20% { opacity: 1; }
+            100% { transform: translate(0, 10px); }
+        }
+        @keyframes streamFlow {
+            0% { stroke-dashoffset: 0; }
+            100% { stroke-dashoffset: -10; }
+        }
+
+        /* OpenSkill Preview CSS */
+        .openskill-preview {
+            gap: 16px;
+        }
+        .mini-doc-icon {
+            width: 32px;
+            height: 40px;
+            border: 1.5px solid rgba(99, 102, 241, 0.3);
+            background: rgba(99, 102, 241, 0.05);
+            border-radius: 4px;
+            position: relative;
+            transition: all 0.3s;
+        }
+        .mini-doc-icon::before {
+            content: '';
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            width: 18px;
+            height: 2px;
+            background: rgba(255,255,255,0.2);
+            box-shadow: 0 5px 0 rgba(255,255,255,0.2), 0 10px 0 rgba(255,255,255,0.2);
+        }
+        .project-card.card-openskill:hover .mini-doc-icon {
+            border-color: var(--color-openskill);
+            box-shadow: 0 0 10px var(--color-openskill-glow);
+        }
+        .mini-loop-arrow {
+            width: 32px;
+            height: 32px;
+            border: 2px dashed rgba(255, 255, 255, 0.15);
+            border-radius: 50%;
+            border-top-color: transparent;
+            transition: all 0.8s ease-in-out;
+            position: relative;
+        }
+        .project-card.card-openskill:hover .mini-loop-arrow {
+            transform: rotate(360deg);
+            border-color: var(--color-openskill);
+            border-top-color: transparent;
+        }
+        .mini-check-badge {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(20, 184, 166, 0.3);
+            background: rgba(20, 184, 166, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: rgba(20, 184, 166, 0.4);
+            transition: all 0.3s;
+        }
+        .project-card.card-openskill:hover .mini-check-badge {
+            border-color: #14b8a6;
+            color: #14b8a6;
+            background: rgba(20, 184, 166, 0.15);
+            transform: scale(1.1);
+        }
+
         .project-card h2 {
             font-family: 'Space Grotesque', sans-serif;
             font-size: 1.35rem;
@@ -315,6 +487,9 @@
         .project-card.card-storage:hover h2 { color: var(--color-storage); }
         .project-card.card-migration:hover h2 { color: var(--color-migration); }
         .project-card.card-latent:hover h2 { color: var(--color-latent); }
+        .project-card.card-generative:hover h2 { color: var(--color-generative); }
+        .project-card.card-sandfunnel:hover h2 { color: var(--color-sandfunnel); }
+        .project-card.card-openskill:hover h2 { color: var(--color-openskill); }
 
         .project-card p.description {
             font-size: 0.92rem;
@@ -353,6 +528,9 @@
         .card-storage .avatar { background: rgba(20, 184, 166, 0.1); border-color: rgba(20, 184, 166, 0.3); color: var(--color-storage); }
         .card-migration .avatar { background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.3); color: var(--color-migration); }
         .card-latent .avatar { background: rgba(139, 92, 246, 0.1); border-color: rgba(139, 92, 246, 0.3); color: var(--color-latent); }
+        .card-generative .avatar { background: rgba(244, 63, 94, 0.1); border-color: rgba(244, 63, 94, 0.3); color: var(--color-generative); }
+        .card-sandfunnel .avatar { background: rgba(6, 182, 212, 0.1); border-color: rgba(6, 182, 212, 0.3); color: var(--color-sandfunnel); }
+        .card-openskill .avatar { background: rgba(99, 102, 241, 0.1); border-color: rgba(99, 102, 241, 0.3); color: var(--color-openskill); }
 
         .author-name {
             font-size: 0.82rem;
@@ -469,6 +647,74 @@
                     <div class="card-meta">
                         <div class="avatar">AI</div>
                         <span class="author-name">AI Assistant</span>
+                    </div>
+                </a>
+            </li>
+
+            <!-- Project 4: Generative Algorithms Playground -->
+            <li class="project-card card-generative">
+                <a href="generative_algorithms.html">
+                    <div class="mini-preview generative-preview">
+                        <svg viewBox="0 0 100 100">
+                            <g transform="translate(50, 50)">
+                                <ellipse cx="0" cy="0" rx="30" ry="10" transform="rotate(0)" class="generative-path" />
+                                <ellipse cx="0" cy="0" rx="30" ry="10" transform="rotate(30)" class="generative-path" />
+                                <ellipse cx="0" cy="0" rx="30" ry="10" transform="rotate(60)" class="generative-path" />
+                                <ellipse cx="0" cy="0" rx="30" ry="10" transform="rotate(90)" class="generative-path" />
+                                <ellipse cx="0" cy="0" rx="30" ry="10" transform="rotate(120)" class="generative-path" />
+                                <ellipse cx="0" cy="0" rx="30" ry="10" transform="rotate(150)" class="generative-path" />
+                            </g>
+                        </svg>
+                    </div>
+                    <h2>Generative Algorithms</h2>
+                    <p class="description">An interactive math-driven design playground for vector flow fields, spirographs, strange attractors, and branching L-Systems with real-time parameter tweaking and canvas exports.</p>
+                    <div class="card-meta">
+                        <div class="avatar">AG</div>
+                        <span class="author-name">Antigravity</span>
+                    </div>
+                </a>
+            </li>
+
+            <!-- Project 5: Sandfunnel Sandbox -->
+            <li class="project-card card-sandfunnel">
+                <a href="sandfunnel.html">
+                    <div class="mini-preview sandfunnel-preview">
+                        <svg viewBox="0 0 100 100" class="mini-funnel-svg">
+                            <!-- Funnel glass outline -->
+                            <path d="M 30 25 L 45 55 L 45 75 L 55 75 L 55 55 L 70 25 Z" fill="none" stroke="rgba(6, 182, 212, 0.4)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                            <!-- Funnel particles -->
+                            <circle cx="50" cy="18" r="2.5" class="fp f1" />
+                            <circle cx="38" cy="30" r="2.5" class="fp f2" />
+                            <circle cx="62" cy="30" r="2.5" class="fp f3" />
+                            <circle cx="44" cy="42" r="2.5" class="fp f4" />
+                            <circle cx="56" cy="42" r="2.5" class="fp f5" />
+                            <circle cx="50" cy="50" r="2.5" class="fp f6" />
+                            <!-- Output stream -->
+                            <path d="M 50 60 L 50 85" fill="none" stroke="rgba(226, 183, 103, 0.2)" stroke-width="3" stroke-dasharray="6 4" class="fp-stream" />
+                        </svg>
+                    </div>
+                    <h2>Sandfunnel Sandbox</h2>
+                    <p class="description">A high-performance falling sand simulation featuring reactive materials (liquids, gases, explosives) and active logic tools (teleportation portals, conveyor belts, automatic spouts).</p>
+                    <div class="card-meta">
+                        <div class="avatar">AG</div>
+                        <span class="author-name">Antigravity</span>
+                    </div>
+                </a>
+            </li>
+
+            <!-- Project 6: OpenSkill Self-Evolution -->
+            <li class="project-card card-openskill">
+                <a href="openskill_self_evolution.html">
+                    <div class="mini-preview openskill-preview">
+                        <div class="mini-doc-icon"></div>
+                        <div class="mini-loop-arrow"></div>
+                        <div class="mini-check-badge">✓</div>
+                    </div>
+                    <h2>OpenSkill Self-Evolution</h2>
+                    <p class="description">An interactive simulation of open-world self-evolution for LLM agents, showcasing leakage-free virtual verification and cross-model skill transfer.</p>
+                    <div class="card-meta">
+                        <div class="avatar">AG</div>
+                        <span class="author-name">Antigravity</span>
                     </div>
                 </a>
             </li>

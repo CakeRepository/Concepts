@@ -1,0 +1,1993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generative Algorithms Playground - AI Concepts</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesque:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #030712;
+            --bg-sidebar: rgba(10, 15, 30, 0.7);
+            --bg-card: rgba(17, 24, 39, 0.45);
+            --border-color: rgba(255, 255, 255, 0.06);
+            --border-hover: rgba(255, 255, 255, 0.12);
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --color-rose: #f43f5e;
+            --color-rose-glow: rgba(244, 63, 94, 0.15);
+            --color-emerald: #10b981;
+            --color-cyan: #06b6d4;
+            --color-violet: #8b5cf6;
+            --color-amber: #f59e0b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            background-image: 
+                radial-gradient(circle at 10% 10%, rgba(244, 63, 94, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 90% 90%, rgba(139, 92, 246, 0.08) 0%, transparent 40%);
+            background-attachment: fixed;
+            position: relative;
+        }
+
+        /* Subtle grid blueprint pattern overlay */
+        .grid-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: 40px 40px;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.01) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.01) 1px, transparent 1px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Layout Structure */
+        .app-container {
+            display: flex;
+            width: 100%;
+            height: 100vh;
+            z-index: 10;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: 380px;
+            min-width: 380px;
+            height: 100%;
+            background: var(--bg-sidebar);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            position: relative;
+            z-index: 20;
+        }
+
+        /* Header block in sidebar */
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 16px;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--color-rose);
+        }
+
+        .back-link svg {
+            width: 16px;
+            height: 16px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+        }
+
+        .app-title {
+            font-family: 'Space Grotesque', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #ffffff 40%, #f43f5e 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .app-subtitle {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Sidebar Sections */
+        .sidebar-section {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .section-title {
+            font-family: 'Space Grotesque', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .section-title svg {
+            width: 16px;
+            height: 16px;
+            stroke: var(--text-muted);
+            fill: none;
+        }
+
+        /* Tab buttons for algorithms */
+        .algorithm-selector {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .algo-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: center;
+        }
+
+        .algo-btn:hover {
+            border-color: var(--border-hover);
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .algo-btn.active {
+            background: rgba(244, 63, 94, 0.1);
+            border-color: rgba(244, 63, 94, 0.4);
+            color: var(--color-rose);
+            box-shadow: 0 0 10px rgba(244, 63, 94, 0.1);
+        }
+
+        /* Presets Dropdown */
+        .preset-select {
+            width: 100%;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.88rem;
+            font-family: inherit;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .preset-select:hover {
+            border-color: var(--border-hover);
+        }
+
+        .preset-select option {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+        }
+
+        /* Control Slider Group */
+        .control-group {
+            margin-bottom: 16px;
+        }
+
+        .control-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .control-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .control-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            color: var(--color-rose);
+        }
+
+        .slider-input {
+            width: 100%;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(255, 255, 255, 0.08);
+            outline: none;
+            transition: background 0.3s;
+        }
+
+        .slider-input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--color-rose);
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(244, 63, 94, 0.4);
+            transition: transform 0.1s;
+        }
+
+        .slider-input::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        /* Formula Code Editor block */
+        .formula-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 12px;
+            margin-top: 8px;
+        }
+
+        .formula-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .formula-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: #ffffff;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            padding: 8px 10px;
+            outline: none;
+            resize: none;
+            transition: border-color 0.2s;
+        }
+
+        .formula-input:focus {
+            border-color: rgba(244, 63, 94, 0.5);
+        }
+
+        .formula-status {
+            font-size: 0.72rem;
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .status-ok { color: var(--color-emerald); }
+        .status-err { color: var(--color-rose); }
+
+        .variables-list {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            margin-top: 8px;
+            line-height: 1.4;
+        }
+
+        .var-badge {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-secondary);
+        }
+
+        /* Gradient Color Selector */
+        .palette-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .palette-btn {
+            height: 32px;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 1.5px solid transparent;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .palette-btn:hover {
+            transform: scale(1.05);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .palette-btn.active {
+            border-color: #ffffff;
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+        }
+
+        .palette-gradient {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Select Blend Modes */
+        .blend-select {
+            width: 100%;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        /* Canvas Panel (Center) */
+        .canvas-container {
+            flex-grow: 1;
+            height: 100%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #010204;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+            max-width: 100%;
+            max-height: 100%;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.8);
+            transition: opacity 0.3s;
+        }
+
+        /* Floating Overlays inside Canvas Area */
+        .canvas-toolbar {
+            position: absolute;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(10, 15, 30, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 30px;
+            padding: 6px 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            z-index: 30;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .toolbar-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .toolbar-btn:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .toolbar-btn.active {
+            color: var(--color-rose);
+            background: rgba(244, 63, 94, 0.1);
+        }
+
+        .toolbar-btn svg {
+            width: 18px;
+            height: 18px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+        }
+
+        .toolbar-divider {
+            width: 1px;
+            height: 20px;
+            background: var(--border-color);
+            margin: 0 4px;
+        }
+
+        /* Stats Overlay */
+        .stats-overlay {
+            position: absolute;
+            bottom: 24px;
+            left: 24px;
+            background: rgba(10, 15, 30, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            z-index: 30;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            pointer-events: none;
+        }
+
+        .stats-item {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .stats-val {
+            color: #ffffff;
+            font-weight: 500;
+        }
+
+        /* Inspector / Explanation Drawer (Right side) */
+        .inspector-panel {
+            width: 320px;
+            min-width: 320px;
+            height: 100%;
+            background: var(--bg-sidebar);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-left: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            z-index: 20;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .inspector-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .inspector-title {
+            font-family: 'Space Grotesque', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .inspector-body {
+            padding: 24px;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+
+        .math-block {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            color: #e5e7eb;
+            margin: 12px 0;
+            overflow-x: auto;
+        }
+
+        .info-paragraph {
+            margin-bottom: 14px;
+        }
+
+        .info-highlight {
+            color: #ffffff;
+            font-weight: 500;
+        }
+
+        /* Toggle Drawer Button */
+        .toggle-drawer-btn {
+            position: absolute;
+            right: 24px;
+            top: 24px;
+            background: rgba(10, 15, 30, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 30;
+            color: var(--text-secondary);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transition: all 0.2s;
+        }
+
+        .toggle-drawer-btn:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .toggle-drawer-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            transition: transform 0.3s;
+        }
+
+        .inspector-collapsed .inspector-panel {
+            transform: translateX(100%);
+            width: 0px;
+            min-width: 0px;
+            border-left: none;
+        }
+
+        .inspector-collapsed .toggle-drawer-btn svg {
+            transform: rotate(180deg);
+        }
+
+        /* Toast notifications styling */
+        .toast {
+            position: absolute;
+            bottom: 24px;
+            right: 24px;
+            background: rgba(16, 185, 129, 0.9);
+            color: #ffffff;
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.25);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 100;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast-icon {
+            width: 18px;
+            height: 18px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+        }
+
+        /* Scrollbar customizing */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        @media (max-width: 1100px) {
+            .inspector-panel {
+                display: none;
+            }
+            .toggle-drawer-btn {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-overlay"></div>
+    
+    <div class="app-container" id="appBody">
+        <!-- Sidebar Controls -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="back-link">
+                    <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                    Concepts Hub
+                </a>
+                <h1 class="app-title">Generative Algorithms</h1>
+                <div class="app-subtitle">Create mathematical art in real-time</div>
+            </div>
+
+            <!-- Algorithm Selector -->
+            <div class="sidebar-section">
+                <h2 class="section-title">Select Algorithm</h2>
+                <div class="algorithm-selector">
+                    <button class="algo-btn active" onclick="switchAlgorithm('flowfield')">Flow Fields</button>
+                    <button class="algo-btn" onclick="switchAlgorithm('mandala')">Mandalas</button>
+                    <button class="algo-btn" onclick="switchAlgorithm('attractor')">Strange Attractors</button>
+                    <button class="algo-btn" onclick="switchAlgorithm('lsystem')">L-Systems</button>
+                </div>
+            </div>
+
+            <!-- Presets -->
+            <div class="sidebar-section">
+                <h2 class="section-title">Presets</h2>
+                <select class="preset-select" id="presetSelect" onchange="loadPreset(this.value)">
+                    <!-- Options populated by JS -->
+                </select>
+            </div>
+
+            <!-- Custom Controls Container (Dynamic per algorithm) -->
+            <div class="sidebar-section" id="controlsContainer">
+                <h2 class="section-title">Parameters</h2>
+                <!-- Dynamic slider controls will go here -->
+            </div>
+
+            <!-- Custom Algorithm Code/Expression -->
+            <div class="sidebar-section" id="designerContainer">
+                <h2 class="section-title">Algorithm Designer</h2>
+                <div id="formulaInputsContainer">
+                    <!-- Dynamic math formula inputs go here -->
+                </div>
+            </div>
+
+            <!-- Colors / Styling -->
+            <div class="sidebar-section">
+                <h2 class="section-title">Color System</h2>
+                <div class="control-group">
+                    <div class="control-header">
+                        <span>Preset Palettes</span>
+                    </div>
+                    <div class="palette-grid" id="paletteGrid">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <div class="control-header">
+                        <span>Canvas Blend Mode</span>
+                    </div>
+                    <select class="blend-select" id="blendSelect" onchange="updateBlendMode(this.value)">
+                        <option value="source-over">Normal</option>
+                        <option value="screen" selected>Screen (Glow)</option>
+                        <option value="lighter">Additive (Lighter)</option>
+                        <option value="multiply">Multiply</option>
+                        <option value="overlay">Overlay</option>
+                        <option value="difference">Difference</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <div class="control-header">
+                        <span>Background Style</span>
+                    </div>
+                    <select class="blend-select" id="bgSelect" onchange="updateBackgroundStyle(this.value)">
+                        <option value="dark" selected>Sleek Charcoal (#030712)</option>
+                        <option value="black">True Deep Black (#000000)</option>
+                        <option value="transparent">Alpha Transparent</option>
+                    </select>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Canvas Viewport -->
+        <main class="canvas-container">
+            <!-- Floating Toolbar -->
+            <div class="canvas-toolbar">
+                <button class="toolbar-btn" id="playPauseBtn" onclick="togglePlayback()" title="Pause/Play simulation">
+                    <svg viewBox="0 0 24 24" id="playPauseIcon"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                </button>
+                <button class="toolbar-btn" onclick="stepFrame()" title="Render single step">
+                    <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+                </button>
+                <button class="toolbar-btn" onclick="resetCanvas()" title="Clear canvas">
+                    <svg viewBox="0 0 24 24"><path d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14V4zM6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12z"/></svg>
+                </button>
+                <div class="toolbar-divider"></div>
+                <button class="toolbar-btn" id="gridBtn" onclick="toggleGridOverlay()" title="Toggle structural grid">
+                    <svg viewBox="0 0 24 24"><path d="M4 8h16M4 16h16M8 4v16M16 4v16"/></svg>
+                </button>
+                <button class="toolbar-btn" onclick="exportPNG()" title="Export high-res PNG">
+                    <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                </button>
+                <button class="toolbar-btn" onclick="toggleFullscreen()" title="Toggle Fullscreen">
+                    <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+                </button>
+            </div>
+
+            <!-- Canvas Element -->
+            <canvas id="artCanvas"></canvas>
+
+            <!-- Stats HUD overlay -->
+            <div class="stats-overlay">
+                <div class="stats-item"><span>Fps:</span><span class="stats-val" id="fpsVal">60</span></div>
+                <div class="stats-item"><span>Engine:</span><span class="stats-val" id="engineNameVal">Flow Fields</span></div>
+                <div class="stats-item"><span>Entities:</span><span class="stats-val" id="entitiesVal">3000</span></div>
+            </div>
+
+            <!-- Drawer Toggle -->
+            <button class="toggle-drawer-btn" onclick="toggleDrawer()" title="Toggle math explanation panel">
+                <svg viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
+            </button>
+        </main>
+
+        <!-- Right Side Explanation Drawer -->
+        <aside class="inspector-panel">
+            <div class="inspector-header">
+                <h2 class="inspector-title" id="inspectorTitle">Mathematical Model</h2>
+            </div>
+            <div class="inspector-body" id="inspectorBody">
+                <!-- Content injected dynamically based on current algorithm -->
+            </div>
+        </aside>
+    </div>
+
+    <!-- Export Notification Toast -->
+    <div class="toast" id="exportToast">
+        <svg class="toast-icon" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3"/></svg>
+        <span>Design exported successfully!</span>
+    </div>
+
+    <!-- Main JavaScript Logic -->
+    <script>
+        // --- 1. Global Setup & State ---
+        const canvas = document.getElementById('artCanvas');
+        const ctx = canvas.getContext('2d');
+        let dpr = window.devicePixelRatio || 1;
+        let isPlaying = true;
+        let showGrid = false;
+        let animationFrameId = null;
+        let lastTime = 0;
+        let frameCount = 0;
+        let fps = 0;
+        let time = 0;
+
+        // Current simulation configurations
+        let currentAlgo = 'flowfield';
+        let customCompiles = {}; // Keeps compiled custom expressions
+        let activePaletteIndex = 0;
+
+        // Predefined Color Gradients (HSL ramps for gorgeous visual aesthetics)
+        const PALETTES = [
+            {
+                name: "Cosmic Vapor",
+                stops: [[0, "hsl(280, 85%, 55%)"], [0.5, "hsl(330, 90%, 60%)"], [1, "hsl(190, 90%, 50%)"]]
+            },
+            {
+                name: "Cyber Neon",
+                stops: [[0, "hsl(310, 100%, 50%)"], [0.5, "hsl(180, 100%, 50%)"], [1, "hsl(120, 100%, 50%)"]]
+            },
+            {
+                name: "Deep Ocean",
+                stops: [[0, "hsl(220, 90%, 20%)"], [0.5, "hsl(195, 100%, 45%)"], [1, "hsl(160, 90%, 65%)"]]
+            },
+            {
+                name: "Autumn Fire",
+                stops: [[0, "hsl(10, 85%, 45%)"], [0.5, "hsl(35, 90%, 55%)"], [1, "hsl(55, 95%, 65%)"]]
+            },
+            {
+                name: "Forest Moss",
+                stops: [[0, "hsl(140, 50%, 25%)"], [0.5, "hsl(90, 45%, 45%)"], [1, "hsl(60, 60%, 65%)"]]
+            },
+            {
+                name: "Golden Mirage",
+                stops: [[0, "hsl(340, 50%, 20%)"], [0.5, "hsl(355, 65%, 55%)"], [1, "hsl(40, 90%, 65%)"]] // Derived from charcuterie memory
+            },
+            {
+                name: "Monochrome Glow",
+                stops: [[0, "hsl(0, 0%, 20%)"], [0.5, "hsl(0, 0%, 70%)"], [1, "hsl(0, 0%, 100%)"]]
+            },
+            {
+                name: "Prismatic Wave",
+                stops: [[0, "hsl(0, 85%, 55%)"], [0.25, "hsl(90, 85%, 55%)"], [0.5, "hsl(180, 85%, 55%)"], [0.75, "hsl(270, 85%, 55%)"], [1, "hsl(360, 85%, 55%)"]]
+            }
+        ];
+
+        // Custom 2D Gradient Noise Generator
+        const Noise2D = (() => {
+            const p = new Uint8Array(256);
+            for (let i = 0; i < 256; i++) p[i] = i;
+            for (let i = 255; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                const tmp = p[i]; p[i] = p[j]; p[j] = tmp;
+            }
+            const perm = new Uint8Array(512);
+            for (let i = 0; i < 512; i++) perm[i] = p[i & 255];
+            
+            function fade(t) { return t * t * t * (t * (t * 6 - 15) + 10); }
+            function lerp(t, a, b) { return a + t * (b - a); }
+            function grad2d(hash, x, y) {
+                const h = hash & 7;
+                const u = h < 4 ? x : y;
+                const v = h < 4 ? y : x;
+                return ((h & 1) ? -u : u) + ((h & 2) ? -2.0 * v : 2.0 * v);
+            }
+
+            return function(x, y) {
+                const X = Math.floor(x) & 255;
+                const Y = Math.floor(y) & 255;
+                x -= Math.floor(x);
+                y -= Math.floor(y);
+                const u = fade(x);
+                const v = fade(y);
+                const A = perm[X] + Y;
+                const B = perm[X + 1] + Y;
+                
+                return lerp(v, 
+                    lerp(u, grad2d(perm[A], x, y), grad2d(perm[B], x - 1, y)),
+                    lerp(u, grad2d(perm[A + 1], x, y - 1), grad2d(perm[B + 1], x - 1, y - 1))
+                ) * 0.5 + 0.5;
+            };
+        })();
+
+        // Safe Math Parser and Compiler
+        function compileExpression(exprStr, vars = ['x', 'y', 't', 'noise', 'r', 'theta', 'i', 'width', 'height', 'scale', 'size', 'a', 'b', 'c', 'd']) {
+            if (!exprStr) return () => 0;
+            
+            let cleaned = exprStr.toLowerCase().replace(/\s+/g, '');
+            
+            // Validate safety of string
+            let checkStr = cleaned;
+            const safeWords = [
+                'sin', 'cos', 'tan', 'pow', 'sqrt', 'abs', 'exp', 'log', 'min', 'max', 
+                'pi', 'noise', 'floor', 'ceil', 'round', 'random', 'width', 'height', ...vars
+            ];
+            
+            safeWords.forEach(word => {
+                checkStr = checkStr.split(word).join('');
+            });
+            
+            // Check remaining characters (must be operators, digits, decimals, commas, parentheses)
+            const remainingSafe = /^[0-9\+\-\*\/\%\(\)\.\,]*$/;
+            if (!remainingSafe.test(checkStr)) {
+                throw new Error(`Unsafe or unrecognized function/character: "${checkStr.substring(0, 10)}"`);
+            }
+            
+            // Apply javascript Math mapping
+            let jsExpr = cleaned;
+            const mathReplacements = {
+                'sin': 'Math.sin', 'cos': 'Math.cos', 'tan': 'Math.tan',
+                'pow': 'Math.pow', 'sqrt': 'Math.sqrt', 'abs': 'Math.abs',
+                'exp': 'Math.exp', 'log': 'Math.log', 'min': 'Math.min',
+                'max': 'Math.max', 'pi': 'Math.PI', 'floor': 'Math.floor',
+                'ceil': 'Math.ceil', 'round': 'Math.round', 'random': 'Math.random'
+            };
+            
+            Object.keys(mathReplacements).forEach(key => {
+                const regex = new RegExp('\\b' + key + '\\b', 'g');
+                jsExpr = jsExpr.replace(regex, mathReplacements[key]);
+            });
+            
+            // Create compiled execution function
+            try {
+                return new Function('x', 'y', 't', 'noise', 'r', 'theta', 'i', 'width', 'height', 'scale', 'size', 'a', 'b', 'c', 'd', `
+                    try {
+                        return ${jsExpr};
+                    } catch(e) {
+                        return 0;
+                    }
+                `);
+            } catch (e) {
+                throw new Error("Syntax error in expression.");
+            }
+        }
+
+
+        // --- 2. Parameter Definitions per Algorithm ---
+        const ENGINE_CONFIGS = {
+            flowfield: {
+                name: "Vector Flow Fields",
+                params: {
+                    count: { label: "Particles", min: 100, max: 10000, val: 3000, step: 100 },
+                    speed: { label: "Speed", min: 0.1, max: 8, val: 2, step: 0.1 },
+                    scale: { label: "Field Frequency", min: 0.0005, max: 0.05, val: 0.005, step: 0.0005 },
+                    trail: { label: "Trail Length", min: 0.002, max: 0.3, val: 0.05, step: 0.002 }
+                },
+                formulas: {
+                    angle: { label: "Flow Direction Angle (radians)", val: "noise(x * scale, y * scale, t * 0.1) * pi * 4" }
+                },
+                presets: {
+                    "Cosmic Nebula": {
+                        params: { count: 4000, speed: 1.8, scale: 0.004, trail: 0.04 },
+                        formulas: { angle: "noise(x * scale, y * scale, t * 0.05) * pi * 4" },
+                        palette: 0, blendMode: "screen"
+                    },
+                    "Warp Drive": {
+                        params: { count: 6000, speed: 5, scale: 0.02, trail: 0.15 },
+                        formulas: { angle: "sin(noise(x * scale, y * scale) * pi * 2) + atan2(y - height/2, x - width/2)" },
+                        palette: 1, blendMode: "lighter"
+                    },
+                    "Organic Hair": {
+                        params: { count: 2000, speed: 0.8, scale: 0.002, trail: 0.02 },
+                        formulas: { angle: "noise(x * scale, y * scale) * pi * 2 + sin(x*0.01) * 0.5" },
+                        palette: 4, blendMode: "source-over"
+                    },
+                    "Turbulent Storm": {
+                        params: { count: 5000, speed: 3.5, scale: 0.008, trail: 0.08 },
+                        formulas: { angle: "noise(x * scale - t, y * scale) * pi * 8" },
+                        palette: 5, blendMode: "screen"
+                    }
+                },
+                info: `
+                    <p class="info-paragraph"><span class="info-highlight">Vector Flow Fields</span> simulate thousands of independent particles flowing along a vector grid.</p>
+                    <p class="info-paragraph">At each particle coordinate \((x, y)\), the system evaluates a mathematical formula to determine the heading angle \(\theta\). The particle's velocities are then updated using:</p>
+                    <div class="math-block">vx = cos(angle) * speed<br>vy = sin(angle) * speed</div>
+                    <p class="info-paragraph">The parameter <span class="info-highlight">Field Frequency</span> scales the noise sampling zoom level. Using the <span class="info-highlight">noise(x, y)</span> function creates smooth, continuous flowing pathways reminiscent of smoke, liquid, or cosmic gas.</p>
+                `
+            },
+            mandala: {
+                name: "Mandalas & Spirographs",
+                params: {
+                    density: { label: "Resolution Steps", min: 100, max: 5000, val: 1200, step: 50 },
+                    size: { label: "Scale Radius", min: 20, max: 400, val: 200, step: 5 },
+                    symmetry: { label: "Kaleidoscope Fold", min: 1, max: 24, val: 8, step: 1 },
+                    speed: { label: "Rotation Speed", min: 0, max: 2, val: 0.2, step: 0.05 }
+                },
+                formulas: {
+                    radius: { label: "Radius r(theta, t)", val: "size * (sin(theta * 3) + 0.5 * cos(theta * 6 + t))" }
+                },
+                presets: {
+                    "Luminous Lotus": {
+                        params: { density: 1500, size: 220, symmetry: 12, speed: 0.25 },
+                        formulas: { radius: "size * sin(theta * 5/2) + size * 0.3 * cos(t)" },
+                        palette: 1, blendMode: "screen"
+                    },
+                    "Hyper Hypnotic": {
+                        params: { density: 3000, size: 180, symmetry: 6, speed: 0.6 },
+                        formulas: { radius: "size * sin(theta * 8) * (1 + 0.5 * sin(t + theta))" },
+                        palette: 7, blendMode: "lighter"
+                    },
+                    "Cyber Star": {
+                        params: { density: 2500, size: 240, symmetry: 8, speed: 0.1 },
+                        formulas: { radius: "size * abs(sin(theta * 4)) * (1.2 - 0.4 * cos(theta * 8 + t))" },
+                        palette: 3, blendMode: "screen"
+                    }
+                },
+                info: `
+                    <p class="info-paragraph"><span class="info-highlight">Parametric Mandalas</span> plot coordinate geometries using polar functions in circular shapes.</p>
+                    <p class="info-paragraph">For every index step \(i\) from 0 to Resolution, the angle \(\theta\) is computed, and the radius \(r\) is evaluated based on your formula:</p>
+                    <div class="math-block">theta = i * (2*PI / Resolution)<br>r = radius_formula(theta, t)</div>
+                    <p class="info-paragraph">The coordinates are then mapped to Cartesian space: \(x = r \cos(\theta), y = r \sin(\theta)\).</p>
+                    <p class="info-paragraph">Adding <span class="info-highlight">Kaleidoscope Folds</span> duplicates and mirrors the rendering line across multiple radial slices, forming beautiful, complex, symmetric star patterns instantly.</p>
+                `
+            },
+            attractor: {
+                name: "Strange Attractors",
+                params: {
+                    density: { label: "Plot Speed (Points/Frame)", min: 100, max: 20000, val: 5000, step: 100 },
+                    a: { label: "Parameter A", min: -3.0, max: 3.0, val: -1.4, step: 0.05 },
+                    b: { label: "Parameter B", min: -3.0, max: 3.0, val: 1.6, step: 0.05 },
+                    c: { label: "Parameter C", min: -3.0, max: 3.0, val: 1.0, step: 0.05 },
+                    d: { label: "Parameter D", min: -3.0, max: 3.0, val: 0.7, step: 0.05 }
+                },
+                formulas: {
+                    nextX: { label: "Next Coordinate X(x, y)", val: "sin(a * y) + c * cos(a * x)" },
+                    nextY: { label: "Next Coordinate Y(x, y)", val: "sin(b * x) + d * cos(b * y)" }
+                },
+                presets: {
+                    "Clifford Cosmic": {
+                        params: { density: 10000, a: -1.4, b: 1.6, c: 1.0, d: 0.7 },
+                        formulas: { nextX: "sin(a * y) + c * cos(a * x)", nextY: "sin(b * x) + d * cos(b * y)" },
+                        palette: 0, blendMode: "screen"
+                    },
+                    "De Jong Chaos": {
+                        params: { density: 12000, a: 1.4, b: -2.3, c: 2.4, d: -2.1 },
+                        formulas: { nextX: "sin(a * y) - cos(b * x)", nextY: "sin(c * x) - cos(d * y)" },
+                        palette: 2, blendMode: "screen"
+                    },
+                    "Golden Attractor": {
+                        params: { density: 8000, a: -1.7, b: 1.8, c: -0.9, d: 1.2 },
+                        formulas: { nextX: "sin(a * y) + c * cos(a * x)", nextY: "sin(b * x) + d * cos(b * y)" },
+                        palette: 5, blendMode: "lighter"
+                    }
+                },
+                info: `
+                    <p class="info-paragraph"><span class="info-highlight">Strange Attractors</span> are chaotic mathematical dynamical systems that generate fractals through recurrence relationships.</p>
+                    <p class="info-paragraph">Points are calculated iteratively where the next coordinate depends strictly on the current coordinate:</p>
+                    <div class="math-block">x_{n+1} = X(x_n, y_n)<br>y_{n+1} = Y(x_n, y_n)</div>
+                    <p class="info-paragraph">By plotting thousands of microscopic, semi-transparent points, a beautiful density probability cloud is built up. The shape displays orbits of infinite complexity, illustrating chaotic mathematics.</p>
+                `
+            },
+            lsystem: {
+                name: "L-Systems (Fractal Plants)",
+                params: {
+                    depth: { label: "Fractal Depth (Recursion)", min: 1, max: 6, val: 4, step: 1 },
+                    length: { label: "Branch Length", min: 2, max: 40, val: 12, step: 1 },
+                    angle: { label: "Branching Angle", min: 5, max: 90, val: 25, step: 1 },
+                    sway: { label: "Wind Sway", min: 0, max: 15, val: 5, step: 0.5 }
+                },
+                formulas: {
+                    axiom: { label: "Start Axiom", val: "X" },
+                    ruleX: { label: "Replacement Rule for X", val: "F-[[X]+X]+F[+FX]-X" },
+                    ruleF: { label: "Replacement Rule for F", val: "FF" }
+                },
+                presets: {
+                    "Ethereal Fern": {
+                        params: { depth: 4, length: 14, angle: 25, sway: 4 },
+                        formulas: { axiom: "X", ruleX: "F-[[X]+X]+F[+FX]-X", ruleF: "FF" },
+                        palette: 4, blendMode: "source-over"
+                    },
+                    "Binary Tree": {
+                        params: { depth: 6, length: 15, angle: 20, sway: 8 },
+                        formulas: { axiom: "F", ruleX: "X", ruleF: "FF+[+F-F]-[-F+F]" },
+                        palette: 3, blendMode: "source-over"
+                    },
+                    "Koch Snowflake": {
+                        params: { depth: 4, length: 8, angle: 60, sway: 0 },
+                        formulas: { axiom: "F++F++F", ruleX: "X", ruleF: "F-F++F-F" },
+                        palette: 1, blendMode: "screen"
+                    }
+                },
+                info: `
+                    <p class="info-paragraph"><span class="info-highlight">Lindenmayer Systems (L-Systems)</span> are formal grammars developed to describe plant growth and fractal curves.</p>
+                    <p class="info-paragraph">It starts with a seed string <span class="info-highlight">Axiom</span>, and recursively replaces each character using defined rules for a number of recursion layers (<span class="info-highlight">Depth</span>).</p>
+                    <p class="info-paragraph">The resulting string is interpreted as vector drawing commands:</p>
+                    <div class="math-block">F : Draw forward by branch length<br>+ : Rotate right by branching angle<br>- : Rotate left by branching angle<br>[ : Save position/rotation to stack<br>] : Restore position/rotation from stack</div>
+                    <p class="info-paragraph">Modulating the branching angle using a slow sine wave models wind swaying, creating beautiful animated organic structures.</p>
+                `
+            }
+        };
+
+        // --- 3. Engine-specific Simulation Data ---
+        
+        // Particles for Flow Field
+        let particles = [];
+        function initFlowField() {
+            const count = Math.round(ENGINE_CONFIGS.flowfield.params.count.val);
+            particles = [];
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    prevX: 0,
+                    prevY: 0,
+                    age: Math.random() * 200,
+                    maxAge: 100 + Math.random() * 150,
+                    colorProgress: Math.random()
+                });
+                particles[i].prevX = particles[i].x;
+                particles[i].prevY = particles[i].y;
+            }
+            document.getElementById('entitiesVal').textContent = count;
+        }
+
+        // Attractor point coords
+        let attractorX = 0.1;
+        let attractorY = 0.1;
+        function initAttractor() {
+            attractorX = 0.1;
+            attractorY = 0.1;
+            // Clear canvas fully to start clean
+            ctx.fillStyle = getBgColorHex();
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            document.getElementById('entitiesVal').textContent = Math.round(ENGINE_CONFIGS.attractor.params.density.val);
+        }
+
+        // --- 4. UI Builders and Event Listeners ---
+
+        function buildUIForCurrentAlgorithm() {
+            const config = ENGINE_CONFIGS[currentAlgo];
+            const controlsContainer = document.getElementById('controlsContainer');
+            const formulaContainer = document.getElementById('formulaInputsContainer');
+            
+            // 1. Build Parameter Sliders
+            let slidersHTML = `<h2 class="section-title">Parameters</h2>`;
+            for (let key in config.params) {
+                const param = config.params[key];
+                slidersHTML += `
+                    <div class="control-group">
+                        <div class="control-header">
+                            <span>${param.label}</span>
+                            <span class="control-value" id="val-${key}">${param.val}</span>
+                        </div>
+                        <input type="range" class="slider-input" 
+                            id="slider-${key}" 
+                            min="${param.min}" 
+                            max="${param.max}" 
+                            step="${param.step}" 
+                            value="${param.val}" 
+                            oninput="onParamChange('${key}', this.value)">
+                    </div>
+                `;
+            }
+            controlsContainer.innerHTML = slidersHTML;
+
+            // 2. Build Formula Code Inputs
+            let formulasHTML = ``;
+            for (let key in config.formulas) {
+                const formula = config.formulas[key];
+                formulasHTML += `
+                    <div class="formula-card">
+                        <span class="formula-label">${formula.label}</span>
+                        <input class="formula-input" id="input-${key}" 
+                            value="${formula.val}" 
+                            oninput="onFormulaChange('${key}', this.value)"></input>
+                        <div class="formula-status" id="status-${key}">
+                            <span class="status-ok">✔ Valid expression</span>
+                        </div>
+                    </div>
+                `;
+            }
+            // Add variable helpers description
+            let varsTip = '';
+            if (currentAlgo === 'flowfield') varsTip = 'Variables: <span class="var-badge">x</span>, <span class="var-badge">y</span>, <span class="var-badge">t</span> (time), <span class="var-badge">scale</span>, <span class="var-badge">noise(x,y)</span>, <span class="var-badge">pi</span>';
+            else if (currentAlgo === 'mandala') varsTip = 'Variables: <span class="var-badge">theta</span>, <span class="var-badge">t</span>, <span class="var-badge">size</span>, <span class="var-badge">pi</span>';
+            else if (currentAlgo === 'attractor') varsTip = 'Variables: <span class="var-badge">x</span>, <span class="var-badge">y</span>, <span class="var-badge">a</span>, <span class="var-badge">b</span>, <span class="var-badge">c</span>, <span class="var-badge">d</span>';
+            else if (currentAlgo === 'lsystem') varsTip = 'Rules replacement: Axiom starting seed. Rewrite rules for <span class="var-badge">F</span> and <span class="var-badge">X</span>. Turtle actions: <span class="var-badge">F</span>, <span class="var-badge">+</span>, <span class="var-badge">-</span>, <span class="var-badge">[</span>, <span class="var-badge">]</span>';
+
+            formulasHTML += `<div class="variables-list">${varsTip}</div>`;
+            formulaContainer.innerHTML = formulasHTML;
+
+            // 3. Build Presets List
+            const presetSelect = document.getElementById('presetSelect');
+            presetSelect.innerHTML = '';
+            
+            // Add blank default
+            const defOpt = document.createElement('option');
+            defOpt.value = "";
+            defOpt.textContent = "Custom Config";
+            presetSelect.appendChild(defOpt);
+
+            for (let name in config.presets) {
+                const opt = document.createElement('option');
+                opt.value = name;
+                opt.textContent = name;
+                presetSelect.appendChild(opt);
+            }
+
+            // Set preset dropdown to empty custom by default
+            presetSelect.value = "";
+
+            // 4. Update HUD and side-drawer info
+            document.getElementById('engineNameVal').textContent = config.name;
+            document.getElementById('inspectorTitle').textContent = config.name + " Math";
+            document.getElementById('inspectorBody').innerHTML = config.info;
+
+            // Compile initial formulas
+            for (let key in config.formulas) {
+                try {
+                    customCompiles[key] = compileExpression(config.formulas[key].val);
+                } catch (e) {
+                    console.error("Compile error", e);
+                }
+            }
+        }
+
+        function onParamChange(key, value) {
+            ENGINE_CONFIGS[currentAlgo].params[key].val = parseFloat(value);
+            document.getElementById(`val-${key}`).textContent = value;
+            
+            if (currentAlgo === 'flowfield') {
+                if (key === 'count') {
+                    initFlowField();
+                }
+                document.getElementById('entitiesVal').textContent = Math.round(ENGINE_CONFIGS.flowfield.params.count.val);
+            } else if (currentAlgo === 'attractor') {
+                if (key === 'density') {
+                    document.getElementById('entitiesVal').textContent = Math.round(value);
+                }
+                // Attractors build up over time, tweaking a parameter means resetting to visualize new attractors
+                if (key !== 'density') {
+                    initAttractor();
+                }
+            } else if (currentAlgo === 'lsystem') {
+                // Changing depth/length can redraw immediately if paused
+                if (!isPlaying) requestAnimationFrame(draw);
+            }
+            
+            // Set preset selection to Custom
+            document.getElementById('presetSelect').value = "";
+        }
+
+        function onFormulaChange(key, value) {
+            const statusDiv = document.getElementById(`status-${key}`);
+            try {
+                // Test compiling
+                let allowedVars = ['x', 'y', 't', 'noise', 'r', 'theta', 'i', 'width', 'height', 'a', 'b', 'c', 'd', 'size', 'scale'];
+                let compiled = compileExpression(value, allowedVars);
+                
+                customCompiles[key] = compiled;
+                ENGINE_CONFIGS[currentAlgo].formulas[key].val = value;
+                
+                statusDiv.innerHTML = `<span class="status-ok">✔ Valid expression</span>`;
+                
+                if (currentAlgo === 'attractor') {
+                    initAttractor();
+                }
+            } catch (e) {
+                statusDiv.innerHTML = `<span class="status-err">✗ Error: ${e.message}</span>`;
+            }
+            
+            document.getElementById('presetSelect').value = "";
+        }
+
+        function loadPreset(name) {
+            if (!name) return;
+            const config = ENGINE_CONFIGS[currentAlgo];
+            const preset = config.presets[name];
+            if (!preset) return;
+
+            // Load parameters
+            for (let key in preset.params) {
+                config.params[key].val = preset.params[key];
+                const slider = document.getElementById(`slider-${key}`);
+                const displayVal = document.getElementById(`val-${key}`);
+                if (slider) slider.value = preset.params[key];
+                if (displayVal) displayVal.textContent = preset.params[key];
+            }
+
+            // Load formulas
+            for (let key in preset.formulas) {
+                config.formulas[key].val = preset.formulas[key];
+                const input = document.getElementById(`input-${key}`);
+                if (input) input.value = preset.formulas[key];
+                
+                // Compile
+                try {
+                    let allowedVars = ['x', 'y', 't', 'noise', 'r', 'theta', 'i', 'width', 'height', 'a', 'b', 'c', 'd', 'size', 'scale'];
+                    customCompiles[key] = compileExpression(preset.formulas[key], allowedVars);
+                    const statusDiv = document.getElementById(`status-${key}`);
+                    if (statusDiv) statusDiv.innerHTML = `<span class="status-ok">✔ Valid expression</span>`;
+                } catch(e) {}
+            }
+
+            // Load style config
+            if (preset.palette !== undefined) {
+                selectPalette(preset.palette);
+            }
+            if (preset.blendMode !== undefined) {
+                document.getElementById('blendSelect').value = preset.blendMode;
+                updateBlendMode(preset.blendMode);
+            }
+
+            // Re-init variables
+            if (currentAlgo === 'flowfield') initFlowField();
+            if (currentAlgo === 'attractor') initAttractor();
+
+            // Force draw if paused
+            if (!isPlaying) requestAnimationFrame(draw);
+        }
+
+        // Switch Engine mode
+        function switchAlgorithm(algo) {
+            currentAlgo = algo;
+            
+            // Update active button styling
+            const buttons = document.querySelectorAll('.algo-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            // Find matched button
+            const activeBtn = Array.from(buttons).find(btn => btn.getAttribute('onclick').includes(algo));
+            if (activeBtn) activeBtn.classList.add('active');
+
+            // Reset custom compiles mapping
+            customCompiles = {};
+
+            // Re-render parameters and UI controls
+            buildUIForCurrentAlgorithm();
+
+            // Load the first preset by default to give the user an amazing immediate visual
+            const firstPresetName = Object.keys(ENGINE_CONFIGS[algo].presets)[0];
+            if (firstPresetName) {
+                document.getElementById('presetSelect').value = firstPresetName;
+                loadPreset(firstPresetName);
+            }
+
+            // Reset canvas state
+            resetCanvas();
+        }
+
+        // Drawer slider
+        function toggleDrawer() {
+            document.getElementById('appBody').classList.toggle('inspector-collapsed');
+        }
+
+        // Grid overlay toggle
+        function toggleGridOverlay() {
+            showGrid = !showGrid;
+            document.getElementById('gridBtn').classList.toggle('active', showGrid);
+            if (!isPlaying) requestAnimationFrame(draw);
+        }
+
+
+        // --- 5. Drawing & Simulation Loops ---
+
+        function draw(timestamp) {
+            if (!lastTime) lastTime = timestamp;
+            const delta = timestamp - lastTime;
+            
+            // FPS Calculator
+            frameCount++;
+            if (delta >= 1000) {
+                fps = Math.round((frameCount * 1000) / delta);
+                document.getElementById('fpsVal').textContent = fps;
+                frameCount = 0;
+                lastTime = timestamp;
+            }
+
+            // Perform Canvas Frame Rendering
+            if (isPlaying) {
+                time += 0.05;
+            }
+
+            // Execute specific algorithm drawing
+            if (currentAlgo === 'flowfield') {
+                renderFlowField();
+            } else if (currentAlgo === 'mandala') {
+                renderMandala();
+            } else if (currentAlgo === 'attractor') {
+                renderAttractor();
+            } else if (currentAlgo === 'lsystem') {
+                renderLSystem();
+            }
+
+            // Draw grid overlay helper
+            if (showGrid) {
+                drawGrid();
+            }
+
+            if (isPlaying) {
+                animationFrameId = requestAnimationFrame(draw);
+            }
+        }
+
+        function togglePlayback() {
+            isPlaying = !isPlaying;
+            const btnIcon = document.getElementById('playPauseIcon');
+            if (isPlaying) {
+                btnIcon.innerHTML = `<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>`;
+                document.getElementById('playPauseBtn').classList.remove('active');
+                lastTime = performance.now();
+                animationFrameId = requestAnimationFrame(draw);
+            } else {
+                btnIcon.innerHTML = `<path d="M8 5v14l11-7z"/>`;
+                document.getElementById('playPauseBtn').classList.add('active');
+                cancelAnimationFrame(animationFrameId);
+            }
+        }
+
+        function stepFrame() {
+            if (isPlaying) togglePlayback();
+            time += 0.05;
+            
+            if (currentAlgo === 'flowfield') renderFlowField();
+            else if (currentAlgo === 'mandala') renderMandala();
+            else if (currentAlgo === 'attractor') renderAttractor();
+            else if (currentAlgo === 'lsystem') renderLSystem();
+            
+            if (showGrid) drawGrid();
+        }
+
+        function resetCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Apply background style
+            ctx.fillStyle = getBgColorHex();
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            time = 0;
+
+            if (currentAlgo === 'flowfield') initFlowField();
+            if (currentAlgo === 'attractor') initAttractor();
+            
+            if (!isPlaying) requestAnimationFrame(draw);
+        }
+
+        function drawGrid() {
+            ctx.save();
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+            ctx.lineWidth = 1;
+            
+            const gridSize = 40 * dpr;
+            
+            // Verticals
+            for (let x = 0; x < canvas.width; x += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            // Horizontals
+            for (let y = 0; y < canvas.height; y += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+
+            // Radial concentric helper lines in center
+            ctx.strokeStyle = 'rgba(244, 63, 94, 0.04)';
+            ctx.beginPath();
+            ctx.arc(canvas.width/2, canvas.height/2, 100 * dpr, 0, Math.PI * 2);
+            ctx.arc(canvas.width/2, canvas.height/2, 200 * dpr, 0, Math.PI * 2);
+            ctx.arc(canvas.width/2, canvas.height/2, 300 * dpr, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Center axes
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+            ctx.beginPath();
+            ctx.moveTo(canvas.width/2, 0);
+            ctx.lineTo(canvas.width/2, canvas.height);
+            ctx.moveTo(0, canvas.height/2);
+            ctx.lineTo(canvas.width, canvas.height/2);
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+
+        // --- 6. Specific Engine Renders ---
+
+        // A. Flow Field Engine
+        function renderFlowField() {
+            const config = ENGINE_CONFIGS.flowfield;
+            const speed = config.params.speed.val * dpr;
+            const scale = config.params.scale.val / dpr;
+            const trail = config.params.trail.val;
+            
+            // Partially clear canvas to draw trails
+            ctx.save();
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.fillStyle = getBgColorWithAlpha(trail);
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.restore();
+
+            // Set blend mode
+            ctx.save();
+            ctx.globalCompositeOperation = document.getElementById('blendSelect').value;
+            
+            // Draw particles
+            const angleFunc = customCompiles['angle'] || (() => 0);
+            const grad = getGradient(0, 0, canvas.width, canvas.height);
+
+            ctx.lineWidth = 1.2 * dpr;
+            ctx.strokeStyle = grad;
+
+            for (let i = 0; i < particles.length; i++) {
+                let p = particles[i];
+
+                // Calculate angle from safe compiled custom math
+                let angle = 0;
+                try {
+                    // Args: x, y, t, noise, r, theta, i, width, height, scale, size, a, b, c, d
+                    let r = Math.sqrt(p.x*p.x + p.y*p.y);
+                    let theta = Math.atan2(p.y, p.x);
+                    
+                    angle = angleFunc(p.x, p.y, time, (nx, ny) => Noise2D(nx, ny), r, theta, i, canvas.width, canvas.height, scale, 0, 0, 0, 0, 0);
+                } catch(e) {
+                    angle = 0;
+                }
+
+                // Update position
+                p.prevX = p.x;
+                p.prevY = p.y;
+                p.x += Math.cos(angle) * speed;
+                p.y += Math.sin(angle) * speed;
+                p.age++;
+
+                // Draw line segment
+                ctx.beginPath();
+                ctx.moveTo(p.prevX, p.prevY);
+                ctx.lineTo(p.x, p.y);
+                ctx.stroke();
+
+                // Boundary checks
+                if (p.x < 0 || p.x > canvas.width || p.y < 0 || p.y > canvas.height || p.age > p.maxAge) {
+                    p.x = Math.random() * canvas.width;
+                    p.y = Math.random() * canvas.height;
+                    p.prevX = p.x;
+                    p.prevY = p.y;
+                    p.age = 0;
+                    p.maxAge = 100 + Math.random() * 150;
+                }
+            }
+            ctx.restore();
+        }
+
+        // B. Mandala / Spirograph Engine
+        function renderMandala() {
+            const config = ENGINE_CONFIGS.mandala;
+            const density = config.params.density.val;
+            const size = config.params.size.val * dpr;
+            const symmetry = config.params.symmetry.val;
+            const speed = config.params.speed.val;
+
+            // Clear canvas fully to draw crisp vector paths
+            ctx.fillStyle = getBgColorHex();
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.save();
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+            ctx.globalCompositeOperation = document.getElementById('blendSelect').value;
+
+            // Compile parameters
+            const rFunc = customCompiles['radius'] || (() => 0);
+            
+            // Build linear/radial color gradient
+            const grad = getGradient(-size, -size, size, size);
+            ctx.strokeStyle = grad;
+            ctx.lineWidth = 1.5 * dpr;
+
+            // Loop and plot mandala
+            ctx.beginPath();
+            let isFirst = true;
+
+            for (let i = 0; i <= density; i++) {
+                const theta = (i / density) * Math.PI * 2 * 3; // loops
+                let r = 0;
+                
+                try {
+                    // Args: x, y, t, noise, r, theta, i, width, height, scale, size, a, b, c, d
+                    r = rFunc(0, 0, time * speed, (nx, ny) => Noise2D(nx, ny), 0, theta, i, canvas.width, canvas.height, 0, size, 0, 0, 0, 0);
+                } catch(e) {
+                    r = size;
+                }
+
+                // Plot coordinates
+                const x = r * Math.cos(theta);
+                const y = r * Math.sin(theta);
+
+                // Mirror symmetric points
+                if (symmetry > 1) {
+                    for (let s = 0; s < symmetry; s++) {
+                        const rot = (s / symmetry) * Math.PI * 2;
+                        const rx = x * Math.cos(rot) - y * Math.sin(rot);
+                        const ry = x * Math.sin(rot) + y * Math.cos(rot);
+                        
+                        if (s === 0) {
+                            if (isFirst) {
+                                ctx.moveTo(rx, ry);
+                            } else {
+                                ctx.lineTo(rx, ry);
+                            }
+                        } else {
+                            // Link symmetric paths
+                            ctx.moveTo(rx, ry);
+                            ctx.arc(rx, ry, 0.5, 0, Math.PI * 2);
+                        }
+                    }
+                    isFirst = false;
+                } else {
+                    if (isFirst) {
+                        ctx.moveTo(x, y);
+                        isFirst = false;
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+            }
+            ctx.stroke();
+            ctx.restore();
+
+            document.getElementById('entitiesVal').textContent = Math.round(density);
+        }
+
+        // C. Strange Attractors Engine
+        function renderAttractor() {
+            const config = ENGINE_CONFIGS.attractor;
+            const density = config.params.density.val;
+            const a = config.params.a.val;
+            const b = config.params.b.val;
+            const c = config.params.c.val;
+            const d = config.params.d.val;
+
+            // Redraw trails if requested, else build points over frames
+            // Standard attractors look best building up points slowly without clearing canvas.
+            // If playing, we draw `density` number of points per frame.
+            ctx.save();
+            ctx.globalCompositeOperation = document.getElementById('blendSelect').value;
+
+            // Coordinate mapping limits
+            const scale = 180 * dpr;
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+
+            const nextXFunc = customCompiles['nextX'] || (() => 0);
+            const nextYFunc = customCompiles['nextY'] || (() => 0);
+
+            // Fetch gradient colors
+            const palette = PALETTES[activePaletteIndex];
+            const colorStop1 = palette.stops[0][1];
+            const colorStop2 = palette.stops[palette.stops.length - 1][1];
+
+            // Render batch of points
+            for (let i = 0; i < density; i++) {
+                let nx = 0;
+                let ny = 0;
+
+                try {
+                    // Eval formulas
+                    // Args: x, y, t, noise, r, theta, i, width, height, scale, size, a, b, c, d
+                    nx = nextXFunc(attractorX, attractorY, time, null, 0, 0, i, canvas.width, canvas.height, 0, 0, a, b, c, d);
+                    ny = nextYFunc(attractorX, attractorY, time, null, 0, 0, i, canvas.width, canvas.height, 0, 0, a, b, c, d);
+                } catch(e) {
+                    nx = 0;
+                    ny = 0;
+                }
+
+                attractorX = nx;
+                attractorY = ny;
+
+                // Project mapping onto canvas viewport
+                const px = centerX + attractorX * scale;
+                const py = centerY + attractorY * scale;
+
+                // Color points along attractor radius speed
+                const dist = Math.sqrt(attractorX*attractorX + attractorY*attractorY);
+                const colorVal = Math.min(1.0, dist / 2.0);
+
+                ctx.fillStyle = getInterpolatedColor(colorStop1, colorStop2, colorVal, 0.08);
+                ctx.fillRect(px, py, 1.2 * dpr, 1.2 * dpr);
+            }
+
+            ctx.restore();
+        }
+
+        // D. L-System Engine
+        let lSystemString = "";
+        let cachedLSystemRules = {};
+
+        function generateLSystemString() {
+            const config = ENGINE_CONFIGS.lsystem;
+            const depth = Math.round(config.params.depth.val);
+            const axiom = config.formulas.axiom.val;
+            const ruleX = config.formulas.ruleX.val;
+            const ruleF = config.formulas.ruleF.val;
+
+            let current = axiom;
+            for (let i = 0; i < depth; i++) {
+                let nextStr = "";
+                for (let c = 0; c < current.length; c++) {
+                    const char = current[c];
+                    if (char === 'X') nextStr += ruleX;
+                    else if (char === 'F') nextStr += ruleF;
+                    else nextStr += char;
+                }
+                current = nextStr;
+                // Safeguard against exponential string memory crashes
+                if (current.length > 100000) {
+                    current = current.substring(0, 100000);
+                    break;
+                }
+            }
+            lSystemString = current;
+            cachedLSystemRules = { depth, axiom, ruleX, ruleF };
+            document.getElementById('entitiesVal').textContent = lSystemString.length;
+        }
+
+        function renderLSystem() {
+            const config = ENGINE_CONFIGS.lsystem;
+            const depth = Math.round(config.params.depth.val);
+            const len = config.params.length.val * dpr;
+            const baseAngle = config.params.angle.val * Math.PI / 180;
+            const sway = config.params.sway.val * Math.PI / 180;
+
+            // Regeneration check
+            if (!lSystemString || 
+                cachedLSystemRules.depth !== depth || 
+                cachedLSystemRules.axiom !== config.formulas.axiom.val ||
+                cachedLSystemRules.ruleX !== config.formulas.ruleX.val ||
+                cachedLSystemRules.ruleF !== config.formulas.ruleF.val) {
+                generateLSystemString();
+            }
+
+            // Clear canvas
+            ctx.fillStyle = getBgColorHex();
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.save();
+            ctx.translate(canvas.width / 2, canvas.height * 0.9);
+            ctx.rotate(Math.PI); // Point upwards
+
+            ctx.strokeStyle = getGradient(0, 0, 0, -canvas.height * 0.8);
+            ctx.lineWidth = Math.max(1, (7 - depth) * dpr);
+            ctx.lineCap = 'round';
+
+            // Slow sine wave animation models wind swaying branches
+            const dynamicAngle = baseAngle + Math.sin(time * 0.4) * sway;
+
+            let stack = [];
+            for (let i = 0; i < lSystemString.length; i++) {
+                const command = lSystemString[i];
+
+                if (command === 'F') {
+                    ctx.beginPath();
+                    ctx.moveTo(0, 0);
+                    ctx.lineTo(0, len);
+                    ctx.stroke();
+                    ctx.translate(0, len);
+                } else if (command === '+') {
+                    ctx.rotate(dynamicAngle);
+                } else if (command === '-') {
+                    ctx.rotate(-dynamicAngle);
+                } else if (command === '[') {
+                    stack.push({
+                        matrix: ctx.getTransform(),
+                        width: ctx.lineWidth
+                    });
+                    // Taper branch widths as recursion deepens
+                    ctx.lineWidth = Math.max(0.6 * dpr, ctx.lineWidth * 0.75);
+                } else if (command === ']') {
+                    const state = stack.pop();
+                    if (state) {
+                        ctx.setTransform(state.matrix);
+                        ctx.lineWidth = state.width;
+                    }
+                }
+            }
+            ctx.restore();
+        }
+
+
+        // --- 7. Color Math Helpers ---
+
+        function selectPalette(index) {
+            activePaletteIndex = index;
+            const buttons = document.querySelectorAll('.palette-btn');
+            buttons.forEach((btn, idx) => {
+                btn.classList.toggle('active', idx === index);
+            });
+            
+            // Re-render canvas if paused
+            if (!isPlaying) requestAnimationFrame(draw);
+        }
+
+        function createPaletteSelectors() {
+            const grid = document.getElementById('paletteGrid');
+            grid.innerHTML = '';
+            
+            PALETTES.forEach((palette, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `palette-btn ${idx === activePaletteIndex ? 'active' : ''}`;
+                btn.onclick = () => selectPalette(idx);
+                btn.title = palette.name;
+                
+                const gradDiv = document.createElement('div');
+                gradDiv.className = 'palette-gradient';
+                
+                // Construct linear styling string
+                const stopStrs = palette.stops.map(stop => `${stop[1]} ${stop[0]*100}%`);
+                gradDiv.style.background = `linear-gradient(135deg, ${stopStrs.join(', ')})`;
+                
+                btn.appendChild(gradDiv);
+                grid.appendChild(btn);
+            });
+        }
+
+        // Apply background style helper
+        function getBgColorHex() {
+            const style = document.getElementById('bgSelect').value;
+            if (style === 'black') return '#000000';
+            if (style === 'transparent') return 'rgba(0, 0, 0, 0)';
+            return '#030712'; // default dark
+        }
+
+        function getBgColorWithAlpha(alpha) {
+            const style = document.getElementById('bgSelect').value;
+            if (style === 'black') return `rgba(0, 0, 0, ${alpha})`;
+            if (style === 'transparent') return `rgba(0, 0, 0, 0)`; // no trails in fully transparent
+            return `rgba(3, 7, 18, ${alpha})`; // charcoal alpha
+        }
+
+        function getGradient(x1, y1, x2, y2) {
+            const palette = PALETTES[activePaletteIndex];
+            const grad = ctx.createLinearGradient(x1, y1, x2, y2);
+            palette.stops.forEach(stop => {
+                grad.addColorStop(stop[0], stop[1]);
+            });
+            return grad;
+        }
+
+        // Helper to interpolate colors for Attractor plot dots
+        function getInterpolatedColor(color1, color2, factor, alpha) {
+            const match1 = color1.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/);
+            const match2 = color2.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/);
+            
+            if (match1 && match2) {
+                const h1 = parseInt(match1[1]);
+                const s1 = parseInt(match1[2]);
+                const l1 = parseInt(match1[3]);
+
+                const h2 = parseInt(match2[1]);
+                const s2 = parseInt(match2[2]);
+                const l2 = parseInt(match2[3]);
+
+                const h = Math.round(h1 + (h2 - h1) * factor);
+                const s = Math.round(s1 + (s2 - s1) * factor);
+                const l = Math.round(l1 + (l2 - l1) * factor);
+
+                return `hsla(${h}, ${s}%, ${l}%, ${alpha})`;
+            }
+            return `rgba(255,255,255,${alpha})`;
+        }
+
+        function updateBlendMode(mode) {
+            if (!isPlaying) requestAnimationFrame(draw);
+        }
+
+        function updateBackgroundStyle(style) {
+            resetCanvas();
+        }
+
+
+        // --- 8. Exporting & Resolution Configs ---
+
+        function exportPNG() {
+            // Create a temporary high-res rendering canvas to generate crisp exports
+            const exportCanvas = document.createElement('canvas');
+            const exportCtx = exportCanvas.getContext('2d');
+            
+            exportCanvas.width = 1920;
+            exportCanvas.height = 1080;
+
+            exportCtx.fillStyle = getBgColorHex();
+            exportCtx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+
+            const origCanvas = window.canvas;
+            const origCtx = window.ctx;
+            const origW = canvas.width;
+            const origH = canvas.height;
+            const origDpr = window.dpr;
+
+            window.canvas = exportCanvas;
+            window.ctx = exportCtx;
+            window.dpr = 2; // scale physics up
+            canvas.width = 1920;
+            canvas.height = 1080;
+
+            if (currentAlgo === 'flowfield') {
+                const originalParticles = [...particles];
+                initFlowField();
+                for (let step = 0; step < 6; step++) {
+                    renderFlowField();
+                }
+                particles = originalParticles;
+            } else if (currentAlgo === 'mandala') {
+                renderMandala();
+            } else if (currentAlgo === 'attractor') {
+                const densitySlider = ENGINE_CONFIGS.attractor.params.density;
+                const origDensity = densitySlider.val;
+                densitySlider.val = 300000;
+                renderAttractor();
+                densitySlider.val = origDensity;
+            } else if (currentAlgo === 'lsystem') {
+                renderLSystem();
+            }
+
+            const imageURL = exportCanvas.toDataURL("image/png");
+            const downloadLink = document.createElement('a');
+            downloadLink.download = `generative_concept_${currentAlgo}_${Date.now()}.png`;
+            downloadLink.href = imageURL;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+
+            window.canvas = origCanvas;
+            window.ctx = origCtx;
+            canvas.width = origW;
+            canvas.height = origH;
+            window.dpr = origDpr;
+            
+            if (!isPlaying) requestAnimationFrame(draw);
+
+            const toast = document.getElementById('exportToast');
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.error(`Error attempting to enable fullscreen: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+
+        // --- 9. Resizing Canvas Contexts ---
+
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            const w = container.clientWidth;
+            const h = container.clientHeight;
+            
+            canvas.width = w * dpr;
+            canvas.height = h * dpr;
+            canvas.style.width = w + 'px';
+            canvas.style.height = h + 'px';
+
+            resetCanvas();
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+
+
+        // --- 10. Initialization ---
+        
+        buildUIForCurrentAlgorithm();
+        createPaletteSelectors();
+        selectPalette(0);
+
+        resizeCanvas();
+
+        const firstPresetName = Object.keys(ENGINE_CONFIGS[currentAlgo].presets)[0];
+        if (firstPresetName) {
+            document.getElementById('presetSelect').value = firstPresetName;
+            loadPreset(firstPresetName);
+        }
+
+        lastTime = performance.now();
+        animationFrameId = requestAnimationFrame(draw);
+
+    </script>
+</body>
+</html>
