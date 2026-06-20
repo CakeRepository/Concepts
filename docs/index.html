@@ -4,158 +4,484 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Concepts - Curated by Trantham</title>
+    <!-- Google Fonts for premium typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesque:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-            line-height: 1.6;
+        :root {
+            --bg-base: #030712;
+            --bg-surface: rgba(17, 24, 39, 0.7);
+            --border-color: rgba(255, 255, 255, 0.06);
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            
+            --color-storage: #14b8a6;
+            --color-storage-glow: rgba(20, 184, 166, 0.15);
+            --color-migration: #3b82f6;
+            --color-migration-glow: rgba(59, 130, 246, 0.15);
+            --color-latent: #8b5cf6;
+            --color-latent-glow: rgba(139, 92, 246, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            background-color: #f8f9fa; /* Light grey background */
-            color: #343a40; /* Dark text color */
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(139, 92, 246, 0.12) 0%, transparent 35%),
+                radial-gradient(circle at 85% 85%, rgba(20, 184, 166, 0.12) 0%, transparent 35%);
+            background-attachment: fixed;
+            position: relative;
+        }
+
+        /* Subtle grid blueprint pattern overlay */
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: 50px 50px;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+            pointer-events: none;
+            z-index: 0;
         }
 
         .container {
-            max-width: 900px; /* Limit content width */
-            margin: 40px auto; /* Center the container with top/bottom margin */
-            padding: 20px;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 60px 20px;
+            position: relative;
+            z-index: 10;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
         }
 
         header {
             text-align: center;
-            margin-bottom: 40px;
-            border-bottom: 1px solid #dee2e6; /* Light border */
-            padding-bottom: 20px;
+            margin-bottom: 60px;
         }
 
         header h1 {
-            color: #0056b3; /* GitHub-like blue */
-            margin-bottom: 0.5em;
+            font-family: 'Space Grotesque', sans-serif;
+            font-size: 2.8rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            background: linear-gradient(135deg, #ffffff 30%, #a5b4fc 70%, #818cf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 12px;
         }
 
         header p {
-            font-size: 1.1em;
-            color: #6c757d; /* Grey text */
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+            font-weight: 300;
+            line-height: 1.6;
         }
 
         .project-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Responsive grid */
-            gap: 25px; /* Space between grid items */
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
             list-style: none;
             padding: 0;
-            margin: 0;
+            margin: 0 auto;
+            width: 100%;
         }
 
         .project-card {
-            background-color: #ffffff; /* White card background */
-            border: 1px solid #dee2e6; /* Light border */
-            border-radius: 8px; /* Rounded corners */
-            overflow: hidden; /* Keep content contained */
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-            display: flex; /* Use flexbox for card layout */
-            flex-direction: column; /* Stack content vertically */
+            background-color: var(--bg-surface);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
         }
 
-        .project-card:hover {
-            transform: translateY(-5px); /* Lift effect on hover */
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); /* Shadow on hover */
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 16px;
+            padding: 1px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
+        /* Hover animations and coloring per card */
+        .project-card.card-storage:hover {
+            border-color: rgba(20, 184, 166, 0.3);
+            box-shadow: 0 10px 30px var(--color-storage-glow);
+            transform: translateY(-6px);
+        }
+        .project-card.card-migration:hover {
+            border-color: rgba(59, 130, 246, 0.3);
+            box-shadow: 0 10px 30px var(--color-migration-glow);
+            transform: translateY(-6px);
+        }
+        .project-card.card-latent:hover {
+            border-color: rgba(139, 92, 246, 0.3);
+            box-shadow: 0 10px 30px var(--color-latent-glow);
+            transform: translateY(-6px);
         }
 
         .project-card a {
             text-decoration: none;
-            color: inherit; /* Inherit text color */
-            display: block;
-            padding: 20px;
-            flex-grow: 1; /* Allow link to fill card space */
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+            height: 100%;
+            box-sizing: border-box;
         }
+
+        /* Animated Interactive Previews */
+        .mini-preview {
+            height: 130px;
+            background: rgba(255, 255, 255, 0.015);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            transition: all 0.3s ease;
+        }
+
+        .project-card:hover .mini-preview {
+            background: rgba(255, 255, 255, 0.035);
+        }
+
+        /* Storage Preview Animation */
+        .mini-canister {
+            width: 44px;
+            height: 64px;
+            border: 2px solid rgba(20, 184, 166, 0.3);
+            border-radius: 4px 4px 8px 8px;
+            position: relative;
+            overflow: hidden;
+            background: rgba(20, 184, 166, 0.02);
+            transition: border-color 0.3s;
+        }
+        .project-card.card-storage:hover .mini-canister {
+            border-color: var(--color-storage);
+        }
+        .mini-liquid {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 30%;
+            background: linear-gradient(180deg, #14b8a6, #0d9488);
+            transition: height 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .project-card.card-storage:hover .mini-liquid {
+            height: 75%;
+        }
+
+        /* Migration Preview Animation */
+        .migration-preview {
+            gap: 12px;
+        }
+        .mini-node {
+            width: 42px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+            font-family: 'Space Grotesque', sans-serif;
+            transition: all 0.3s;
+        }
+        .src-node {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1.5px solid rgba(239, 68, 68, 0.4);
+            color: #ef4444;
+        }
+        .dst-node {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1.5px solid rgba(59, 130, 246, 0.4);
+            color: #3b82f6;
+        }
+        .project-card.card-migration:hover .src-node {
+            border-color: #ef4444;
+            box-shadow: 0 0 8px rgba(239, 68, 68, 0.3);
+        }
+        .project-card.card-migration:hover .dst-node {
+            border-color: #3b82f6;
+            box-shadow: 0 0 8px rgba(59, 130, 246, 0.3);
+        }
+        .mini-path {
+            width: 60px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.08);
+            position: relative;
+        }
+        .mini-packet {
+            position: absolute;
+            top: -3px;
+            left: 0;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #3b82f6;
+            box-shadow: 0 0 6px #3b82f6;
+            opacity: 0;
+        }
+        .project-card.card-migration:hover .mini-packet {
+            animation: travel 1.6s infinite linear;
+        }
+        @keyframes travel {
+            0% { left: 0%; opacity: 0; }
+            15% { opacity: 1; }
+            85% { opacity: 1; }
+            100% { left: 100%; opacity: 0; }
+        }
+
+        /* Latent Space Preview Animation */
+        .latent-preview {
+            perspective: 250px;
+        }
+        .mini-axes {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border-left: 1.5px dashed rgba(255, 255, 255, 0.12);
+            border-bottom: 1.5px dashed rgba(255, 255, 255, 0.12);
+            transform: rotateX(50deg) rotateZ(-30deg);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .project-card.card-latent:hover .mini-axes {
+            transform: rotateX(50deg) rotateZ(150deg);
+            border-color: rgba(139, 92, 246, 0.4);
+        }
+        .mini-point {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .p1 { top: 35px; left: 55px; background: #8b5cf6; box-shadow: 0 0 6px #8b5cf6; }
+        .p2 { top: 75px; left: 70px; background: #14b8a6; box-shadow: 0 0 6px #14b8a6; }
+        .p3 { top: 45px; left: 110px; background: #ff6b6b; box-shadow: 0 0 6px #ff6b6b; }
+        .p4 { top: 80px; left: 125px; background: #f59e0b; box-shadow: 0 0 6px #f59e0b; }
+
+        .project-card.card-latent:hover .p1 { transform: translate3d(8px, -8px, 12px); }
+        .project-card.card-latent:hover .p2 { transform: translate3d(-10px, 12px, -6px); }
+        .project-card.card-latent:hover .p3 { transform: translate3d(12px, 6px, 18px); }
+        .project-card.card-latent:hover .p4 { transform: translate3d(-6px, -10px, -12px); }
 
         .project-card h2 {
-            margin-top: 0;
-            margin-bottom: 10px;
-            font-size: 1.4em;
-            color: #0056b3; /* Blue title */
+            font-family: 'Space Grotesque', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #ffffff;
+            transition: color 0.2s;
         }
 
-        .project-card p {
-            margin-bottom: 0;
-            font-size: 0.95em;
-            color: #495057; /* Slightly darker grey text */
+        .project-card.card-storage:hover h2 { color: var(--color-storage); }
+        .project-card.card-migration:hover h2 { color: var(--color-migration); }
+        .project-card.card-latent:hover h2 { color: var(--color-latent); }
+
+        .project-card p.description {
+            font-size: 0.92rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: 24px;
+            flex-grow: 1;
+        }
+
+        /* Author Badges & Meta Row */
+        .card-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 14px;
+            margin-top: auto;
+        }
+
+        .avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            font-weight: 700;
+            color: #ffffff;
+            font-family: 'Space Grotesque', sans-serif;
+            text-transform: uppercase;
+        }
+
+        .card-storage .avatar { background: rgba(20, 184, 166, 0.1); border-color: rgba(20, 184, 166, 0.3); color: var(--color-storage); }
+        .card-migration .avatar { background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.3); color: var(--color-migration); }
+        .card-latent .avatar { background: rgba(139, 92, 246, 0.1); border-color: rgba(139, 92, 246, 0.3); color: var(--color-latent); }
+
+        .author-name {
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            transition: color 0.2s;
+        }
+
+        .project-card:hover .author-name {
+            color: var(--text-secondary);
         }
 
         footer {
             text-align: center;
-            margin-top: 50px;
-            padding-top: 20px;
-            border-top: 1px solid #dee2e6;
-            font-size: 0.9em;
-            color: #6c757d;
+            margin-top: 80px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            z-index: 10;
         }
 
-        footer a {
-            color: #0056b3;
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
             text-decoration: none;
-        }
-        footer a:hover {
-            text-decoration: underline;
+            padding: 6px 14px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            transition: all 0.2s;
+            font-size: 0.82rem;
+            font-weight: 500;
         }
 
+        .footer-links a:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .footer-copy {
+            font-size: 0.8rem;
+            font-family: 'JetBrains Mono', monospace;
+            opacity: 0.8;
+        }
     </style>
 </head>
 <body>
-
+    <div class="grid-overlay"></div>
     <div class="container">
         <header>
-            <h1>Concepts Visualized with the help of AI</h1>
-            <p>Explore the interactive concepts, tools, and demos we've been working on.</p>
+            <h1>Concepts Visualized</h1>
+            <p>Interactive simulations, micro-games, and vector landscape prototypes mapping out key technical abstractions.</p>
         </header>
 
         <ul class="project-grid">
-
-            <!-- TODO: Project 1 - Storage Bucket Analogy -->
-            <li class="project-card">
-                <a href="storage_bucket_tiered.html"> <!-- Make sure this filename is EXACTLY correct -->
+            <!-- Project 1: Cloud Storage Bucket -->
+            <li class="project-card card-storage">
+                <a href="storage_bucket_tiered.html">
+                    <div class="mini-preview">
+                        <div class="mini-canister">
+                            <div class="mini-liquid"></div>
+                        </div>
+                    </div>
                     <h2>Storage Bucket Analogy</h2>
-                    <p>Visualizes cloud storage tiers (32GB+ doubling), usage limits, and estimated costs like filling a bucket.</p>
-                    <p>By Josh Niezgoski</p>
+                    <p class="description">Visualizes cloud storage tiers (doubling steps), usage capacities, and progressive billing increments using an interactive liquid bucket simulation.</p>
+                    <div class="card-meta">
+                        <div class="avatar">JN</div>
+                        <span class="author-name">Josh Niezgoski</span>
+                    </div>
                 </a>
             </li>
-            <li class="project-card">
-                <a href="7r-of-migrations.html"> <!-- Make sure this filename is EXACTLY correct -->
+
+            <!-- Project 2: 7r's of Migration -->
+            <li class="project-card card-migration">
+                <a href="7r-of-migrations.html">
+                    <div class="mini-preview migration-preview">
+                        <div class="mini-node src-node">Prem</div>
+                        <div class="mini-path">
+                            <div class="mini-packet"></div>
+                        </div>
+                        <div class="mini-node dst-node">Cloud</div>
+                    </div>
                     <h2>7'rs of Migration</h2>
-                    <p>A game to help teach the concepts outlined by Cloud Migration Strategies 7r's</p>
-                    <p>By Govardhana Miriyala Kannaiah</p>
+                    <p class="description">An interactive drag-and-drop puzzle mapping components across Cloud Migration Strategy categories: Rehost, Replatform, Repurchase, and Refactor.</p>
+                    <div class="card-meta">
+                        <div class="avatar">GMK</div>
+                        <span class="author-name">Govardhana M. K.</span>
+                    </div>
                 </a>
             </li>
-            <li class="project-card">
+
+            <!-- Project 3: LLM Latent Space -->
+            <li class="project-card card-latent">
                 <a href="latent_space_llm.html">
-                    <h2>LLM Latent Space Visualizer</h2>
-                    <p>An interactive 3D physics metaphor showcasing vector embeddings, loss landscape gradient descent, temperature sampling, and Top-K/P token filtering.</p>
-                    <p>By AI Assistant</p>
+                    <div class="mini-preview latent-preview">
+                        <div class="mini-axes"></div>
+                        <div class="mini-point p1"></div>
+                        <div class="mini-point p2"></div>
+                        <div class="mini-point p3"></div>
+                        <div class="mini-point p4"></div>
+                    </div>
+                    <h2>LLM Latent Space</h2>
+                    <p class="description">A high-fidelity 3D vector physics visualizer demonstrating coordinate embeddings, token cost surfaces, Temperature, and Top-K/P logits filtration.</p>
+                    <div class="card-meta">
+                        <div class="avatar">AI</div>
+                        <span class="author-name">AI Assistant</span>
+                    </div>
                 </a>
             </li>
-
-            <!-- TODO: Add Project 3 -->
-            <!--
-            <li class="project-card">
-                <a href="YOUR_PROJECT_3_FILENAME.html">
-                    <h2>Project Title 3</h2>
-                    <p>Another short summary of the concept shown in this HTML file.</p>
-                </a>
-            </li>
-            -->
-
-            <!-- Add more <li class="project-card"> blocks here for each project -->
-
         </ul>
+
         <footer>
-            <p>
-                Connect with me: 
-                <a href="https://github.com/cakerepository" target="_blank" rel="noopener noreferrer">GitHub</a> |
-                <a href="https://www.linkedin.com/in/justin-trantham/" target="_blank" rel="noopener noreferrer">LinkedIn</a> |
-                <a href="mailto:justin.trantham@flowdevs.io">Email</a><br>
-                <a href="https://www.flowdevs.io/blog" target="_blank" rel="noopener noreferrer">Blog</a> |
-                &copy; 2025 Justin Trantham
-            </p>
+            <div class="footer-links">
+                <a href="https://github.com/cakerepository" target="_blank" rel="noopener noreferrer">GitHub</a>
+                <a href="https://www.linkedin.com/in/justin-trantham/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+                <a href="mailto:justin.trantham@flowdevs.io">Email</a>
+                <a href="https://www.flowdevs.io/blog" target="_blank" rel="noopener noreferrer">Blog</a>
+            </div>
+            <p class="footer-copy">&copy; 2025 Justin Trantham // Concepts Visualizer v2.0</p>
         </footer>
     </div>
 </body>

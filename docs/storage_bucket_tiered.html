@@ -3,199 +3,550 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tiered Storage Bucket & Billing Analogy</title>
+    <title>Cloud Storage Tier Analogy - AI Concepts</title>
+    <!-- Google Fonts for premium typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesque:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background-color: #eef2f7; /* Lighter, cloud-like background */
-            flex-direction: column;
-            padding: 20px;
+        :root {
+            --bg-base: #030712;
+            --bg-surface: rgba(17, 24, 39, 0.75);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            
+            --color-teal: #14b8a6;
+            --color-teal-glow: rgba(20, 184, 166, 0.2);
+            --color-red: #ef4444;
+            --color-red-glow: rgba(239, 68, 68, 0.2);
+            --color-amber: #f59e0b;
+            --color-amber-glow: rgba(245, 158, 11, 0.25);
+            --color-green: #10b981;
+
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-display: 'Space Grotesque', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(20, 184, 166, 0.1) 0%, transparent 45%),
+                radial-gradient(circle at 90% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 45%);
+            background-attachment: fixed;
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow-x: hidden;
+            padding: 20px;
+        }
+
+        /* Subtle grid blueprint pattern overlay */
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: 50px 50px;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.01) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.01) 1px, transparent 1px);
+            pointer-events: none;
+            z-index: 0;
         }
 
         .container {
-            background-color: #fff;
-            padding: 30px 40px;
-            border-radius: 12px;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            max-width: 500px;
-            width: 90%;
+            max-width: 680px;
+            margin: 0 auto;
+            width: 100%;
+            position: relative;
+            z-index: 10;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
-        h1 {
-            color: #2c3e50; /* Dark blue-grey */
-            margin-bottom: 25px;
-            font-weight: 600;
+        header {
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
         }
 
-        .bucket-area {
-            margin-bottom: 25px;
+        .header-left h1 {
+            font-family: var(--font-display);
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            background: linear-gradient(to right, #ffffff, var(--text-secondary), var(--color-teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-left p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 4px;
+        }
+
+        .back-link {
+            color: var(--color-teal);
+            text-decoration: none;
+            font-family: var(--font-display);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            padding: 8px 16px;
+            border: 1px solid rgba(20, 184, 166, 0.2);
+            border-radius: 8px;
+            background-color: rgba(20, 184, 166, 0.04);
+            transition: all 0.2s ease;
+        }
+
+        .back-link:hover {
+            background-color: rgba(20, 184, 166, 0.12);
+            transform: translateX(-3px);
+            box-shadow: 0 0 12px rgba(20, 184, 166, 0.15);
+        }
+
+        /* Glassmorphic Panel Card */
+        .panel {
+            background-color: var(--bg-surface);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 35px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
             display: flex;
             flex-direction: column;
             align-items: center;
-        }
-
-        .bucket {
-            width: 160px; /* Slightly wider */
-            height: 220px; /* Slightly taller */
-            border: 6px solid #7f8c8d; /* Mid-grey border */
-            border-top: none;
-            background: linear-gradient(to bottom, #fdfefe, #e0e0e0); /* Subtle gradient */
+            gap: 25px;
             position: relative;
-            overflow: hidden;
-            margin: 20px auto;
-            border-bottom-left-radius: 20px;
-            border-bottom-right-radius: 20px;
-            transition: border-color 0.3s ease; /* Animate border color change */
         }
 
-        .bucket.full {
-             border-color: #c0392b; /* Red border when full and needs upgrade */
-        }
-
-        .water {
-            background: linear-gradient(to bottom, #5dade2, #3498db); /* Water gradient */
-            width: 100%;
-            height: 0%;
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            transition: height 0.6s cubic-bezier(0.25, 0.1, 0.25, 1); /* Smoother, bouncier fill */
-        }
-         /* Water surface effect */
-        .water::before {
+        .panel::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
-            height: 8px; /* Height of the surface */
-            background-color: rgba(255, 255, 255, 0.3); /* Lighter surface highlight */
-            border-radius: 50% / 4px; /* Elliptical shape for surface */
-            opacity: 0; /* Hide initially */
-            transition: opacity 0.3s ease;
-        }
-        .water.has-content::before {
-             opacity: 1; /* Show surface when there's water */
+            height: 100%;
+            border-radius: 20px;
+            padding: 1px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
         }
 
+        /* Canister styling */
+        .bucket-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
 
+        .bucket {
+            width: 180px;
+            height: 240px;
+            border: 3px solid rgba(255, 255, 255, 0.15);
+            border-top: none;
+            background: rgba(255, 255, 255, 0.02);
+            position: relative;
+            border-bottom-left-radius: 24px;
+            border-bottom-right-radius: 24px;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.6), 0 0 15px rgba(255, 255, 255, 0.02);
+            transition: all 0.4s ease;
+            margin: 20px auto;
+            /* Canister measurement lines */
+            background-image: 
+                linear-gradient(to right, transparent 90%, rgba(255, 255, 255, 0.15) 90%),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 25%;
+        }
+
+        /* Glow effects for canister states */
+        .bucket.full {
+            border-color: rgba(239, 68, 68, 0.6);
+            box-shadow: inset 0 0 25px rgba(239, 68, 68, 0.2), 0 0 20px rgba(239, 68, 68, 0.25);
+        }
+
+        /* Canister highlight glass reflections */
+        .bucket::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 10px;
+            width: 15px;
+            height: 92%;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.08) 0%, transparent 100%);
+            border-bottom-left-radius: 10px;
+            pointer-events: none;
+        }
+
+        /* SVG wave container */
+        .water {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 0%;
+            background: linear-gradient(180deg, rgba(20, 184, 166, 0.5) 0%, rgba(13, 148, 136, 0.85) 100%);
+            transition: height 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            overflow: hidden;
+        }
+
+        .bucket.full .water {
+            background: linear-gradient(180deg, rgba(239, 68, 68, 0.5) 0%, rgba(185, 28, 28, 0.85) 100%);
+        }
+
+        /* Overlapping waves */
+        .wave {
+            position: absolute;
+            top: -15px;
+            left: 0;
+            width: 200%;
+            height: 20px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 30' fill='%2314b8a6'%3E%3Cpath d='M0,15 C150,15 200,0 400,15 C600,30 650,15 800,15 L800,30 L0,30 Z' opacity='0.7'/%3E%3C/svg%3E") repeat-x;
+            animation: wave-move-1 6s linear infinite;
+            transform: translate3d(0, 0, 0);
+            transition: background-image 0.4s;
+        }
+        
+        .bucket.full .wave {
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 30' fill='%23ef4444'%3E%3Cpath d='M0,15 C150,15 200,0 400,15 C600,30 650,15 800,15 L800,30 L0,30 Z' opacity='0.7'/%3E%3C/svg%3E") repeat-x;
+        }
+
+        .wave.wave-back {
+            top: -12px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 30' fill='%230d9488'%3E%3Cpath d='M0,15 C150,30 200,15 400,15 C600,15 650,0 800,15 L800,30 L0,30 Z' opacity='0.5'/%3E%3C/svg%3E") repeat-x;
+            animation: wave-move-2 4s linear infinite;
+        }
+
+        .bucket.full .wave.wave-back {
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 30' fill='%23b91c1c'%3E%3Cpath d='M0,15 C150,30 200,15 400,15 C600,15 650,0 800,15 L800,30 L0,30 Z' opacity='0.5'/%3E%3C/svg%3E") repeat-x;
+        }
+
+        @keyframes wave-move-1 {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        @keyframes wave-move-2 {
+            0% { transform: translateX(-50%); }
+            100% { transform: translateX(0); }
+        }
+
+        /* Floating digital bubbles inside water */
+        .bubbles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        
+        .bubble {
+            position: absolute;
+            bottom: -10px;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            animation: bubble-float 4s infinite ease-in;
+        }
+
+        .bubble:nth-child(2) { left: 25%; width: 6px; height: 6px; animation-duration: 5s; animation-delay: 1s; }
+        .bubble:nth-child(3) { left: 50%; width: 3px; height: 3px; animation-duration: 3.5s; animation-delay: 0.5s; }
+        .bubble:nth-child(4) { left: 70%; width: 5px; height: 5px; animation-duration: 6s; animation-delay: 2s; }
+        .bubble:nth-child(5) { left: 85%; width: 4px; height: 4px; animation-duration: 4.5s; animation-delay: 1.5s; }
+
+        @keyframes bubble-float {
+            0% { transform: translateY(0) scale(1); opacity: 0; }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.6; }
+            100% { transform: translateY(-200px) scale(0.6); opacity: 0; }
+        }
+
+        /* Metrics grid */
         .info {
-            font-size: 1.1em;
-            margin-top: 10px; /* Reduced top margin */
-            color: #34495e; /* Darker text */
-            line-height: 1.6; /* Better spacing */
-        }
-        .info strong {
-            color: #2c3e50;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            width: 100%;
+            margin-top: 10px;
         }
 
+        .info-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            padding: 14px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .info-card span.label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .info-card span.value {
+            font-family: var(--font-mono);
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        /* Billing panel */
         .billing-info {
-            margin-top: 15px;
-            padding: 10px;
-            background-color: #ecf0f1; /* Light grey background */
-            border-radius: 6px;
-            border: 1px solid #bdc3c7;
+            background: rgba(16, 185, 129, 0.06);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            padding: 16px 20px;
+            border-radius: 14px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.04);
         }
+
+        .billing-text {
+            text-align: left;
+        }
+
+        .billing-text span.label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            display: block;
+        }
+
+        .billing-text span.sub {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+        }
+
         .billing-info strong {
-            font-size: 1.2em;
-            color: #27ae60; /* Green for cost */
+            font-family: var(--font-mono);
+            font-size: 1.8rem;
+            color: var(--color-green);
+            text-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
         }
 
+        /* Status & Alert Banner */
+        #statusMessage {
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-align: center;
+            min-height: 22px;
+            width: 100%;
+            opacity: 0;
+            transform: translateY(5px);
+            transition: all 0.3s ease;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
 
-        .controls button {
-            padding: 12px 25px;
-            font-size: 1.05em;
-            margin: 8px;
+        #statusMessage.warning {
+            color: var(--color-red);
+            text-shadow: 0 0 8px rgba(239, 68, 68, 0.15);
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        #statusMessage.success {
+            color: var(--color-green);
+            text-shadow: 0 0 8px rgba(16, 185, 129, 0.15);
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Buttons & controls */
+        .controls {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+            margin-top: 5px;
+        }
+
+        .controls button, #upgradeButton {
+            flex: 1;
+            padding: 12px 20px;
+            font-family: var(--font-display);
+            font-size: 0.95rem;
+            font-weight: 600;
             cursor: pointer;
             border: none;
-            border-radius: 6px;
-            transition: all 0.2s ease;
-            font-weight: 500;
+            border-radius: 10px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
         #fillButton {
-            background-color: #3498db; /* Blue */
-            color: white;
+            background-color: var(--color-teal);
+            color: #030712;
         }
+
         #fillButton:hover:not(:disabled) {
-            background-color: #2980b9;
+            background-color: #2dd4bf;
+            box-shadow: 0 0 15px rgba(45, 212, 191, 0.3);
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+
         #fillButton:disabled {
-            background-color: #bdc3c7;
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--text-muted);
+            border: 1px solid rgba(255, 255, 255, 0.05);
             cursor: not-allowed;
         }
 
-
         #emptyButton {
-            background-color: #e74c3c; /* Red */
-            color: white;
+            background-color: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: var(--text-primary);
         }
+
         #emptyButton:hover {
-            background-color: #c0392b;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.3);
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         #upgradeButton {
-            background-color: #f39c12; /* Orange */
-            color: white;
-            display: none; /* Hidden by default */
-             margin-top: 10px; /* Space above */
+            background-color: var(--color-amber);
+            color: #030712;
+            width: 100%;
+            margin-top: 5px;
+            display: none; /* Controlled by JS */
+            animation: pulse-attention 2s infinite;
         }
+
         #upgradeButton:hover {
-            background-color: #e67e22;
-             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: #fbbf24;
+            box-shadow: 0 0 15px rgba(251, 191, 36, 0.4);
+            transform: translateY(-2px);
         }
 
-
-        #statusMessage {
-            margin-top: 15px;
-            font-weight: bold;
-            color: #e74c3c;
-            min-height: 1.2em; /* Reserve space */
-            transition: color 0.3s ease;
-        }
-        #statusMessage.success {
-            color: #27ae60; /* Green for success messages */
+        @keyframes pulse-attention {
+            0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
         }
 
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+        }
     </style>
 </head>
 <body>
-
+    <div class="grid-overlay"></div>
     <div class="container">
-        <h1>Cloud Storage Tier Analogy</h1>
-
-        <div class="bucket-area">
-            <div class="bucket" id="bucketVisual">
-                <div class="water" id="waterLevel"></div>
+        <header>
+            <div class="header-left">
+                <h1>Storage Tier Analogy</h1>
+                <p>Interactive liquid scaling simulation.</p>
             </div>
+            <a href="index.html" class="back-link">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"></path>
+                </svg>
+                Back to Hub
+            </a>
+        </header>
+
+        <div class="panel">
+            <div class="bucket-area">
+                <div class="bucket" id="bucketVisual">
+                    <div class="water" id="waterLevel">
+                        <div class="wave"></div>
+                        <div class="wave wave-back"></div>
+                        <div class="bubbles">
+                            <div class="bubble"></div>
+                            <div class="bubble"></div>
+                            <div class="bubble"></div>
+                            <div class="bubble"></div>
+                            <div class="bubble"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="info">
-                <strong>Current Tier Size:</strong> <span id="currentTierSize">0</span> GB <br>
-                <strong>Data Stored:</strong> <span id="currentUsage">0</span> GB
+                <div class="info-card">
+                    <span class="label">Tier Capacity</span>
+                    <span class="value"><span id="currentTierSize">0</span> GB</span>
+                </div>
+                <div class="info-card">
+                    <span class="label">Data Stored</span>
+                    <span class="value"><span id="currentUsage">0</span> GB</span>
+                </div>
             </div>
+
             <div class="billing-info">
-                 Est. Monthly Cost: <strong id="monthlyCost">$0.00</strong>
-                 <div style="font-size: 0.8em; color: #7f8c8d;">(Based on allocated tier size)</div>
+                <div class="billing-text">
+                    <span class="label">Est. Monthly Cost</span>
+                    <span class="sub">Allocated Tier cost basis</span>
+                </div>
+                <strong id="monthlyCost">$0.00</strong>
             </div>
-             <div id="statusMessage"></div>
-             <button id="upgradeButton">Upgrade to Next Tier</button> <!-- Moved Upgrade Button here -->
+
+            <div id="statusMessage"></div>
+
+            <button id="upgradeButton">Upgrade Tier</button>
+
+            <div class="controls">
+                <button id="fillButton">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"></path>
+                    </svg>
+                    Add 10 GB Data
+                </button>
+                <button id="emptyButton">Empty Bucket</button>
+            </div>
         </div>
 
-
-        <div class="controls">
-            <button id="fillButton">Add 10 GB Data</button>
-            <button id="emptyButton">Empty Bucket</button>
-        </div>
+        <footer>
+            Concepts Sim v2.0 // Created by Josh Niezgoski
+        </footer>
     </div>
 
     <script>
@@ -236,17 +587,8 @@
             const fillPercentage = (currentUsage / currentTierCapacity) * 100;
             waterLevelElement.style.height = `${fillPercentage}%`;
 
-             // Add/Remove class for water surface effect
-            if(currentUsage > 0) {
-                waterLevelElement.classList.add('has-content');
-            } else {
-                 waterLevelElement.classList.remove('has-content');
-            }
-
-
             // Update button state and status message
-            statusMessage.textContent = ""; // Clear previous messages by default
-            statusMessage.className = ''; // Reset class
+            statusMessage.style.opacity = '0'; // Clear visually first
             upgradeButton.style.display = 'none'; // Hide upgrade button by default
             bucketVisual.classList.remove('full'); // Remove full visual cue
             fillButton.disabled = false; // Enable fill button by default
@@ -254,8 +596,9 @@
             if (currentUsage >= currentTierCapacity) {
                 needsUpgrade = true; // Set flag
                 statusMessage.textContent = `Tier Full! Upgrade to ${currentTierCapacity * 2} GB to add more data.`;
-                statusMessage.className = 'warning'; // Use a class for styling maybe
-                upgradeButton.style.display = 'inline-block'; // Show upgrade button
+                statusMessage.className = 'warning';
+                statusMessage.style.opacity = '1';
+                upgradeButton.style.display = 'flex'; // Show upgrade button
                 upgradeButton.textContent = `Upgrade to ${currentTierCapacity * 2} GB Tier`;
                 bucketVisual.classList.add('full'); // Add visual cue
                 fillButton.disabled = true; // Disable fill button when full
@@ -266,21 +609,17 @@
 
         function fillBucket() {
             if (needsUpgrade) {
-                // If an upgrade is needed, don't fill, just ensure message is shown
-                 updateDisplay();
-                 console.log("Cannot add data, tier is full. Upgrade required.");
-                 return; // Stop execution here
+                updateDisplay();
+                console.log("Cannot add data, tier is full. Upgrade required.");
+                return;
             }
 
-            // Calculate how much can actually be added within the current tier
             const remainingSpace = currentTierCapacity - currentUsage;
             const amountToAdd = Math.min(FILL_AMOUNT, remainingSpace);
 
             if (amountToAdd > 0) {
                 currentUsage += amountToAdd;
-                // Ensure we don't exceed capacity due to potential floating point issues
                 currentUsage = Math.round(Math.min(currentUsage, currentTierCapacity) * 10) / 10; // Round to one decimal
-
                 console.log(`Adding ${amountToAdd} GB. Current usage: ${currentUsage} GB / ${currentTierCapacity} GB`);
             } else {
                  console.log("No space left in the current tier to add data.");
@@ -298,33 +637,33 @@
             console.log(`Upgraded tier from ${oldTier} GB to ${currentTierCapacity} GB.`);
 
             // Provide feedback
-            statusMessage.textContent = `Successfully upgraded to ${currentTierCapacity} GB tier! Cost updated.`;
-            statusMessage.className = 'success'; // Style as success
+            statusMessage.textContent = `Successfully upgraded to ${currentTierCapacity} GB tier!`;
+            statusMessage.className = 'success';
+            statusMessage.style.opacity = '1';
 
             updateDisplay(); // Update visuals, cost, and button states
 
-            // Optional: Clear the success message after a few seconds
+            // Clear the success message after a few seconds
             setTimeout(() => {
-                if (statusMessage.textContent === `Successfully upgraded to ${currentTierCapacity} GB tier! Cost updated.`) {
-                     statusMessage.textContent = '';
-                     statusMessage.className = '';
+                if (statusMessage.textContent === `Successfully upgraded to ${currentTierCapacity} GB tier!`) {
+                     statusMessage.style.opacity = '0';
                 }
             }, 3000); // 3 seconds
         }
-
 
         function emptyBucket() {
             currentUsage = 0;
             needsUpgrade = false; // Reset flag as bucket is empty
             console.log("Bucket emptied. Tier size remains the same.");
-             statusMessage.textContent = "Data emptied. Tier size and cost remain.";
-             statusMessage.className = ''; // Clear any warning/success class
+            statusMessage.textContent = "Canister data emptied. Tier remains.";
+            statusMessage.className = 'success';
+            statusMessage.style.opacity = '1';
             updateDisplay();
 
-             // Optional: Clear the message after a few seconds
+            // Clear the message after a few seconds
             setTimeout(() => {
-                if (statusMessage.textContent === "Data emptied. Tier size and cost remain.") {
-                     statusMessage.textContent = '';
+                if (statusMessage.textContent === "Canister data emptied. Tier remains.") {
+                     statusMessage.style.opacity = '0';
                 }
             }, 3000);
         }
@@ -335,7 +674,6 @@
              updateDisplay(); // Set initial display state
         }
 
-
         // --- Event Listeners ---
         fillButton.addEventListener('click', fillBucket);
         emptyButton.addEventListener('click', emptyBucket);
@@ -345,6 +683,5 @@
         initialize(); // Run initialization function
 
     </script>
-
 </body>
 </html>
