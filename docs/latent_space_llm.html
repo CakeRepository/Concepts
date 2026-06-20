@@ -1,0 +1,1848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM Latent Space Visualizer - AI Concepts</title>
+    <!-- Google Fonts for premium typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesque:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-base: #030712;
+            --bg-surface: #111827;
+            --bg-panel: rgba(17, 24, 39, 0.7);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            
+            --color-purple: #8b5cf6;
+            --color-purple-glow: rgba(139, 92, 246, 0.3);
+            --color-teal: #14b8a6;
+            --color-teal-glow: rgba(20, 184, 166, 0.3);
+            --color-coral: #ff6b6b;
+            --color-coral-glow: rgba(255, 107, 107, 0.3);
+            --color-amber: #f59e0b;
+            --color-amber-glow: rgba(245, 158, 11, 0.3);
+            
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-display: 'Space Grotesque', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(circle at 20% 20%, rgba(139, 92, 246, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 80% 80%, rgba(20, 184, 166, 0.15) 0%, transparent 40%);
+            background-attachment: fixed;
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header Style */
+        header {
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left h1 {
+            font-family: var(--font-display);
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #ffffff, var(--text-secondary), var(--color-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.02em;
+        }
+
+        .header-left p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-top: 4px;
+        }
+
+        .back-link {
+            color: var(--color-teal);
+            text-decoration: none;
+            font-family: var(--font-display);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+            padding: 8px 16px;
+            border: 1px solid rgba(20, 184, 166, 0.2);
+            border-radius: 8px;
+            background-color: rgba(20, 184, 166, 0.05);
+            transition: all 0.2s ease;
+        }
+
+        .back-link:hover {
+            background-color: rgba(20, 184, 166, 0.15);
+            transform: translateX(-3px);
+            box-shadow: 0 0 12px rgba(20, 184, 166, 0.2);
+        }
+
+        /* Dashboard Grid Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 320px 1fr 340px;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: 300px 1fr;
+            }
+            .sidebar-right {
+                grid-column: span 2;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            .sidebar-left, .sidebar-right {
+                grid-column: span 1;
+            }
+        }
+
+        /* Panel Common Styling */
+        .panel {
+            background-color: var(--bg-panel);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: border-color 0.3s ease;
+        }
+
+        .panel:hover {
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        .panel-title {
+            font-family: var(--font-display);
+            font-size: 1.15rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            margin-bottom: 5px;
+        }
+
+        .panel-title.purple { color: var(--color-purple); }
+        .panel-title.teal { color: var(--color-teal); }
+        .panel-title.coral { color: var(--color-coral); }
+
+        /* Left Sidebar: Controls */
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        label span.val {
+            font-family: var(--font-mono);
+            color: var(--color-teal);
+            font-weight: 600;
+        }
+
+        select, input[type="range"] {
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            padding: 10px;
+            font-family: var(--font-sans);
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        select:focus {
+            border-color: var(--color-purple);
+            box-shadow: 0 0 8px var(--color-purple-glow);
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            height: 6px;
+            padding: 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--color-teal);
+            cursor: pointer;
+            box-shadow: 0 0 8px var(--color-teal-glow);
+            transition: transform 0.1s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .btn-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        button.btn {
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            font-family: var(--font-display);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 0.95rem;
+        }
+
+        button.btn-primary {
+            background: linear-gradient(135deg, var(--color-purple), #7c3aed);
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        button.btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.5);
+        }
+
+        button.btn-secondary {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        button.btn-secondary:hover:not(:disabled) {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        button.btn:active:not(:disabled) {
+            transform: translateY(1px);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Center Column: Simulation Arena */
+        .simulation-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            position: relative;
+        }
+
+        .canvas-wrapper {
+            position: relative;
+            width: 100%;
+            height: 480px;
+            background-color: #05070f;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.8);
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            cursor: grab;
+        }
+
+        canvas:active {
+            cursor: grabbing;
+        }
+
+        .canvas-overlay-instruction {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            pointer-events: none;
+            background: rgba(3, 7, 18, 0.6);
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .canvas-hud {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--color-teal);
+            pointer-events: none;
+            background: rgba(3, 7, 18, 0.8);
+            border: 1px solid rgba(20, 184, 166, 0.2);
+            padding: 8px 12px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+
+        /* Response Console Style */
+        .response-console {
+            background-color: rgba(5, 7, 15, 0.95);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 12px;
+            padding: 15px 20px;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.05);
+        }
+
+        .response-console::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 3px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--color-purple), var(--color-teal));
+        }
+
+        .console-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 5px;
+            font-family: var(--font-mono);
+        }
+
+        .output-text {
+            font-family: var(--font-sans);
+            font-size: 1.25rem;
+            font-weight: 500;
+            line-height: 1.6;
+            min-height: 30px;
+            color: #ffffff;
+        }
+
+        .output-token {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(6px);
+            animation: popToken 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            color: #ffffff;
+            margin-right: 4px;
+            padding: 2px 4px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .output-token.highlight {
+            background-color: rgba(139, 92, 246, 0.2);
+            border: 1px solid rgba(139, 92, 246, 0.4);
+            animation: highlightToken 1.5s ease-out forwards;
+        }
+
+        @keyframes popToken {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes highlightToken {
+            0% {
+                background-color: rgba(20, 184, 166, 0.6);
+                box-shadow: 0 0 10px rgba(20, 184, 166, 0.5);
+            }
+            100% {
+                background-color: transparent;
+                border-color: transparent;
+            }
+        }
+
+        .cursor-blink {
+            display: inline-block;
+            width: 2px;
+            height: 1.2em;
+            background-color: var(--color-teal);
+            margin-left: 2px;
+            vertical-align: middle;
+            animation: blink 0.8s infinite;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        /* Right Sidebar: Telemetry & HUD */
+        .sidebar-right {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .hud-stat {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            padding-bottom: 8px;
+        }
+
+        .hud-stat span.label {
+            color: var(--text-secondary);
+        }
+
+        .hud-stat span.value {
+            font-family: var(--font-mono);
+            font-weight: 600;
+        }
+
+        .softmax-chart {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 5px;
+        }
+
+        .softmax-bar-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.85rem;
+        }
+
+        .softmax-word {
+            width: 90px;
+            font-family: var(--font-sans);
+            font-weight: 500;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .softmax-track {
+            flex-grow: 1;
+            height: 12px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            position: relative;
+        }
+
+        .softmax-fill {
+            height: 100%;
+            background: linear-gradient(to right, var(--color-purple), var(--color-teal));
+            border-radius: 6px;
+            width: 0%;
+            transition: width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+        }
+
+        .softmax-fill.blocked {
+            background: linear-gradient(to right, rgba(239, 68, 68, 0.4), rgba(239, 68, 68, 0.1)) !important;
+        }
+
+        .softmax-fill.blocked::after {
+            content: '🚫';
+            position: absolute;
+            right: 4px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 8px;
+        }
+
+        .softmax-pct {
+            width: 45px;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            text-align: right;
+            color: var(--text-secondary);
+        }
+
+        .token-log-list {
+            max-height: 150px;
+            overflow-y: auto;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            padding-right: 5px;
+        }
+
+        .token-log-list::-webkit-scrollbar {
+            width: 4px;
+        }
+        .token-log-list::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
+        }
+
+        .token-log-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px 0;
+            border-bottom: 1px dashed rgba(255,255,255,0.03);
+        }
+        
+        .token-log-item .word {
+            color: var(--color-teal);
+            font-weight: bold;
+        }
+
+        /* "Under the Hood" Educational Panel */
+        .educational-section {
+            margin-top: 30px;
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .edu-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            background-color: rgba(5, 7, 15, 0.4);
+        }
+
+        .edu-tab {
+            padding: 15px 20px;
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            border: none;
+            background: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 2px solid transparent;
+        }
+
+        .edu-tab:hover {
+            color: var(--text-primary);
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        .edu-tab.active {
+            color: var(--color-teal);
+            border-bottom-color: var(--color-teal);
+            background-color: rgba(20, 184, 166, 0.03);
+        }
+
+        .edu-content {
+            padding: 25px;
+            min-height: 200px;
+        }
+
+        .edu-pane {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .edu-pane.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .edu-pane h3 {
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+        }
+
+        .edu-pane p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .edu-pane code {
+            font-family: var(--font-mono);
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--color-purple);
+            font-size: 0.9rem;
+        }
+
+        .edu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            align-items: center;
+        }
+
+        @media (max-width: 768px) {
+            .edu-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .edu-visual {
+            background-color: rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--color-teal);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .math-expr {
+            font-size: 1.15rem;
+            color: #ffffff;
+            background-color: rgba(255, 255, 255, 0.03);
+            border-left: 3px solid var(--color-teal);
+            padding: 10px 15px;
+            border-radius: 0 8px 8px 0;
+            margin: 15px 0;
+            font-family: var(--font-mono);
+        }
+
+        /* Stepper guide at prompt start */
+        .guide-box {
+            background-color: rgba(139, 92, 246, 0.05);
+            border: 1px dashed rgba(139, 92, 246, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+        
+        .guide-box strong {
+            color: var(--color-purple);
+        }
+
+        /* Nudge Visual Indicator overlay on canvas */
+        .nudge-indicator {
+            position: absolute;
+            background-color: rgba(255, 107, 107, 0.9);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-family: var(--font-display);
+            font-size: 0.75rem;
+            font-weight: bold;
+            pointer-events: none;
+            box-shadow: 0 0 10px rgba(255, 107, 107, 0.8);
+            transform: translate(-50%, -100%);
+            display: none;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <header>
+            <div class="header-left">
+                <h1>LLM Latent Space Visualizer</h1>
+                <p>An interactive physics metaphor for neural network optimization, probability fields, and decoding mathematics</p>
+            </div>
+            <a href="index.html" class="back-link">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                Back to Concepts
+            </a>
+        </header>
+
+        <div class="dashboard-grid">
+            
+            <!-- LEFT PANEL: CONTROLS & PARAMS -->
+            <div class="panel sidebar-left">
+                <h2 class="panel-title purple">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                    </svg>
+                    Hyperparameters
+                </h2>
+                
+                <div class="control-group">
+                    <label for="prompt-select">Input Prompt Context</label>
+                    <select id="prompt-select">
+                        <option value="prompt1">"Hey, how's it going?"</option>
+                        <option value="prompt2">"What is the meaning of life?"</option>
+                    </select>
+                </div>
+
+                <div class="guide-box" id="prompt-intro">
+                    Starts generation. Deterministic path is: <strong>"It's going great. How are you?"</strong>
+                </div>
+
+                <div class="control-group">
+                    <label for="temp-slider">Temperature (T) <span class="val" id="temp-val">0.70</span></label>
+                    <input type="range" id="temp-slider" min="0" max="2" step="0.05" value="0.7">
+                    <p style="font-size:0.75rem; color:var(--text-muted)">Higher temperature introduces thermal Brownian force, flattening valleys and pushing the ball off-course.</p>
+                </div>
+
+                <div class="control-group">
+                    <label for="topk-slider">Top-K Valleys <span class="val" id="topk-val">3</span></label>
+                    <input type="range" id="topk-slider" min="1" max="3" step="1" value="3">
+                    <p style="font-size:0.75rem; color:var(--text-muted)">Filters selection space to top K tokens. Other basins are fenced off/disabled.</p>
+                </div>
+
+                <div class="control-group">
+                    <label for="topp-slider">Top-P (Nucleus) <span class="val" id="topp-val">1.00</span></label>
+                    <input type="range" id="topp-slider" min="0.1" max="1" step="0.05" value="1.0">
+                    <p style="font-size:0.75rem; color:var(--text-muted)">Locks out valleys outside the cumulative probability threshold $P$.</p>
+                </div>
+
+                <div class="control-group">
+                    <label for="speed-slider">Gravity / Flow Speed <span class="val" id="speed-val">1.0x</span></label>
+                    <input type="range" id="speed-slider" min="0.2" max="2.5" step="0.1" value="1.0">
+                </div>
+
+                <div class="btn-container">
+                    <button class="btn btn-primary" id="run-btn">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                        </svg>
+                        Simulate
+                    </button>
+                    <button class="btn btn-secondary" id="reset-btn">Reset</button>
+                </div>
+            </div>
+
+            <!-- CENTER PLOT: 3D SIMULATION ARENA -->
+            <div class="simulation-container">
+                <div class="canvas-wrapper" id="canvas-wrapper">
+                    <div class="canvas-overlay-instruction">
+                        🖱️ Click & Drag to Rotate/Tilt Terrain | 💡 Click grid to Nudge Ball
+                    </div>
+                    
+                    <div class="nudge-indicator" id="nudge-indicator">
+                        Nudge Force Applied!
+                    </div>
+
+                    <canvas id="latent-canvas"></canvas>
+
+                    <!-- Realtime Floating HUD coordinates -->
+                    <div class="canvas-hud">
+                        <div>Vector Coordinate:</div>
+                        <div id="vector-coords" style="color:#ffffff; font-weight:bold;">[0.00, 0.00, 0.00]</div>
+                        <div style="margin-top: 5px;">Gradient Force:</div>
+                        <div id="grad-force" style="color:var(--color-teal);">[0.00, 0.00]</div>
+                        <div style="margin-top: 5px;">Stochastic Noise:</div>
+                        <div id="noise-force" style="color:var(--color-coral);">[0.00, 0.00]</div>
+                    </div>
+                </div>
+
+                <!-- Console response output -->
+                <div class="response-console">
+                    <div class="console-label">Decoded Output Sequence (Inference)</div>
+                    <div class="output-text" id="output-text">
+                        <span class="cursor-blink"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT PANEL: MATHEMATICAL TELEMETRY -->
+            <div class="panel sidebar-right">
+                <h2 class="panel-title teal">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="20" x2="18" y2="10"></line>
+                        <line x1="12" y1="20" x2="12" y2="4"></line>
+                        <line x1="6" y1="20" x2="6" y2="14"></line>
+                    </svg>
+                    Mathematical HUD
+                </h2>
+
+                <div class="hud-stat">
+                    <span class="label">Sampling Strategy:</span>
+                    <span class="value" id="hud-strategy" style="color: var(--color-teal);">Greedy</span>
+                </div>
+                <div class="hud-stat">
+                    <span class="label">Total Loss (Potential Energy):</span>
+                    <span class="value" id="hud-energy" style="color: var(--color-purple);">0.00 eV</span>
+                </div>
+                <div class="hud-stat">
+                    <span class="label">Last Token Chosen:</span>
+                    <span class="value" id="hud-last-token" style="color: #ffffff;">[none]</span>
+                </div>
+
+                <div style="margin-top: 5px;">
+                    <div class="panel-title teal" style="font-size: 0.95rem; border-bottom: none; padding-bottom: 0;">
+                        Active Softmax Outputs ($P$)
+                    </div>
+                    <div class="softmax-chart" id="softmax-chart">
+                        <!-- Filled in dynamically -->
+                    </div>
+                </div>
+
+                <div style="margin-top: 10px; flex-grow: 1; display: flex; flex-direction: column;">
+                    <div class="panel-title purple" style="font-size: 0.95rem; border-bottom: none; padding-bottom: 0; margin-bottom: 8px;">
+                        Token Projection Log
+                    </div>
+                    <div class="token-log-list" id="token-log-list">
+                        <!-- Filled in dynamically -->
+                        <div style="color: var(--text-muted); font-style: italic;">No simulation data. Click Simulate above.</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- EDUCATIONAL TABS: UNDER THE HOOD -->
+        <div class="educational-section">
+            <div class="edu-tabs">
+                <button class="edu-tab active" data-pane="tab-latent">1. Latent Spaces & Embeddings</button>
+                <button class="edu-tab" data-pane="tab-descent">2. Gradient Descent & Loss Landscapes</button>
+                <button class="edu-tab" data-pane="tab-temp">3. Temperature & Brownian Motion</button>
+                <button class="edu-tab" data-pane="tab-topkp">4. Top-K & Top-P Constraints</button>
+            </div>
+            
+            <div class="edu-content">
+                
+                <!-- Tab 1: Latent Space -->
+                <div class="edu-pane active" id="tab-latent">
+                    <div class="edu-grid">
+                        <div>
+                            <h3>What is Latent Space?</h3>
+                            <p>An LLM does not understand characters directly. It translates every token (word or word fragment) into a high-dimensional vector in a coordinate space called the <strong>Latent Space</strong>.</p>
+                            <p>In this high-dimensional space (often 4,096 dimensions or more), geometric closeness corresponds to semantic similarity. Words with similar functional or conceptual meaning end up sitting next to each other.</p>
+                            <div class="math-expr">
+                                \(\vec{v}_{\text{cat}} \approx [0.45, -0.12, \dots, 0.89]\)
+                            </div>
+                            <p>For visualization purposes, we project this multi-thousand-dimensional coordinate system down to 3D. The mountains and basins show the likelihood of different paths in the landscape depending on your input context.</p>
+                        </div>
+                        <div class="edu-visual">
+                            <div>// Visualizing Coordinate Projections</div>
+                            <div>Context: "Hey, how's it going?"</div>
+                            <div>Vector State: \(\vec{E}_{\text{context}}\) = center node [0, 0, 40]</div>
+                            <div style="color: var(--color-purple);">Valley 1 (Deterministic): "It's" (Coord: [50, 0, -10])</div>
+                            <div style="color: var(--color-teal);">Valley 2 (Casual): "Not" (Coord: [-35, 35, -5])</div>
+                            <div style="color: var(--color-amber);">Valley 3 (Brief): "Busy" (Coord: [-35, -35, -2])</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Gradient Descent -->
+                <div class="edu-pane" id="tab-descent">
+                    <div class="edu-grid">
+                        <div>
+                            <h3>Navigating the Loss Surface</h3>
+                            <p>During LLM training, we use <strong>Gradient Descent</strong> to shape this terrain. By calculating gradients (slopes of error), weights in the network are updated so that the "loss" (or likelihood error) drops to a minimum.</p>
+                            <p>During inference (text generation), we can think of the model's current sequence history as a ball positioned on the landscape. The steepness of the slopes represents probability gradients: <strong>steeper drops lead to more likely/probable tokens</strong>.</p>
+                            <div class="math-expr">
+                                \(\vec{F}_{\text{gradient}} = -m \cdot g \cdot \nabla Z(x, y)\)
+                            </div>
+                            <p>The ball rolls down the potential energy slopes, accelerating along the negative gradient vector to find a local minimum: the next word in the sentence.</p>
+                        </div>
+                        <div class="edu-visual">
+                            <div>// Gradient Calculations</div>
+                            <div>Potential Energy Field Z(x,y)</div>
+                            <div>Slope vector \(\nabla Z = [\partial Z/\partial x, \partial Z/\partial y]\)</div>
+                            <div style="color: var(--color-teal);">Rolling Ball Velocity: \(\vec{V}_{t+1} = \vec{V}_{t} - \eta \nabla Z\)</div>
+                            <div>Energy State = \(E_{\text{potential}}\)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Temperature -->
+                <div class="edu-pane" id="tab-temp">
+                    <div class="edu-grid">
+                        <div>
+                            <h3>Modulating Temperature ($T$)</h3>
+                            <p>In text generation, <strong>Temperature</strong> alters the model's confidence distribution. At a temperature of $0.0$, the model is strictly deterministic: the deepest valley is chosen every single time (greedy search).</p>
+                            <p>As temperature increases, the probability peaks are flattened out, and random thermal noise (Brownian motion) is added to the ball. This represents the stochastic sampling of words.</p>
+                            <div class="math-expr">
+                                \(P_i = \text{Softmax}(z_i / T)\)
+                            </div>
+                            <p>Visually, turning up the Temperature adds random force vectors to the ball, making it wobble and jump over mountain ridges, occasionally settling in completely different, unexpected word basins!</p>
+                        </div>
+                        <div class="edu-visual">
+                            <div>// Stochastic Noise Simulator</div>
+                            <div>At Temperature T = 1.2:</div>
+                            <div style="color: var(--color-coral);">Thermal Force vector: \(\vec{F}_{\text{noise}} \propto \text{random} \times T\)</div>
+                            <div>Ball position jitter: \(\delta x_t \sim \mathcal{N}(0, \sigma^2 \cdot T)\)</div>
+                            <div style="color: var(--color-amber);">Warning: High entropy increases creative risk!</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 4: Top-K & Top-P -->
+                <div class="edu-pane" id="tab-topkp">
+                    <div class="edu-grid">
+                        <div>
+                            <h3>Pruning the Space: Top-K & Top-P</h3>
+                            <p>Without limits, high temperature could cause the LLM to choose nonsense words. To prevent this, we restrict choices using **Top-K** and **Top-P** sampling.</p>
+                            <p><strong>Top-K</strong>: Retains only the $K$ most probable valleys, disabling all others. On our 3D grid, the disabled basins are visually "fenced off" or filled with barrier blocks so the ball cannot enter them.</p>
+                            <p><strong>Top-P (Nucleus)</strong>: Selects a dynamic set of words whose cumulative probability adds up to $P$ (e.g. $0.90$). The rest are discarded. This adapts the allowed search space based on how confident the model is.</p>
+                            <div class="math-expr">
+                                \(\sum_{i \in V^{(p)}} P_i \ge p\)
+                            </div>
+                        </div>
+                        <div class="edu-visual">
+                            <div>// Truncation Stats</div>
+                            <div>Tokens Sorted by Prob: [ "It's" (0.85), "Not" (0.12), "Busy" (0.03) ]</div>
+                            <div style="color: var(--color-teal);">Top-K = 2: Allowed: ["It's", "Not"] | Blocked: ["Busy"]</div>
+                            <div style="color: var(--color-purple);">Top-P = 0.90: Cumulative sum "It's" (0.85) + "Not" (0.97).</div>
+                            <div>Allowed: ["It's", "Not"] | Blocked: ["Busy"] (since 0.85 &ge; 0.90 is false, but + 0.12 reaches 0.97 &ge; 0.90)</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MathJax for rendering equations in educational tabs -->
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Simulation Code -->
+    <script>
+        // The Token Generation Database (Branching paths tree)
+        const tokenTree = {
+            "prompt1": {
+                text: "Hey, how's it going?",
+                startNode: "root",
+                nodes: {
+                    "root": [
+                        { word: "It's", prob: 0.85, x: 55, y: 5 },
+                        { word: "Not", prob: 0.12, x: -35, y: 40 },
+                        { word: "Busy", prob: 0.03, x: -25, y: -45 }
+                    ],
+                    "It's": [
+                        { word: "going", prob: 0.90, x: -5, y: 55 },
+                        { word: "really", prob: 0.08, x: 40, y: -30 },
+                        { word: "okay", prob: 0.02, x: -40, y: 20 }
+                    ],
+                    "It's going": [
+                        { word: "great.", prob: 0.85, x: 50, y: 15 },
+                        { word: "well.", prob: 0.12, x: -45, y: -25 },
+                        { word: "wrong!", prob: 0.03, x: -10, y: 45 }
+                    ],
+                    "It's going great.": [
+                        { word: "How", prob: 0.90, x: -45, y: 25 },
+                        { word: "What", prob: 0.08, x: 45, y: -25 },
+                        { word: "And", prob: 0.02, x: 15, y: -50 }
+                    ],
+                    "It's going great. How": [
+                        { word: "are", prob: 0.95, x: 30, y: 45 },
+                        { word: "do", prob: 0.04, x: -55, y: 10 },
+                        { word: "about", prob: 0.01, x: -10, y: -45 }
+                    ],
+                    "It's going great. How are": [
+                        { word: "you", prob: 0.98, x: 5, y: -55 },
+                        { word: "things", prob: 0.02, x: 50, y: 15 }
+                    ],
+                    "It's going great. How are you": [
+                        { word: "?", prob: 0.99, x: -45, y: -20 },
+                        { word: "doing?", prob: 0.01, x: 45, y: 20 }
+                    ],
+                    // Branch starting with Not
+                    "Not": [
+                        { word: "bad,", prob: 0.75, x: -40, y: -30 },
+                        { word: "too", prob: 0.20, x: 50, y: 15 },
+                        { word: "interested", prob: 0.05, x: -15, y: 45 }
+                    ],
+                    "Not bad,": [
+                        { word: "thanks.", prob: 0.80, x: 45, y: 25 },
+                        { word: "how", prob: 0.15, x: -45, y: -25 },
+                        { word: "you?", prob: 0.05, x: 15, y: -50 }
+                    ],
+                    "Not bad, thanks.": [
+                        { word: "How", prob: 0.70, x: -50, y: 5 },
+                        { word: "And", prob: 0.25, x: 35, y: -35 },
+                        { word: "Stop", prob: 0.05, x: 15, y: 45 }
+                    ],
+                    "Not bad, thanks. How": [
+                        { word: "about", prob: 0.85, x: 5, y: 55 },
+                        { word: "are", prob: 0.12, x: -45, y: -20 },
+                        { word: "is", prob: 0.03, x: 45, y: -20 }
+                    ],
+                    "Not bad, thanks. How about": [
+                        { word: "you", prob: 0.95, x: 30, y: -45 },
+                        { word: "yourself", prob: 0.05, x: -30, y: 45 }
+                    ],
+                    "Not bad, thanks. How about you": [
+                        { word: "?", prob: 0.99, x: -5, y: 55 }
+                    ],
+                    // Branch starting with Busy
+                    "Busy": [
+                        { word: "coding", prob: 0.80, x: 50, y: 15 },
+                        { word: "working", prob: 0.15, x: -45, y: -25 },
+                        { word: "sleeping", prob: 0.05, x: -15, y: 45 }
+                    ],
+                    "Busy coding": [
+                        { word: "concepts", prob: 0.70, x: -35, y: 40 },
+                        { word: "ai", prob: 0.25, x: 50, y: -15 },
+                        { word: "stuff", prob: 0.05, x: -15, y: -45 }
+                    ],
+                    "Busy coding concepts": [
+                        { word: "right", prob: 0.80, x: 45, y: 25 },
+                        { word: "now", prob: 0.15, x: -45, y: -25 },
+                        { word: ".", prob: 0.05, x: 15, y: -50 }
+                    ],
+                    "Busy coding concepts right": [
+                        { word: "now", prob: 0.95, x: 5, y: -55 },
+                        { word: ".", prob: 0.05, x: 50, y: 15 }
+                    ],
+                    "Busy coding concepts right now": [
+                        { word: ".", prob: 0.99, x: -40, y: 30 }
+                    ]
+                }
+            },
+            "prompt2": {
+                text: "What is the meaning of life?",
+                startNode: "root",
+                nodes: {
+                    "root": [
+                        { word: "To", prob: 0.70, x: 50, y: -5 },
+                        { word: "42.", prob: 0.25, x: -40, y: 35 },
+                        { word: "Chocolate.", prob: 0.05, x: -15, y: -50 }
+                    ],
+                    "To": [
+                        { word: "find", prob: 0.85, x: -15, y: 50 },
+                        { word: "be", prob: 0.10, x: 45, y: -20 },
+                        { word: "live", prob: 0.05, x: -40, y: -25 }
+                    ],
+                    "To find": [
+                        { word: "purpose", prob: 0.75, x: 50, y: 15 },
+                        { word: "happiness", prob: 0.20, x: -45, y: -25 },
+                        { word: "code", prob: 0.05, x: -10, y: 45 }
+                    ],
+                    "To find purpose": [
+                        { word: "and", prob: 0.90, x: -40, y: 30 },
+                        { word: "every", prob: 0.08, x: 40, y: -30 },
+                        { word: "today", prob: 0.02, x: 10, y: -50 }
+                    ],
+                    "To find purpose and": [
+                        { word: "learn.", prob: 0.95, x: 30, y: 45 },
+                        { word: "grow.", prob: 0.05, x: -50, y: 10 }
+                    ],
+                    "42.": [
+                        { word: "Obviously.", prob: 0.99, x: 45, y: 25 }
+                    ],
+                    "Chocolate.": [
+                        { word: "Delicious.", prob: 0.99, x: -45, y: -25 }
+                    ]
+                }
+            }
+        };
+
+        // Application State Variables
+        let currentPromptId = 'prompt1';
+        let currentPathKey = 'root';
+        let generatedTokensList = [];
+        let simulationActive = false;
+        let isDone = false;
+
+        // Visual Canvas Setup
+        const canvas = document.getElementById('latent-canvas');
+        const ctx = canvas.getContext('2d');
+        const wrapper = document.getElementById('canvas-wrapper');
+
+        // Physics variables for the rolling ball
+        let ball = {
+            x: 0,
+            y: 0,
+            z: 0,
+            vx: 0,
+            vy: 0,
+            ax: 0,
+            ay: 0,
+            radius: 8,
+            trail: [] // Array of coordinate objects {x, y, z}
+        };
+
+        // Nudge active vectors
+        let nudgeForce = { x: 0, y: 0, activeFrames: 0 };
+
+        // 3D Viewing Camera Variables
+        let camera = {
+            pitch: 0.75, // Tilt angle
+            yaw: 0.8,    // Rotation angle
+            zoom: 2.3,
+            centerX: 0,
+            centerY: 0
+        };
+
+        // User Interface Elements
+        const promptSelect = document.getElementById('prompt-select');
+        const promptIntro = document.getElementById('prompt-intro');
+        const tempSlider = document.getElementById('temp-slider');
+        const tempVal = document.getElementById('temp-val');
+        const topkSlider = document.getElementById('topk-slider');
+        const topkVal = document.getElementById('topk-val');
+        const toppSlider = document.getElementById('topp-slider');
+        const toppVal = document.getElementById('topp-val');
+        const speedSlider = document.getElementById('speed-slider');
+        const speedVal = document.getElementById('speed-val');
+        const runBtn = document.getElementById('run-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const outputText = document.getElementById('output-text');
+        
+        // HUD Stats Elements
+        const hudStrategy = document.getElementById('hud-strategy');
+        const hudEnergy = document.getElementById('hud-energy');
+        const hudLastToken = document.getElementById('hud-last-token');
+        const softmaxChart = document.getElementById('softmax-chart');
+        const tokenLogList = document.getElementById('token-log-list');
+        const vectorCoordsHUD = document.getElementById('vector-coords');
+        const gradForceHUD = document.getElementById('grad-force');
+        const noiseForceHUD = document.getElementById('noise-force');
+        const nudgeIndicator = document.getElementById('nudge-indicator');
+
+        // Setup dimensions
+        function resizeCanvas() {
+            canvas.width = wrapper.clientWidth;
+            canvas.height = wrapper.clientHeight;
+            camera.centerX = canvas.width / 2;
+            camera.centerY = canvas.height / 2 - 30;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // 3D Rotation dragging listeners
+        let isDragging = false;
+        let startMouseX = 0;
+        let startMouseY = 0;
+
+        canvas.addEventListener('mousedown', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const clickY = e.clientY - rect.top;
+
+            // Check if user clicked the grid to apply a Nudge force
+            if (simulationActive && !isDone) {
+                applyFlickForce(clickX, clickY);
+            }
+
+            isDragging = true;
+            startMouseX = e.clientX;
+            startMouseY = e.clientY;
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            const dx = e.clientX - startMouseX;
+            const dy = e.clientY - startMouseY;
+            
+            camera.yaw += dx * 0.007;
+            camera.pitch = Math.max(0.2, Math.min(Math.PI / 2 - 0.1, camera.pitch + dy * 0.007));
+            
+            startMouseX = e.clientX;
+            startMouseY = e.clientY;
+        });
+
+        window.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+
+        // Touch support for dragging
+        canvas.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1) {
+                isDragging = true;
+                startMouseX = e.touches[0].clientX;
+                startMouseY = e.touches[0].clientY;
+            }
+        });
+
+        canvas.addEventListener('touchmove', (e) => {
+            if (!isDragging || e.touches.length !== 1) return;
+            const dx = e.touches[0].clientX - startMouseX;
+            const dy = e.touches[0].clientY - startMouseY;
+            camera.yaw += dx * 0.007;
+            camera.pitch = Math.max(0.2, Math.min(Math.PI / 2 - 0.1, camera.pitch + dy * 0.007));
+            startMouseX = e.touches[0].clientX;
+            startMouseY = e.touches[0].clientY;
+        });
+
+        canvas.addEventListener('touchend', () => {
+            isDragging = false;
+        });
+
+        // Math utilities: Projection function
+        function project(x, y, z) {
+            // Yaw rotation (around Z axis)
+            let x1 = x * Math.cos(camera.yaw) - y * Math.sin(camera.yaw);
+            let y1 = x * Math.sin(camera.yaw) + y * Math.cos(camera.yaw);
+            
+            // Pitch rotation (around X axis)
+            let x2 = x1;
+            let y2 = y1 * Math.cos(camera.pitch) - z * Math.sin(camera.pitch);
+            let z2 = y1 * Math.sin(camera.pitch) + z * Math.cos(camera.pitch);
+            
+            // Perspective factor
+            const dist = 320;
+            const scale = dist / (dist + z2);
+            
+            const sx = camera.centerX + x2 * scale * camera.zoom;
+            const sy = camera.centerY + y2 * scale * camera.zoom;
+            
+            return { sx, sy, scale };
+        }
+
+        // Apply a nudge force by clicking
+        function applyFlickForce(clickX, clickY) {
+            const ballProjected = project(ball.x, ball.y, ball.z);
+            const dx = clickX - ballProjected.sx;
+            const dy = clickY - ballProjected.sy;
+            const len = Math.sqrt(dx*dx + dy*dy);
+            if (len > 0) {
+                const forceMagnitude = 45;
+                const fx = (dx / len) * forceMagnitude * Math.cos(-camera.yaw) - (dy / len) * forceMagnitude * Math.sin(-camera.yaw);
+                const fy = (dx / len) * forceMagnitude * Math.sin(-camera.yaw) + (dy / len) * forceMagnitude * Math.cos(-camera.yaw);
+                
+                nudgeForce.x = fx;
+                nudgeForce.y = fy;
+                nudgeForce.activeFrames = 15;
+                
+                // Show visual HUD pop
+                nudgeIndicator.style.left = `${clickX}px`;
+                nudgeIndicator.style.top = `${clickY}px`;
+                nudgeIndicator.style.display = 'block';
+                setTimeout(() => { nudgeIndicator.style.display = 'none'; }, 800);
+            }
+        }
+
+        // Get currently active nodes for candidate tokens
+        function getActiveCandidates() {
+            const promptData = tokenTree[currentPromptId];
+            if (!promptData) return [];
+            
+            let candidates = promptData.nodes[currentPathKey];
+            if (!candidates && currentPathKey === 'root') {
+                candidates = promptData.nodes['root'];
+            }
+            return candidates || [];
+        }
+
+        // Calculate heights and sampling strategy modifications
+        function getConstrainedCandidates() {
+            let list = getActiveCandidates().map(c => ({...c}));
+            if (list.length === 0) return [];
+
+            const temp = parseFloat(tempSlider.value);
+            const topK = parseInt(topkSlider.value);
+            const topP = parseFloat(toppSlider.value);
+
+            list.forEach(c => {
+                c.logit = Math.log(c.prob);
+                c.allowed = true;
+            });
+
+            if (temp > 0) {
+                list.forEach(c => {
+                    c.scaledLogit = c.logit / temp;
+                });
+            } else {
+                let maxLogit = -Infinity;
+                list.forEach(c => {
+                    if (c.logit > maxLogit) maxLogit = c.logit;
+                });
+                list.forEach(c => {
+                    c.scaledLogit = (c.logit === maxLogit) ? 100 : -100;
+                });
+            }
+
+            let expSum = 0;
+            list.forEach(c => {
+                c.expVal = Math.exp(c.scaledLogit);
+                expSum += c.expVal;
+            });
+            list.forEach(c => {
+                c.adjustedProb = c.expVal / expSum;
+            });
+
+            list.sort((a, b) => b.adjustedProb - a.adjustedProb);
+
+            // Apply Top-K
+            for (let i = 0; i < list.length; i++) {
+                if (i >= topK) {
+                    list[i].allowed = false;
+                    list[i].blockReason = 'topK';
+                }
+            }
+
+            // Apply Top-P
+            let cumProb = 0;
+            for (let i = 0; i < list.length; i++) {
+                cumProb += list[i].adjustedProb;
+                if (cumProb > topP && i > 0 && list[i].allowed) {
+                    for (let j = i; j < list.length; j++) {
+                        list[j].allowed = false;
+                        if (!list[j].blockReason) list[j].blockReason = 'topP';
+                    }
+                    break;
+                }
+            }
+
+            list.forEach(c => {
+                c.valleyDepth = c.allowed ? (25 + c.adjustedProb * 50) : 0;
+            });
+
+            return list;
+        }
+
+        // Potential Energy Height Function Z(x, y)
+        function getHeight(x, y) {
+            const hillHeight = 35;
+            const hillRadius = 40;
+            let z = hillHeight * Math.exp(-(x*x + y*y) / (2 * hillRadius * hillRadius));
+
+            const candidates = getConstrainedCandidates();
+            candidates.forEach(c => {
+                const dx = x - c.x;
+                const dy = y - c.y;
+                const r = 20;
+                z -= c.valleyDepth * Math.exp(-(dx*dx + dy*dy) / (2 * r * r));
+            });
+
+            return z;
+        }
+
+        // Spatial Gradient calculation
+        function getGradient(x, y) {
+            const delta = 0.5;
+            const hL = getHeight(x - delta, y);
+            const hR = getHeight(x + delta, y);
+            const hD = getHeight(x, y - delta);
+            const hU = getHeight(x, y + delta);
+            
+            const gx = (hR - hL) / (2 * delta);
+            const gy = (hU - hD) / (2 * delta);
+            
+            return { x: gx, y: gy };
+        }
+
+        // Initialize / Reset Generation Sequence
+        function resetSimulation() {
+            simulationActive = false;
+            isDone = false;
+            currentPathKey = 'root';
+            generatedTokensList = [];
+            ball.x = 0.1;
+            ball.y = 0.1;
+            ball.vx = 0;
+            ball.vy = 0;
+            ball.ax = 0;
+            ball.ay = 0;
+            ball.z = getHeight(0, 0);
+            ball.trail = [];
+            
+            runBtn.disabled = false;
+            promptSelect.disabled = false;
+            
+            outputText.innerHTML = `<span style="color:var(--text-muted)">Click Simulate to begin...</span><span class="cursor-blink"></span>`;
+            hudLastToken.innerText = '[none]';
+            hudEnergy.innerText = '0.00 eV';
+            tokenLogList.innerHTML = `<div style="color: var(--text-muted); font-style: italic;">No simulation data. Click Simulate above.</div>`;
+            
+            updateHUDCharts();
+        }
+
+        // Trigger simulator step
+        function startSimulation() {
+            if (simulationActive) return;
+            
+            resetSimulation();
+            simulationActive = true;
+            promptSelect.disabled = true;
+            runBtn.disabled = true;
+            
+            const selectedPrompt = tokenTree[currentPromptId].text;
+            outputText.innerHTML = `<span style="color: var(--text-secondary)">${selectedPrompt} </span>`;
+            
+            const temp = parseFloat(tempSlider.value);
+            const initialPush = 2.0 + temp * 3.0;
+            const angle = Math.random() * Math.PI * 2;
+            ball.vx = Math.cos(angle) * initialPush;
+            ball.vy = Math.sin(angle) * initialPush;
+            ball.trail = [];
+        }
+
+        // Physics step updates
+        function updatePhysics() {
+            if (!simulationActive || isDone) return;
+
+            const temp = parseFloat(tempSlider.value);
+            const flowSpeed = parseFloat(speedSlider.value);
+            const timeStep = 0.08 * flowSpeed;
+
+            const grad = getGradient(ball.x, ball.y);
+            const gravityScalar = 9.8;
+            let fx = -grad.x * gravityScalar;
+            let fy = -grad.y * gravityScalar;
+
+            document.getElementById('grad-force').innerText = `[${fx.toFixed(2)}, ${fy.toFixed(2)}]`;
+
+            let noiseX = 0;
+            let noiseY = 0;
+            if (temp > 0) {
+                const noiseMag = temp * 15;
+                const randAngle = Math.random() * Math.PI * 2;
+                const randMag = (Math.random() + Math.random() + Math.random() - 1.5) * noiseMag;
+                noiseX = Math.cos(randAngle) * randMag;
+                noiseY = Math.sin(randAngle) * randMag;
+                fx += noiseX;
+                fy += noiseY;
+            }
+            document.getElementById('noise-force').innerText = `[${noiseX.toFixed(2)}, ${noiseY.toFixed(2)}]`;
+
+            if (nudgeForce.activeFrames > 0) {
+                fx += nudgeForce.x;
+                fy += nudgeForce.y;
+                nudgeForce.activeFrames--;
+            }
+
+            const damping = 0.15;
+            ball.vx += (fx - damping * ball.vx) * timeStep;
+            ball.vy += (fy - damping * ball.vy) * timeStep;
+
+            ball.x += ball.vx * timeStep;
+            ball.y += ball.vy * timeStep;
+
+            const bound = 95;
+            if (ball.x < -bound) { ball.x = -bound; ball.vx *= -0.5; }
+            if (ball.x > bound) { ball.x = bound; ball.vx *= -0.5; }
+            if (ball.y < -bound) { ball.y = -bound; ball.vy *= -0.5; }
+            if (ball.y > bound) { ball.y = bound; ball.vy *= -0.5; }
+
+            ball.z = getHeight(ball.x, ball.y);
+
+            ball.trail.push({ x: ball.x, y: ball.y, z: ball.z });
+            if (ball.trail.length > 50) ball.trail.shift();
+
+            vectorCoordsHUD.innerText = `[${ball.x.toFixed(2)}, ${ball.y.toFixed(2)}, ${ball.z.toFixed(2)}]`;
+            hudEnergy.innerText = `${(-ball.z).toFixed(2)} eV`;
+
+            checkValleyLanding();
+        }
+
+        // Check if ball has settled
+        function checkValleyLanding() {
+            const candidates = getConstrainedCandidates();
+            const captureRadius = 12;
+            const speedThreshold = 2.5;
+
+            let velocityMag = Math.sqrt(ball.vx*ball.vx + ball.vy*ball.vy);
+
+            for (let c of candidates) {
+                if (!c.allowed) continue;
+
+                let dx = ball.x - c.x;
+                let dy = ball.y - c.y;
+                let dist = Math.sqrt(dx*dx + dy*dy);
+
+                if (dist < captureRadius && velocityMag < speedThreshold) {
+                    triggerTokenSelected(c);
+                    break;
+                }
+            }
+        }
+
+        // Event for selecting a token valley
+        function triggerTokenSelected(token) {
+            generatedTokensList.push(token.word);
+            logTokenEntry(token.word, token.prob);
+
+            const isHighlight = Math.log(token.prob) < -1.2;
+            const textEl = document.getElementById('output-text');
+            const promptStr = tokenTree[currentPromptId].text;
+            
+            let listHtml = `<span style="color: var(--text-secondary)">${promptStr} </span>`;
+            generatedTokensList.forEach((t, i) => {
+                const last = i === generatedTokensList.length - 1;
+                listHtml += `<span class="output-token ${last && isHighlight ? 'highlight' : ''}" style="animation-delay:0s; opacity:1; transform:translateY(0)">${t}</span> `;
+            });
+            listHtml += `<span class="cursor-blink"></span>`;
+            textEl.innerHTML = listHtml;
+
+            hudLastToken.innerText = `"${token.word}"`;
+
+            let fullTextPath = generatedTokensList.join(" ");
+            const promptData = tokenTree[currentPromptId];
+
+            if (promptData.nodes[fullTextPath]) {
+                currentPathKey = fullTextPath;
+                
+                ball.x = (Math.random() - 0.5) * 8;
+                ball.y = (Math.random() - 0.5) * 8;
+                ball.vx = (Math.random() - 0.5) * 12;
+                ball.vy = (Math.random() - 0.5) * 12;
+                ball.z = getHeight(ball.x, ball.y);
+                ball.trail = [];
+                
+                updateHUDCharts();
+            } else {
+                isDone = true;
+                simulationActive = false;
+                runBtn.disabled = false;
+                promptSelect.disabled = false;
+                
+                const cursor = textEl.querySelector('.cursor-blink');
+                if (cursor) cursor.remove();
+                
+                updateHUDCharts();
+            }
+        }
+
+        // Print telemetry log lists
+        function logTokenEntry(word, prob) {
+            const listEl = document.getElementById('token-log-list');
+            if (generatedTokensList.length === 1) {
+                listEl.innerHTML = '';
+            }
+
+            const item = document.createElement('div');
+            item.className = 'token-log-item';
+            
+            const entropy = -prob * Math.log2(prob);
+            
+            item.innerHTML = `
+                <span>Token #${generatedTokensList.length}: <span class="word">"${word}"</span></span>
+                <span>P: ${(prob * 100).toFixed(0)}% | H: ${entropy.toFixed(2)}</span>
+            `;
+            listEl.appendChild(item);
+            listEl.scrollTop = listEl.scrollHeight;
+        }
+
+        // Render live charts
+        function updateHUDCharts() {
+            const candidates = getConstrainedCandidates();
+            softmaxChart.innerHTML = '';
+
+            const temp = parseFloat(tempSlider.value);
+            const topK = parseInt(topkSlider.value);
+            const topP = parseFloat(toppSlider.value);
+
+            let strategyStr = 'Greedy (deterministic)';
+            if (temp > 0) {
+                strategyStr = `Stochastic (T=${temp.toFixed(1)})`;
+            }
+            if (topK < 3) {
+                strategyStr += ` + Top-${topK}`;
+            }
+            if (topP < 1.0) {
+                strategyStr += ` + Top-P (${topP.toFixed(2)})`;
+            }
+            hudStrategy.innerText = strategyStr;
+
+            if (isDone) {
+                softmaxChart.innerHTML = `<div style="color:var(--text-muted); font-size:0.85rem; font-style:italic;">Sequence End reached.</div>`;
+                return;
+            }
+
+            if (candidates.length === 0) {
+                softmaxChart.innerHTML = `<div style="color:var(--text-muted); font-size:0.85rem; font-style:italic;">No active candidate nodes.</div>`;
+                return;
+            }
+
+            candidates.forEach(c => {
+                const item = document.createElement('div');
+                item.className = 'softmax-bar-container';
+
+                const pctText = (c.prob * 100).toFixed(0) + '%';
+                const widthPct = c.prob * 100;
+
+                item.innerHTML = `
+                    <span class="softmax-word" style="color: ${c.allowed ? 'var(--text-primary)' : 'var(--text-muted)'}">${c.word}</span>
+                    <div class="softmax-track">
+                        <div class="softmax-fill ${!c.allowed ? 'blocked' : ''}" style="width: ${widthPct}%"></div>
+                    </div>
+                    <span class="softmax-pct" style="color: ${c.allowed ? 'var(--color-teal)' : 'rgba(239, 68, 68, 0.6)'}">${pctText}</span>
+                `;
+                softmaxChart.appendChild(item);
+            });
+        }
+
+        // Dynamic visual update loop
+        function drawScene() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const gridSize = 180;
+            const step = 8;
+            
+            ctx.lineWidth = 1.0;
+
+            let projectedGrid = [];
+            
+            for (let gx = -gridSize/2; gx <= gridSize/2; gx += step) {
+                let row = [];
+                for (let gy = -gridSize/2; gy <= gridSize/2; gy += step) {
+                    let gz = getHeight(gx, gy);
+                    let proj = project(gx, gy, gz);
+                    row.push({ x: gx, y: gy, z: gz, sx: proj.sx, sy: proj.sy, scale: proj.scale });
+                }
+                projectedGrid.push(row);
+            }
+
+            const rows = projectedGrid.length;
+            const cols = projectedGrid[0].length;
+
+            ctx.strokeStyle = 'rgba(139, 92, 246, 0.08)';
+            
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    let p = projectedGrid[r][c];
+
+                    if (r + 1 < rows) {
+                        let pRight = projectedGrid[r + 1][c];
+                        let alpha = 0.04 + p.scale * 0.1;
+                        ctx.strokeStyle = `rgba(139, 92, 246, ${alpha})`;
+                        ctx.beginPath();
+                        ctx.moveTo(p.sx, p.sy);
+                        ctx.lineTo(pRight.sx, pRight.sy);
+                        ctx.stroke();
+                    }
+
+                    if (c + 1 < cols) {
+                        let pDown = projectedGrid[r][c + 1];
+                        let alpha = 0.04 + p.scale * 0.1;
+                        ctx.strokeStyle = `rgba(139, 92, 246, ${alpha})`;
+                        ctx.beginPath();
+                        ctx.moveTo(p.sx, p.sy);
+                        ctx.lineTo(pDown.sx, pDown.sy);
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            // Draw Candidate Valleys
+            const candidates = getConstrainedCandidates();
+            candidates.forEach(c => {
+                let cz = getHeight(c.x, c.y);
+                let p = project(c.x, c.y, cz);
+
+                ctx.beginPath();
+                ctx.arc(p.sx, p.sy, 15 * p.scale * camera.zoom * 0.4, 0, Math.PI * 2);
+                
+                if (c.allowed) {
+                    ctx.strokeStyle = 'rgba(20, 184, 166, 0.6)';
+                    ctx.fillStyle = 'rgba(20, 184, 166, 0.06)';
+                    ctx.lineWidth = 1.5;
+                } else {
+                    ctx.strokeStyle = 'rgba(239, 68, 68, 0.4)';
+                    ctx.fillStyle = 'rgba(239, 68, 68, 0.03)';
+                    ctx.lineWidth = 1.0;
+                }
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.font = `bold ${Math.round(11 * p.scale)}px ${varText('--font-display')}`;
+                ctx.textAlign = 'center';
+                
+                if (c.allowed) {
+                    ctx.fillStyle = '#ffffff';
+                } else {
+                    ctx.fillStyle = 'rgba(239, 68, 68, 0.5)';
+                }
+                
+                ctx.fillText(c.word, p.sx, p.sy - 15 * p.scale);
+                
+                ctx.font = `${Math.round(8 * p.scale)}px ${varText('--font-mono')}`;
+                ctx.fillStyle = c.allowed ? 'var(--color-teal)' : 'rgba(239, 68, 68, 0.4)';
+                let probLabel = (c.prob * 100).toFixed(0) + '%';
+                if (!c.allowed) probLabel = `BLOCKED (${c.blockReason})`;
+                ctx.fillText(probLabel, p.sx, p.sy - 5 * p.scale);
+            });
+
+            // Draw central starting marker
+            let startProj = project(0, 0, getHeight(0, 0));
+            ctx.beginPath();
+            ctx.arc(startProj.sx, startProj.sy, 5, 0, Math.PI*2);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            
+            ctx.font = `9px ${varText('--font-mono')}`;
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.fillText("Start State", startProj.sx, startProj.sy + 15);
+
+            // Draw Ball Trail
+            if (ball.trail.length > 1) {
+                ctx.lineWidth = 2.0;
+                ctx.strokeStyle = 'rgba(139, 92, 246, 0.3)';
+                ctx.beginPath();
+                let startT = project(ball.trail[0].x, ball.trail[0].y, ball.trail[0].z);
+                ctx.moveTo(startT.sx, startT.sy);
+                
+                for (let i = 1; i < ball.trail.length; i++) {
+                    let pt = project(ball.trail[i].x, ball.trail[i].y, ball.trail[i].z);
+                    ctx.lineTo(pt.sx, pt.sy);
+                }
+                ctx.stroke();
+            }
+
+            // Draw the rolling Ball
+            if (simulationActive || isDone || generatedTokensList.length > 0) {
+                let bp = project(ball.x, ball.y, ball.z);
+                
+                ctx.beginPath();
+                ctx.ellipse(bp.sx, bp.sy + 3, ball.radius * bp.scale * 0.8, ball.radius * bp.scale * 0.4, 0, 0, Math.PI*2);
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+                ctx.fill();
+
+                let radiusProj = ball.radius * bp.scale;
+                let gradient = ctx.createRadialGradient(
+                    bp.sx - radiusProj*0.3, bp.sy - radiusProj*0.3, radiusProj*0.1,
+                    bp.sx, bp.sy, radiusProj
+                );
+                
+                let ballColor1 = '#a78bfa';
+                let ballColor2 = '#8b5cf6';
+                if (nudgeForce.activeFrames > 0) {
+                    ballColor1 = '#fca5a5';
+                    ballColor2 = '#ef4444';
+                } else if (Math.sqrt(ball.vx*ball.vx + ball.vy*ball.vy) > 3) {
+                    ballColor1 = '#99f6e4';
+                    ballColor2 = '#0d9488';
+                }
+
+                gradient.addColorStop(0, ballColor1);
+                gradient.addColorStop(1, ballColor2);
+                
+                ctx.beginPath();
+                ctx.arc(bp.sx, bp.sy, radiusProj, 0, Math.PI * 2);
+                ctx.fillStyle = gradient;
+                ctx.fill();
+                
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+                ctx.lineWidth = 0.5;
+                ctx.stroke();
+            }
+        }
+
+        function varText(varName) {
+            return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+        }
+
+        function tick() {
+            updatePhysics();
+            drawScene();
+            requestAnimationFrame(tick);
+        }
+
+        requestAnimationFrame(tick);
+
+        promptSelect.addEventListener('change', (e) => {
+            currentPromptId = e.target.value;
+            if (currentPromptId === 'prompt1') {
+                promptIntro.innerHTML = `Starts generation. Deterministic path is: <strong>"It's going great. How are you?"</strong>`;
+            } else {
+                promptIntro.innerHTML = `Starts generation. Deterministic path is: <strong>"To find purpose and learn."</strong>`;
+            }
+            resetSimulation();
+        });
+
+        tempSlider.addEventListener('input', (e) => {
+            tempVal.innerText = parseFloat(e.target.value).toFixed(2);
+            updateHUDCharts();
+        });
+        topkSlider.addEventListener('input', (e) => {
+            topkVal.innerText = e.target.value;
+            updateHUDCharts();
+        });
+        toppSlider.addEventListener('input', (e) => {
+            toppVal.innerText = parseFloat(e.target.value).toFixed(2);
+            updateHUDCharts();
+        });
+        speedSlider.addEventListener('input', (e) => {
+            speedVal.innerText = parseFloat(e.target.value).toFixed(1) + 'x';
+        });
+
+        runBtn.addEventListener('click', startSimulation);
+        resetBtn.addEventListener('click', resetSimulation);
+
+        const tabs = document.querySelectorAll('.edu-tab');
+        const panes = document.querySelectorAll('.edu-pane');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                panes.forEach(p => p.classList.remove('active'));
+
+                tab.classList.add('active');
+                const paneId = tab.getAttribute('data-pane');
+                document.getElementById(paneId).classList.add('active');
+            });
+        });
+
+        resetSimulation();
+    </script>
+</body>
+</html>
