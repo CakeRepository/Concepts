@@ -29,6 +29,8 @@
             --color-sandfunnel-glow: rgba(6, 182, 212, 0.15);
             --color-openskill: #6366f1;
             --color-openskill-glow: rgba(99, 102, 241, 0.15);
+            --color-lofi: #e2b767;
+            --color-lofi-glow: rgba(226, 183, 103, 0.15);
         }
 
         * {
@@ -170,6 +172,11 @@
         .project-card.card-openskill:hover {
             border-color: rgba(99, 102, 241, 0.3);
             box-shadow: 0 10px 30px var(--color-openskill-glow);
+            transform: translateY(-6px);
+        }
+        .project-card.card-lofi:hover {
+            border-color: rgba(226, 183, 103, 0.3);
+            box-shadow: 0 10px 30px var(--color-lofi-glow);
             transform: translateY(-6px);
         }
 
@@ -475,6 +482,37 @@
             transform: scale(1.1);
         }
 
+        /* Lo-Fi Preview CSS */
+        .lofi-preview {
+            background: rgba(255, 255, 255, 0.015);
+        }
+        .lofi-preview svg {
+            width: 64px;
+            height: 64px;
+            fill: none;
+            stroke: rgba(226, 183, 103, 0.4);
+            stroke-width: 1.5;
+            transition: all 0.5s ease;
+        }
+        .project-card.card-lofi:hover .lofi-preview svg {
+            stroke: var(--color-lofi);
+            filter: drop-shadow(0 0 6px rgba(226, 183, 103, 0.4));
+        }
+        .cassette-wheel {
+            transform-origin: 50% 50%;
+            transition: transform 0.5s;
+        }
+        .project-card.card-lofi:hover .wheel-l {
+            animation: spinWheel 3s infinite linear;
+        }
+        .project-card.card-lofi:hover .wheel-r {
+            animation: spinWheel 3s infinite linear;
+        }
+        @keyframes spinWheel {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         .project-card h2 {
             font-family: 'Space Grotesque', sans-serif;
             font-size: 1.35rem;
@@ -490,6 +528,7 @@
         .project-card.card-generative:hover h2 { color: var(--color-generative); }
         .project-card.card-sandfunnel:hover h2 { color: var(--color-sandfunnel); }
         .project-card.card-openskill:hover h2 { color: var(--color-openskill); }
+        .project-card.card-lofi:hover h2 { color: var(--color-lofi); }
 
         .project-card p.description {
             font-size: 0.92rem;
@@ -531,6 +570,7 @@
         .card-generative .avatar { background: rgba(244, 63, 94, 0.1); border-color: rgba(244, 63, 94, 0.3); color: var(--color-generative); }
         .card-sandfunnel .avatar { background: rgba(6, 182, 212, 0.1); border-color: rgba(6, 182, 212, 0.3); color: var(--color-sandfunnel); }
         .card-openskill .avatar { background: rgba(99, 102, 241, 0.1); border-color: rgba(99, 102, 241, 0.3); color: var(--color-openskill); }
+        .card-lofi .avatar { background: rgba(226, 183, 103, 0.1); border-color: rgba(226, 183, 103, 0.3); color: var(--color-lofi); }
 
         .author-name {
             font-size: 0.82rem;
@@ -712,6 +752,42 @@
                     </div>
                     <h2>OpenSkill Self-Evolution</h2>
                     <p class="description">An interactive simulation of open-world self-evolution for LLM agents, showcasing leakage-free virtual verification and cross-model skill transfer.</p>
+                    <div class="card-meta">
+                        <div class="avatar">AG</div>
+                        <span class="author-name">Antigravity</span>
+                    </div>
+                </a>
+            </li>
+
+            <!-- Project 7: Lo-Fi Generative Background -->
+            <li class="project-card card-lofi">
+                <a href="lofi_generative_background.html">
+                    <div class="mini-preview lofi-preview">
+                        <svg viewBox="0 0 100 100">
+                            <g transform="translate(0, 0)">
+                                <!-- Cassette Outer Shell -->
+                                <rect x="15" y="25" width="70" height="44" rx="4" stroke-width="2.5" />
+                                <!-- Bottom trapezoid part -->
+                                <path d="M 28 69 L 33 75 L 67 75 L 72 69 Z" stroke-width="2" />
+                                <!-- Center window -->
+                                <rect x="28" y="37" width="44" height="20" rx="2" stroke-width="2" />
+                                <!-- Left Wheel -->
+                                <circle cx="38" cy="47" r="6" stroke-width="2" />
+                                <g transform="translate(38, 47)" class="cassette-wheel wheel-l">
+                                    <line x1="-6" y1="0" x2="6" y2="0" stroke-width="1.5" />
+                                    <line x1="0" y1="-6" x2="0" y2="6" stroke-width="1.5" />
+                                </g>
+                                <!-- Right Wheel -->
+                                <circle cx="62" cy="47" r="6" stroke-width="2" />
+                                <g transform="translate(62, 47)" class="cassette-wheel wheel-r">
+                                    <line x1="-6" y1="0" x2="6" y2="0" stroke-width="1.5" />
+                                    <line x1="0" y1="-6" x2="0" y2="6" stroke-width="1.5" />
+                                </g>
+                            </g>
+                        </svg>
+                    </div>
+                    <h2>Lo-Fi Ambient Canvas</h2>
+                    <p class="description">A full-screen, distraction-free desktop wallpaper simulation. Blends multiple generative art layers in a warm, grainy CRT style, evolving automatically.</p>
                     <div class="card-meta">
                         <div class="avatar">AG</div>
                         <span class="author-name">Antigravity</span>

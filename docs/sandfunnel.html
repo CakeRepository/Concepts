@@ -733,7 +733,7 @@
         // Helper checks
         function isWall(type) {
             return type === 3 || type === 4 || type === 14 || type === 15 || type === 16 || type === 17 || 
-                   (type >= 18 && type <= 26);
+                   (type >= 18 && type <= 25);
         }
 
         function canDisplace(type, targetType) {
@@ -866,7 +866,7 @@
                             const nType = grid[nIdx];
                             
                             // Don't blow up indestructible gadgets or glass
-                            if (nType !== 14 && nType !== 15 && nType !== 16 && nType !== 17 && !(nType >= 18 && nType <= 26)) {
+                            if (nType !== 14 && nType !== 15 && nType !== 16 && nType !== 17 && !(nType >= 18 && nType <= 25)) {
                                 if (dist < radius * radius * 0.45) {
                                     grid[nIdx] = 5; // Fire
                                     life[nIdx] = 15 + Math.random() * 25;
@@ -1162,6 +1162,259 @@
             }
         }
 
+        function handleFire(x, y, idx) {
+            if (checkPortal(x, y, idx)) return;
+            interactFire(x, y, idx);
+            
+            if (life[idx] <= 0) {
+                grid[idx] = 0;
+                return;
+            }
+            life[idx]--;
+            
+            // Fire rises (up, up-left, up-right)
+            if (y > 0) {
+                const up = idx - gridWidth;
+                const ul = up - 1;
+                const ur = up + 1;
+                
+                const canUp = (grid[up] === 0);
+                const canLeft = (x > 0 && grid[ul] === 0);
+                const canRight = (x < gridWidth - 1 && grid[ur] === 0);
+                
+                if (canUp || canLeft || canRight) {
+                    const moves = [];
+                    if (canUp) moves.push(up);
+                    if (canLeft) moves.push(ul);
+                    if (canRight) moves.push(ur);
+                    
+                    const dest = moves[Math.floor(Math.random() * moves.length)];
+                    moveParticle(idx, dest);
+                }
+            }
+        }
+
+        function handleGas(x, y, idx) {
+            if (checkPortal(x, y, idx)) return;
+            
+            if (life[idx] <= 0) {
+                grid[idx] = 0;
+                return;
+            }
+            life[idx]--;
+            
+            // Gas rises and disperses
+            if (y > 0) {
+                const up = idx - gridWidth;
+                const ul = up - 1;
+                const ur = up + 1;
+                const canUp = (grid[up] === 0);
+                const canLeft = (x > 0 && grid[ul] === 0);
+                const canRight = (x < gridWidth - 1 && grid[ur] === 0);
+                
+                if (canUp && Math.random() < 0.6) {
+                    moveParticle(idx, up);
+                    return;
+                }
+                
+                if (canLeft && canRight) {
+                    const dest = Math.random() > 0.5 ? ul : ur;
+                    moveParticle(idx, dest);
+                    return;
+                } else if (canLeft) {
+                    moveParticle(idx, ul);
+                    return;
+                } else if (canRight) {
+                    moveParticle(idx, ur);
+                    return;
+                }
+            }
+            
+            // horizontal dispersion
+            const left = idx - 1;
+            const right = idx + 1;
+            const canFlowLeft = (x > 0 && grid[left] === 0);
+            const canFlowRight = (x < gridWidth - 1 && grid[right] === 0);
+            
+            if (canFlowLeft && canFlowRight) {
+                const dest = Math.random() > 0.5 ? left : right;
+                moveParticle(idx, dest);
+            } else if (canFlowLeft) {
+                moveParticle(idx, left);
+            } else if (canFlowRight) {
+                moveParticle(idx, right);
+            }
+        }
+
+        function handleLava(x, y, idx) {
+            if (checkPortal(x, y, idx)) return;
+            if (interactLava(x, y, idx)) return;
+            
+            // Lava moves slowly: 30% chance to move per tick
+            if (Math.random() > 0.3) return;
+            
+            if (y < gridHeight - 1) {
+                const down = idx + gridWidth;
+                if (grid[down] === 0) {
+                    moveParticle(idx, down);
+                    return;
+                } else if (canDisplace(8, grid[down])) {
+                    swapParticles(idx, down);
+                    return;
+                }
+                const dl = down - 1;
+                const dr = down + 1;
+                const canLeft = (x > 0 && (grid[dl] === 0 || canDisplace(8, grid[dl])));
+                const canRight = (x < gridWidth - 1 && (grid[dr] === 0 || canDisplace(8, grid[dr])));
+                
+                if (canLeft && canRight) {
+                    const dest = Math.random() > 0.5 ? dl : dr;
+                    if (grid[dest] === 0) moveParticle(idx, dest);
+                    else swapParticles(idx, dest);
+                    return;
+                } else if (canLeft) {
+                    if (grid[dl] === 0) moveParticle(idx, dl);
+                    else swapParticles(idx, dl);
+                    return;
+                } else if (canRight) {
+                    if (grid[dr] === 0) moveParticle(idx, dr);
+                    else swapParticles(idx, dr);
+                    return;
+                }
+            }
+            
+            // Horizontal flow is slower for Lava (viscous)
+            if (Math.random() < 0.25) {
+                const left = idx - 1;
+                const right = idx + 1;
+                const canFlowLeft = (x > 0 && (grid[left] === 0 || canDisplace(8, grid[left])));
+                const canFlowRight = (x < gridWidth - 1 && (grid[right] === 0 || canDisplace(8, grid[right])));
+                
+                if (canFlowLeft && canFlowRight) {
+                    const dest = Math.random() > 0.5 ? left : right;
+                    if (grid[dest] === 0) moveParticle(idx, dest);
+                    else swapParticles(idx, dest);
+                } else if (canFlowLeft) {
+                    if (grid[left] === 0) moveParticle(idx, left);
+                    else swapParticles(idx, left);
+                } else if (canFlowRight) {
+                    if (grid[right] === 0) moveParticle(idx, right);
+                    else swapParticles(idx, right);
+                }
+            }
+        }
+
+        function handleAcid(x, y, idx) {
+            if (checkPortal(x, y, idx)) return;
+            if (interactAcid(x, y, idx)) return;
+            
+            if (y < gridHeight - 1) {
+                const down = idx + gridWidth;
+                if (grid[down] === 0) {
+                    moveParticle(idx, down);
+                    return;
+                } else if (canDisplace(9, grid[down])) {
+                    swapParticles(idx, down);
+                    return;
+                }
+                const dl = down - 1;
+                const dr = down + 1;
+                const canLeft = (x > 0 && (grid[dl] === 0 || canDisplace(9, grid[dl])));
+                const canRight = (x < gridWidth - 1 && (grid[dr] === 0 || canDisplace(9, grid[dr])));
+                
+                if (canLeft && canRight) {
+                    const dest = Math.random() > 0.5 ? dl : dr;
+                    if (grid[dest] === 0) moveParticle(idx, dest);
+                    else swapParticles(idx, dest);
+                    return;
+                } else if (canLeft) {
+                    if (grid[dl] === 0) moveParticle(idx, dl);
+                    else swapParticles(idx, dl);
+                    return;
+                } else if (canRight) {
+                    if (grid[dr] === 0) moveParticle(idx, dr);
+                    else swapParticles(idx, dr);
+                    return;
+                }
+            }
+            
+            // Acid horizontal flow
+            const left = idx - 1;
+            const right = idx + 1;
+            const canFlowLeft = (x > 0 && (grid[left] === 0 || canDisplace(9, grid[left])));
+            const canFlowRight = (x < gridWidth - 1 && (grid[right] === 0 || canDisplace(9, grid[right])));
+            
+            if (canFlowLeft && canFlowRight) {
+                const dest = Math.random() > 0.5 ? left : right;
+                if (grid[dest] === 0) moveParticle(idx, dest);
+                else swapParticles(idx, dest);
+            } else if (canFlowLeft) {
+                if (grid[left] === 0) moveParticle(idx, left);
+                else swapParticles(idx, left);
+            } else if (canFlowRight) {
+                if (grid[right] === 0) moveParticle(idx, right);
+                else swapParticles(idx, right);
+            }
+        }
+
+        function handleSteam(x, y, idx) {
+            if (checkPortal(x, y, idx)) return;
+            
+            if (life[idx] <= 0) {
+                // 30% chance to condense back to water, 70% to dissipate to air
+                if (Math.random() < 0.3) {
+                    grid[idx] = 2; // Water
+                    life[idx] = 0;
+                } else {
+                    grid[idx] = 0; // Dissipate
+                }
+                return;
+            }
+            life[idx]--;
+            
+            // Steam rises and disperses
+            if (y > 0) {
+                const up = idx - gridWidth;
+                const ul = up - 1;
+                const ur = up + 1;
+                const canUp = (grid[up] === 0);
+                const canLeft = (x > 0 && grid[ul] === 0);
+                const canRight = (x < gridWidth - 1 && grid[ur] === 0);
+                
+                if (canUp && Math.random() < 0.5) {
+                    moveParticle(idx, up);
+                    return;
+                }
+                
+                if (canLeft && canRight) {
+                    const dest = Math.random() > 0.5 ? ul : ur;
+                    moveParticle(idx, dest);
+                    return;
+                } else if (canLeft) {
+                    moveParticle(idx, ul);
+                    return;
+                } else if (canRight) {
+                    moveParticle(idx, ur);
+                    return;
+                }
+            }
+            
+            // horizontal dispersion
+            const left = idx - 1;
+            const right = idx + 1;
+            const canFlowLeft = (x > 0 && grid[left] === 0);
+            const canFlowRight = (x < gridWidth - 1 && grid[right] === 0);
+            
+            if (canFlowLeft && canFlowRight) {
+                const dest = Math.random() > 0.5 ? left : right;
+                moveParticle(idx, dest);
+            } else if (canFlowLeft) {
+                moveParticle(idx, left);
+            } else if (canFlowRight) {
+                moveParticle(idx, right);
+            }
+        }
+
         // Processing spouts
         function updateSpouts() {
             // Emitters trigger every 2 frames to avoid clog
@@ -1285,7 +1538,7 @@
             
             for (let i = 0; i < gridLength; i++) {
                 const type = grid[i];
-                let color = colors[type];
+                let color = colors[type] || [0, 0, 0, 0];
                 
                 if (type !== 0) activeCount++;
                 
